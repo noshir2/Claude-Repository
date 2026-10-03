@@ -1,0 +1,5 @@
+# Your real trade history and reports stay on your machine, never in git
+data/
+wheel_report.html
+__pycache__/
+.pytest_cache/
