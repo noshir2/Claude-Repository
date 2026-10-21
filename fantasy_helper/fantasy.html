@@ -1,0 +1,2564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fantasy Lineup Helper</title>
+<style>
+:root{--bg:#fbfaf7;--fg:#1f2328;--mute:#5d6671;--line:#d9d6cf;--panel:#f1efe9;--accent:#1b5e9e;--accent-fg:#ffffff;
+      --good:#1b7f3b;--warn:#9a6700;--bad:#b42318;--focus:#7fb3e6;
+      --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--font);margin:0}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+.page{overflow-wrap:anywhere;max-width:760px;margin:0 auto;padding-block:16px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--accent)}
+h1{font-size:1.7em;line-height:1.2;margin:.3em 0 .2em}
+h2{font-size:1.25em;margin:1.6em 0 .4em}
+h3{font-size:1.05em;margin:1.1em 0 .3em}
+p{margin:.4em 0}
+.mute{color:var(--mute);font-size:.93em}
+.small{font-size:.9em}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin:.8em 0}
+.how{border-left:3px solid var(--line);padding:4px 10px;margin:.5em 0;color:var(--mute);font-size:.93em}
+label{display:block;font-weight:600;margin:.8em 0 .15em}
+label .mute{font-weight:400;display:block}
+input[type=text],input[type=number],textarea,select{width:100%;min-height:44px;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input[type=file]{width:100%;font:inherit;color:var(--fg);padding:8px 0}
+textarea{min-height:120px;resize:vertical}
+input[type=number]{max-width:160px}
+input[type=checkbox]{width:22px;height:22px;vertical-align:middle;margin:0 8px 0 0}
+.check{display:block;font-weight:400;margin:.35em 0;padding:4px 0}
+button{font:inherit;min-height:44px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:8px 16px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);font-weight:600;font-size:1.05em}
+button.big{width:100%;padding:12px 16px}
+button[aria-pressed=true]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row > *{flex:1 1 auto}
+@media (min-width:600px){button.big{width:auto;min-width:260px}}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px;margin:.6em 0}
+.tabs button{flex:1 1 auto}
+.tabs button[aria-selected=true]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.verdict{font-size:1.12em;font-weight:600;margin:.6em 0}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:.7em 0;white-space:pre-wrap}
+.box.bad{border-color:var(--bad);color:var(--bad)}
+.box.warn{border-color:var(--warn)}
+.box.good{border-color:var(--good)}
+.box b{color:var(--fg)}
+.wrap{overflow-x:auto;margin:.5em 0}
+table{border-collapse:collapse;width:100%;min-width:480px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.tot td{font-weight:700}
+ul{padding-left:1.2em;margin:.3em 0}
+li{margin:.2em 0}
+.status li{list-style:none;margin:.25em 0}
+.status .ok{color:var(--good)}
+.status .missing{color:var(--mute)}
+.status .problem{color:var(--bad)}
+.fields{display:grid;grid-template-columns:1fr;gap:4px 16px}
+@media (min-width:560px){.fields{grid-template-columns:1fr 1fr}}
+.field label{margin:.5em 0 .1em}
+.per{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.per input{max-width:110px}
+pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;overflow-x:auto;font-size:.9em}
+.banner{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;margin:.6em 0}
+.neg{color:var(--bad)}
+.pos{color:var(--good)}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+<p><a href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a></p>
+
+<h1>Fantasy Lineup Helper</h1>
+<p>Tells you who to start this week, whether a trade helps your starting lineup, and which free-agent pickup adds the most, using the projection files you download from FantasyPros and your own league's scoring.</p>
+<p class="mute">Nothing you type or choose leaves your device. Close the page and it is gone, except your team lists, league names and scoring settings, which it remembers in this browser.</p>
+
+<div class="row" style="margin:1em 0">
+  <button class="primary big" id="btn-example" type="button">Try it with example data</button>
+  <button class="big" id="btn-example2" type="button">Try the second example league</button>
+</div>
+<div class="banner" id="example-banner" hidden>Example data is loaded: made-up players, made-up files, a made-up league. Nothing you change while the example is loaded is saved. Your own saved teams are untouched: press one of the two league buttons in step 2 (your own teams), or choose your own files in step 1, and the page brings your own team, scoring and files back.</div>
+
+<h2>1. Your projection files</h2>
+<div class="how">How: on FantasyPros, open <b>Projections</b>, pick the week, open each position (QB, RB, WR, TE, K, DST) and press the download or export button; the names of buttons change from time to time. Save all six files where you can find them, then choose them all here at once (hold Ctrl on a PC, or pick them one at a time).</div>
+<div class="card">
+  <label for="files-week">Choose the six projection files for this week<span class="mute">Each file is a spreadsheet file (.csv). The page knows which is which by the position word in the file name.</span></label>
+  <input type="file" id="files-week" multiple accept=".csv,text/csv">
+  <ul class="status" id="status-week"></ul>
+  <div class="box bad" id="err-files" hidden></div>
+  <p class="mute" id="next-note" hidden></p>
+  <p class="mute" id="kind-note"></p>
+  <button type="button" id="btn-clear-files" class="small">Remove these files</button>
+
+  <label for="files-ros" style="margin-top:1.4em">Rest-of-season files (optional, for trades)<span class="mute">Same download, but choose the rest-of-season view instead of a week. Only the trade check uses them.</span></label>
+  <input type="file" id="files-ros" multiple accept=".csv,text/csv">
+  <ul class="status" id="status-ros"></ul>
+  <div class="box bad" id="err-ros" hidden></div>
+</div>
+
+<h2>2. Your team</h2>
+<div class="how">How: type or paste the names from your Yahoo roster page, one per line, name only (no injury letter, no opponent). Spelling does not have to be perfect; the page shows you what it matched. You can add a comma and the position after a name (QB, RB, WR, TE, K or DEF), which helps when two players share a name. Lines pasted straight from Yahoo like "Passer Baker Dal - QB" are fine: the page drops the team and position and shows you what it read. For a defense write the city or team name, for example "Chicago D/ST".</div>
+<div class="card">
+  <div class="row">
+    <span class="mute" style="flex:0 0 auto">Which league?</span>
+    <button type="button" id="btn-league-0" aria-pressed="true">League 1</button>
+    <button type="button" id="btn-league-1" aria-pressed="false">League 2</button>
+  </div>
+  <label for="league-name">Name this league<span class="mute">Only a label for the button above, so you know which team you are looking at.</span></label>
+  <input type="text" id="league-name" maxlength="40">
+  <label for="roster">Your players, one per line<span class="mute">Example: Passer Baker, QB</span></label>
+  <textarea id="roster" spellcheck="false" placeholder="Passer Baker, QB&#10;Runner Able, RB&#10;Catcher Able, WR&#10;Sample City D/ST, DEF"></textarea>
+  <p class="mute" id="example-note" hidden>This is the example team, and what you type here is not saved. Press one of the league buttons above to get your own team back.</p>
+  <div class="box bad" id="err-roster" hidden></div>
+</div>
+
+<h2>3. Your league's scoring and starting spots</h2>
+<div class="how">These start as Yahoo's default settings (half a point per catch). Check your league's settings page on Yahoo; defaults differ from league to league and a commissioner can change anything. The page remembers what you type here for each league.</div>
+<div class="card">
+  <div class="row">
+    <button type="button" id="btn-preset">Reset to Yahoo default (half point per catch)</button>
+  </div>
+  <h3>Starting spots</h3>
+  <p class="mute">How many players you start at each spot. Yahoo's default is 1 QB, 2 RB, 2 WR, 1 TE, 1 flex (RB/WR/TE), 1 K, 1 DEF.</p>
+  <div class="fields" id="slot-fields"></div>
+  <p style="margin-top:.8em"><b>The flex spot can be filled by:</b></p>
+  <div class="row" id="flex-fields"></div>
+  <div id="scoring-fields"></div>
+  <div class="box bad" id="err-settings" hidden></div>
+</div>
+
+<div style="margin:1.2em 0">
+  <button class="primary big" id="btn-run" type="button">Show my best lineup</button>
+  <p class="mute" id="updated-note" hidden></p>
+</div>
+
+<div id="results" hidden>
+<h2 id="results-heading">What the page says</h2>
+<div class="tabs" role="tablist">
+  <button type="button" role="tab" id="tab-lineup" aria-selected="true" aria-controls="panel-lineup">Who do I start?</button>
+  <button type="button" role="tab" id="tab-trade" aria-selected="false" aria-controls="panel-trade">Is this trade good?</button>
+  <button type="button" role="tab" id="tab-pickup" aria-selected="false" aria-controls="panel-pickup">Which pickup helps most?</button>
+</div>
+
+<div id="panel-lineup" role="tabpanel" aria-labelledby="tab-lineup">
+  <div id="lineup-out"></div>
+</div>
+
+<div id="panel-trade" role="tabpanel" aria-labelledby="tab-trade" hidden>
+  <p>Compares your best starting lineup before and after the swap. The number that matters is the change in your <b>starting lineup's</b> total, not the players' raw points: a player who would sit on your bench adds nothing.</p>
+  <div class="card">
+    <p><b>Players you give</b> <span class="mute">(tick them)</span></p>
+    <div id="give-list"></div>
+    <label for="get-names">Players you get<span class="mute">One per line, spelled the way FantasyPros spells them.</span></label>
+    <textarea id="get-names" spellcheck="false" placeholder="Catcher Charlie"></textarea>
+    <button type="button" class="primary big" id="btn-trade" style="margin-top:.8em">Check this trade</button>
+  </div>
+  <div class="box bad" id="err-trade" hidden></div>
+  <div id="trade-out"></div>
+</div>
+
+<div id="panel-pickup" role="tabpanel" aria-labelledby="tab-pickup" hidden>
+  <p>Ranks free agents by how much they would raise your best starting lineup, not by their raw points. A 15-point receiver who would sit behind your starters ranks below a 10-point kicker who would start.</p>
+  <div class="card">
+    <label for="add-name">One player you are thinking of adding<span class="mute">Optional if you fill the list below.</span></label>
+    <input type="text" id="add-name" placeholder="Catcher Baker" spellcheck="false">
+    <label for="drop-select">Who would you drop?</label>
+    <select id="drop-select"><option value="">Let the page pick my weakest bench player</option></select>
+    <label for="cand-names">Or compare several free agents<span class="mute">One per line, as spelled on FantasyPros.</span></label>
+    <textarea id="cand-names" spellcheck="false" placeholder="Catcher Baker&#10;Runner Echo"></textarea>
+    <button type="button" class="primary big" id="btn-pickup" style="margin-top:.8em">Rank the pickups</button>
+  </div>
+  <div class="box bad" id="err-pickup" hidden></div>
+  <div id="pickup-out"></div>
+</div>
+</div>
+
+<h2>What this can and cannot tell you</h2>
+<ul class="small">
+  <li>The projections are FantasyPros' opinion as of your download. This page only ranks them under your league's scoring; it does not predict games.</li>
+  <li>It only knows what is in the files: no injuries, no bye weeks, no opponents. A player on bye is simply missing from the file, so he shows up under "not projected this week".</li>
+  <li>Some scoring cannot be worked out from the file and is ignored: 2-point conversions, return touchdowns, blocked kicks, field-goal distances, defensive yards allowed. Expect small differences from your league's final numbers.</li>
+  <li>Kickers: the file has no field-goal distances, so every field goal is worth one average number (3.3 estimates Yahoo's 3, 4 and 5). FantasyPros' own column uses a flat 3, so kickers show a small, expected "please check" note.</li>
+  <li>The floor and ceiling for a defense are shaky: FantasyPros' high and low rows for defenses do not always agree with the main row.</li>
+  <li>The file layout was built from FantasyPros' pages and from public copies of these files, 2019 to 2026. If FantasyPros changes its columns, the page says which headings it found and which it expected.</li>
+  <li>Football only. The trade check does not look at bye-week coverage after the trade.</li>
+</ul>
+
+<h2>Where the numbers come from</h2>
+<ul class="small">
+  <li><b>Projected</b> points are recomputed by this page from the stat columns in the file (yards, touchdowns, catches and so on) with the points in step 3. <b>Floor</b> uses the "low" row FantasyPros ships under each player (a bad game), <b>ceiling</b> the "high" row (a great game) or, when there is none, projection plus the gap down to the floor.</li>
+  <li>File columns: the FantasyPros projection pages (fantasypros.com/nfl/projections/qb.php and the other positions) and more than twenty public copies of exported files, 2019 to 2026.</li>
+  <li>What FantasyPros' own points column (called FPTS in the file) is made of: fantasypros.com/scoring-settings/, checked by arithmetic on exported rows. It follows whichever tab (Standard, Half PPR or PPR; PPR means a point per catch) was selected when you downloaded.</li>
+  <li>Yahoo's default starting spots and scoring: Yahoo's help page "Default league settings in Fantasy Football" (help.yahoo.com/kb/SLN6489.html) and the flex definition (help.yahoo.com/kb/SLN6500.html). That page is undated and a few years old; verify every number against your league's settings page for this season.</li>
+  <li>The best lineup is an exact search over every legal way to fill the spots, so the flex really is the best leftover RB, WR or TE. Ties go to the higher floor. The Python version of this tool in the same folder is the tested reference and gives the same numbers (advanced users only).</li>
+  <li>FantasyPros' Terms of Use allow one personal copy of their data. Download the files yourself and do not publish them. The example players and teams on this page are invented.</li>
+</ul>
+</div>
+
+<!-- Sample data: byte-identical copies of the files under fantasy_helper/samples (tests/test_fantasy_page.py checks this). -->
+<script type="text/plain" id="sample-week8-QB">"Player","Team","ATT","CMP","YDS","TDS","INTS","ATT","YDS","TDS","FL","FPTS"
+" ","","",""
+"Passer Able","BUF","36.0","24.0","275.0","2.0","0.7","5.0","25.0","0.3","0.2","22.2"
+"","high","42.5","28.3","324.5","2.5","0.6","5.9","29.5","0.4","0.2","27.4"
+"","low","29.5","19.7","225.5","1.5","0.8","4.1","20.5","0.2","0.2","16.9"
+"Passer Baker","DAL","38.0","25.0","290.0","1.9","0.8","3.0","10.0","0.1","0.1","19.8"
+"","low","32.3","21.2","246.5","1.5","0.9","2.5","8.5","0.1","0.1","15.9"
+"A.J. Sample Jr.","PHI","33.0","22.0","240.0","1.6","0.6","8.0","45.0","0.4","0.2","21.9"
+"","low","25.7","17.2","187.2","1.1","0.7","6.2","35.1","0.3","0.2","15.7"
+"Passer Delta","KC","34.0","22.0","250.0","1.7","0.7","4.0","15.0","0.2","0.1","18.6"
+"","low","28.9","18.7","212.5","1.3","0.8","3.4","12.8","0.2","0.1","14.9"
+"Passer Echo","SEA","32.0","21.0","230.0","1.5","0.8","6.0","30.0","0.3","0.2","18.8"
+"","low","24.0","15.8","172.5","0.9","1.0","4.5","22.5","0.2","0.2","12.5"
+"Passer Foxtrot","MIA","31.0","20.0","220.0","1.4","0.9","2.0","5.0","0.1","0.1","14.4"
+"","low","24.8","16.0","176.0","1.0","1.1","1.6","4.0","0.1","0.1","10.5"
+"Passer Golf","DEN","30.0","19.0","210.0","1.3","0.8","3.0","12.0","0.1","0.1","14.4"
+"","low","24.0","15.2","168.0","0.9","1.0","2.4","9.6","0.1","0.1","10.5"
+"Passer Hotel","ATL","29.0","18.0","200.0","1.2","0.9","5.0","20.0","0.2","0.2","14.7"
+"","low","21.8","13.5","150.0","0.8","1.1","3.8","15.0","0.1","0.2","9.6"
+"Passer India","CAR","28.0","17.0","190.0","1.1","1.0","2.0","6.0","0.1","0.1","12.0"
+"","low","22.4","13.6","152.0","0.8","1.2","1.6","4.8","0.1","0.1","8.6"
+"Passer Juliet","NYG","26.0","16.0","175.0","1.0","1.0","4.0","14.0","0.1","0.1","11.8"
+"","low","18.2","11.2","122.5","0.6","1.3","2.8","9.8","0.1","0.1","6.8"
+</script>
+<script type="text/plain" id="sample-week8-RB">"Player","Team","ATT","YDS","TDS","REC","YDS","TDS","FL","FPTS"
+" ","","",""
+"Runner Able","SF","20.0","95.0","0.8","3.0","22.0","0.1","0.1","18.4"
+"","high","23.6","112.1","1.0","3.5","26.0","0.1","0.1","22.3"
+"","low","16.4","77.9","0.6","2.5","18.0","0.1","0.1","14.5"
+"Runner Baker","DET","17.0","78.0","0.6","4.0","30.0","0.2","0.1","17.4"
+"","low","13.6","62.4","0.4","3.2","24.0","0.1","0.1","13.4"
+"Runner Charlie","GB","15.0","65.0","0.5","3.0","20.0","0.1","0.1","13.4"
+"","low","12.8","55.2","0.4","2.5","17.0","0.1","0.1","11.1"
+"Runner Delta","LAR","14.0","60.0","0.4","4.0","28.0","0.1","0.1","13.6"
+"","low","9.8","42.0","0.2","2.8","19.6","0.1","0.1","8.9"
+"Runner Echo","MIN","12.0","52.0","0.4","2.0","15.0","0.1","0.1","10.5"
+"","low","9.0","39.0","0.2","1.5","11.2","0.1","0.1","7.4"
+"Runner Foxtrot","TB","11.0","48.0","0.3","3.0","22.0","0.1","0.1","10.7"
+"","low","8.8","38.4","0.2","2.4","17.6","0.1","0.1","8.2"
+"Runner Golf","CIN","10.0","42.0","0.3","2.0","14.0","0.0","0.1","8.2"
+"","low","7.5","31.5","0.2","1.5","10.5","0.0","0.1","5.8"
+"Runner Hotel","PIT","9.0","38.0","0.2","2.0","12.0","0.1","0.0","7.8"
+"","low","6.8","28.5","0.1","1.5","9.0","0.1","0.0","5.6"
+"Runner India","CLE","8.0","33.0","0.2","1.0","8.0","0.0","0.1","5.6"
+"","low","5.6","23.1","0.1","0.7","5.6","0.0","0.1","3.6"
+"Runner Kilo","NO","7.0","28.0","0.1","2.0","15.0","0.0","0.0","5.9"
+"","low","4.9","19.6","0.1","1.4","10.5","0.0","0.0","4.0"
+"Runner Lima","LV","6.0","24.0","0.1","1.0","6.0","0.0","0.0","4.1"
+"","low","3.9","15.6","0.0","0.7","3.9","0.0","0.0","2.6"
+</script>
+<script type="text/plain" id="sample-week8-WR">"Player","Team","REC","YDS","TDS","ATT","YDS","TDS","FL","FPTS"
+" ","","",""
+"Catcher Able","CIN","7.0","95.0","0.7","0.5","3.0","0.0","0.1","17.3"
+"","low","5.7","77.9","0.5","0.4","2.5","0.0","0.1","13.7"
+"Catcher Baker","MIN","6.5","85.0","0.6","0.0","0.0","0.0","0.1","15.2"
+"","low","5.2","68.0","0.4","0.0","0.0","0.0","0.1","11.7"
+"Catcher Charlie","DAL","6.0","80.0","0.5","1.0","6.0","0.0","0.0","14.6"
+"","high","7.2","96.0","0.7","1.2","7.2","0.0","0.0","17.8"
+"","low","4.8","64.0","0.3","0.8","4.8","0.0","0.0","11.4"
+"Catcher Delta","HOU","5.5","70.0","0.5","0.0","0.0","0.0","0.1","12.6"
+"","low","3.6","45.5","0.2","0.0","0.0","0.0","0.1","7.5"
+"Catcher Echo","LAC","5.0","65.0","0.4","0.0","0.0","0.0","0.0","11.4"
+"","low","3.8","48.8","0.2","0.0","0.0","0.0","0.0","8.2"
+"Catcher Foxtrot","JAX","5.5","68.0","0.4","0.5","4.0","0.0","0.1","12.2"
+"","low","4.8","59.8","0.3","0.4","3.5","0.0","0.1","10.5"
+"Catcher Golf","ARI","4.5","55.0","0.3","0.0","0.0","0.0","0.0","9.6"
+"","low","3.4","41.2","0.2","0.0","0.0","0.0","0.0","6.9"
+"Catcher Hotel","IND","4.0","50.0","0.3","0.0","0.0","0.0","0.1","8.6"
+"","low","3.0","37.5","0.2","0.0","0.0","0.0","0.1","6.1"
+"Catcher India","WAS","4.0","45.0","0.2","0.0","0.0","0.0","0.0","7.7"
+"","low","3.0","33.8","0.1","0.0","0.0","0.0","0.0","5.6"
+"Catcher Juliet","TEN","3.5","42.0","0.2","0.0","0.0","0.0","0.0","7.2"
+"","low","2.4","29.4","0.1","0.0","0.0","0.0","0.0","4.8"
+"Catcher Kilo","NE","3.0","38.0","0.2","0.0","0.0","0.0","0.0","6.5"
+"","low","2.1","26.6","0.1","0.0","0.0","0.0","0.0","4.4"
+"Catcher Lima","NYJ","2.5","30.0","0.1","0.0","0.0","0.0","0.0","4.8"
+"","low","1.6","19.5","0.0","0.0","0.0","0.0","0.0","3.0"
+</script>
+<script type="text/plain" id="sample-week8-TE">"Player","Team","REC","YDS","TDS","FL","FPTS"
+" ","",""
+"Blocker Able","KC","6.0","70.0","0.6","0.0","13.6"
+"","high","7.1","82.6","0.8","0.0","16.4"
+"","low","4.9","57.4","0.4","0.0","10.8"
+"Blocker Baker","BAL","5.0","55.0","0.5","0.1","10.8"
+"","low","4.0","44.0","0.3","0.1","8.3"
+"Blocker Charlie","LV","4.5","50.0","0.4","0.0","9.7"
+"","low","3.6","40.0","0.3","0.0","7.5"
+"Blocker Delta","DET","4.0","45.0","0.3","0.0","8.3"
+"","low","3.0","33.8","0.2","0.0","6.0"
+"Blocker Echo","SF","3.5","40.0","0.3","0.1","7.3"
+"","low","2.6","30.0","0.2","0.1","5.2"
+"Blocker Foxtrot","PHI","3.0","35.0","0.2","0.0","6.2"
+"","low","2.2","26.2","0.1","0.0","4.5"
+"Blocker Golf","ATL","3.0","30.0","0.2","0.0","5.7"
+"","low","2.1","21.0","0.1","0.0","3.8"
+"Blocker Hotel","CHI","2.5","26.0","0.1","0.0","4.5"
+"","low","1.8","18.2","0.1","0.0","3.0"
+"Blocker India","GB","2.0","22.0","0.1","0.0","3.8"
+"","low","1.4","15.4","0.1","0.0","2.6"
+"Blocker Juliet","DEN","1.5","18.0","0.1","0.0","3.1"
+"","low","1.0","11.7","0.0","0.0","1.9"
+</script>
+<script type="text/plain" id="sample-week8-K">"Player","Team","FG","FGA","XPT","FPTS"
+" ","","",""
+"Kicker Able","BAL","2.2","2.5","2.8","9.4"
+"","high","2.6","2.2","3.4","11.3"
+"","low","1.8","3.0","2.2","7.5"
+"Kicker Baker","DAL","2.0","2.3","2.5","8.5"
+"","low","1.6","2.8","2.0","6.8"
+"Kicker Charlie","KC","1.9","2.2","2.4","8.1"
+"","low","1.5","2.6","1.9","6.5"
+"Kicker Delta","BUF","1.8","2.1","2.2","7.6"
+"","low","1.4","2.5","1.8","6.1"
+"Kicker Echo","MIA","1.7","2.0","2.0","7.1"
+"","low","1.3","2.5","1.5","5.3"
+"Kicker Foxtrot","LAC","1.6","1.9","2.1","6.9"
+"","low","1.2","2.4","1.6","5.2"
+"Kicker Golf","SEA","1.5","1.8","1.9","6.4"
+"","low","1.1","2.2","1.4","4.8"
+"Kicker Hotel","GB","1.4","1.7","1.8","6.0"
+"","low","1.0","2.1","1.4","4.5"
+"Kicker India","TB","1.3","1.6","1.6","5.5"
+"","low","0.9","2.1","1.1","3.8"
+"Kicker Juliet","NO","1.2","1.5","1.5","5.1"
+"","low","0.8","2.0","1.0","3.6"
+</script>
+<script type="text/plain" id="sample-week8-DST">"Player","Team","SACK","INT","FR","FF","TD","SAFETY","PA","YDS_AGN","FPTS"
+" ","","",""
+"Sample City Foxes","","3.2","1.0","0.7","1.1","0.2","0.1","17.0","320.0","9.0"
+"","high","3.8","1.3","0.9","1.4","0.3","0.1","15.3","288.0","11.1"
+"","low","2.6","0.7","0.5","0.8","0.1","0.1","20.4","384.0","6.9"
+"Test Town Otters","","2.9","0.9","0.6","1.0","0.1","0.1","18.5","330.0","8.0"
+"","low","2.3","0.6","0.4","0.7","0.1","0.1","22.2","396.0","5.2"
+"Mock Harbor Herons","","2.7","0.8","0.6","0.9","0.1","0.1","19.0","335.0","7.3"
+"","low","2.2","0.6","0.4","0.6","0.1","0.1","22.8","402.0","4.7"
+"Demo Valley Lynx","","2.5","0.8","0.5","0.9","0.1","0.1","20.5","340.0","6.8"
+"","low","2.0","0.6","0.3","0.6","0.1","0.0","24.6","408.0","4.3"
+"Placeholder Plains Bison","","2.4","0.7","0.5","0.8","0.1","0.1","21.0","345.0","5.5"
+"","low","1.8","0.4","0.3","0.5","0.1","0.0","26.2","431.2","3.7"
+"Example Ridge Elk","","2.2","0.7","0.5","0.8","0.1","0.0","22.0","350.0","5.2"
+"","low","1.7","0.4","0.3","0.5","0.1","0.0","27.5","437.5","3.5"
+"Dummy Lake Pike","","2.0","0.6","0.4","0.7","0.1","0.0","23.5","355.0","4.6"
+"","low","1.5","0.4","0.2","0.4","0.1","0.0","29.4","443.8","2.1"
+"Fixture Falls Cranes","","1.9","0.6","0.4","0.7","0.1","0.0","24.0","360.0","4.2"
+"","low","1.3","0.3","0.2","0.4","0.0","0.0","31.2","468.0","1.6"
+"Specimen Springs Moose","","1.8","0.5","0.4","0.6","0.1","0.0","25.0","365.0","3.9"
+"","low","1.3","0.3","0.2","0.3","0.0","0.0","32.5","474.5","1.4"
+"Stub Creek Wolves","","1.6","0.5","0.3","0.6","0.0","0.0","27.0","375.0","3.2"
+"","low","1.1","0.3","0.2","0.3","0.0","0.0","35.1","487.5","-2.0"
+</script>
+<script type="text/plain" id="sample-ros-QB">"Player","Team","ATT","CMP","YDS","TDS","INTS","ATT","YDS","TDS","FL","FPTS"
+" ","","",""
+"Passer Able","BUF","360.0","240.0","2,750.0","20.0","7.0","50.0","250.0","3.0","2.0","222.0"
+"","high","424.8","283.2","3,245.0","25.4","6.4","59.0","295.0","3.8","1.8","273.8"
+"","low","295.2","196.8","2,255.0","14.6","8.3","41.0","205.0","2.2","2.4","169.3"
+"Passer Baker","DAL","380.0","250.0","2,900.0","19.0","8.0","30.0","100.0","1.0","1.0","198.0"
+"","low","323.0","212.5","2,465.0","14.7","9.2","25.5","85.0","0.8","1.1","159.2"
+"A.J. Sample Jr.","PHI","330.0","220.0","2,400.0","16.0","6.0","80.0","450.0","4.0","2.0","219.0"
+"","low","257.4","171.6","1,872.0","10.7","7.3","62.4","351.0","2.7","2.4","156.7"
+"Passer Delta","KC","340.0","220.0","2,500.0","17.0","7.0","40.0","150.0","2.0","1.0","186.0"
+"","low","289.0","187.0","2,125.0","13.2","8.0","34.0","127.5","1.6","1.1","149.4"
+"Passer Echo","SEA","320.0","210.0","2,300.0","15.0","8.0","60.0","300.0","3.0","2.0","188.0"
+"","low","240.0","157.5","1,725.0","9.4","10.0","45.0","225.0","1.9","2.5","125.2"
+"Passer Foxtrot","MIA","310.0","200.0","2,200.0","14.0","9.0","20.0","50.0","1.0","1.0","144.0"
+"","low","248.0","160.0","1,760.0","9.8","10.8","16.0","40.0","0.7","1.2","104.6"
+"Passer Golf","DEN","300.0","190.0","2,100.0","13.0","8.0","30.0","120.0","1.0","1.0","144.0"
+"","low","240.0","152.0","1,680.0","9.1","9.6","24.0","96.0","0.7","1.2","105.4"
+"Passer Hotel","ATL","290.0","180.0","2,000.0","12.0","9.0","50.0","200.0","2.0","2.0","147.0"
+"","low","217.5","135.0","1,500.0","7.5","11.2","37.5","150.0","1.2","2.5","96.2"
+"Passer India","CAR","280.0","170.0","1,900.0","11.0","10.0","20.0","60.0","1.0","1.0","120.0"
+"","low","224.0","136.0","1,520.0","7.7","12.0","16.0","48.0","0.7","1.2","86.2"
+"Passer Juliet","NYG","260.0","160.0","1,750.0","10.0","10.0","40.0","140.0","1.0","1.0","118.0"
+"","low","182.0","112.0","1,225.0","5.5","13.0","28.0","98.0","0.6","1.3","68.5"
+</script>
+<script type="text/plain" id="sample-ros-RB">"Player","Team","ATT","YDS","TDS","REC","YDS","TDS","FL","FPTS"
+" ","","",""
+"Runner Able","SF","200.0","950.0","8.0","30.0","220.0","1.0","1.0","184.0"
+"","high","236.0","1,121.0","10.2","35.4","259.6","1.3","0.9","222.5"
+"","low","164.0","779.0","5.8","24.6","180.4","0.7","1.2","145.3"
+"Runner Baker","DET","170.0","780.0","6.0","40.0","300.0","2.0","1.0","174.0"
+"","low","136.0","624.0","4.2","32.0","240.0","1.4","1.2","133.6"
+"Runner Charlie","GB","165.0","715.0","5.5","33.0","220.0","1.1","1.1","147.4"
+"","low","140.2","607.8","4.3","28.1","187.0","0.9","1.3","121.7"
+"Runner Delta","LAR","126.0","540.0","3.6","36.0","252.0","0.9","0.9","122.4"
+"","low","88.2","378.0","2.0","25.2","176.4","0.5","1.2","80.5"
+"Runner Echo","MIN","120.0","520.0","4.0","20.0","150.0","1.0","1.0","105.0"
+"","low","90.0","390.0","2.5","15.0","112.5","0.6","1.2","74.0"
+"Runner Foxtrot","TB","110.0","480.0","3.0","30.0","220.0","1.0","1.0","107.0"
+"","low","88.0","384.0","2.1","24.0","176.0","0.7","1.2","82.4"
+"Runner Golf","CIN","100.0","420.0","3.0","20.0","140.0","0.0","1.0","82.0"
+"","low","75.0","315.0","1.9","15.0","105.0","0.0","1.2","58.2"
+"Runner Hotel","PIT","90.0","380.0","2.0","20.0","120.0","1.0","0.0","78.0"
+"","low","67.5","285.0","1.2","15.0","90.0","0.6","0.0","56.2"
+"Runner India","CLE","80.0","330.0","2.0","10.0","80.0","0.0","1.0","56.0"
+"","low","56.0","231.0","1.1","7.0","56.0","0.0","1.3","36.2"
+"Runner Kilo","NO","70.0","280.0","1.0","20.0","150.0","0.0","0.0","59.0"
+"","low","49.0","196.0","0.6","14.0","105.0","0.0","0.0","40.4"
+"Runner Lima","LV","60.0","240.0","1.0","10.0","60.0","0.0","0.0","41.0"
+"","low","39.0","156.0","0.5","6.5","39.0","0.0","0.0","25.6"
+</script>
+<script type="text/plain" id="sample-ros-WR">"Player","Team","REC","YDS","TDS","ATT","YDS","TDS","FL","FPTS"
+" ","","",""
+"Catcher Able","CIN","70.0","950.0","7.0","5.0","30.0","0.0","1.0","173.0"
+"","low","57.4","779.0","5.1","4.1","24.6","0.0","1.2","137.4"
+"Catcher Baker","MIN","65.0","850.0","6.0","0.0","0.0","0.0","1.0","151.5"
+"","low","52.0","680.0","4.2","0.0","0.0","0.0","1.2","116.8"
+"Catcher Charlie","DAL","51.0","680.0","4.2","8.5","51.0","0.0","0.0","124.1"
+"","high","61.2","816.0","5.5","10.2","61.2","0.0","0.0","151.5"
+"","low","40.8","544.0","3.0","6.8","40.8","0.0","0.0","96.7"
+"Catcher Delta","HOU","52.2","665.0","4.8","0.0","0.0","0.0","1.0","119.2"
+"","low","34.0","432.2","2.3","0.0","0.0","0.0","1.3","71.2"
+"Catcher Echo","LAC","50.0","650.0","4.0","0.0","0.0","0.0","0.0","114.0"
+"","low","37.5","487.5","2.5","0.0","0.0","0.0","0.0","82.5"
+"Catcher Foxtrot","JAX","55.0","680.0","4.0","5.0","40.0","0.0","1.0","121.5"
+"","low","48.4","598.4","3.3","4.4","35.2","0.0","1.1","105.0"
+"Catcher Golf","ARI","45.0","550.0","3.0","0.0","0.0","0.0","0.0","95.5"
+"","low","33.8","412.5","1.9","0.0","0.0","0.0","0.0","69.4"
+"Catcher Hotel","IND","40.0","500.0","3.0","0.0","0.0","0.0","1.0","86.0"
+"","low","30.0","375.0","1.9","0.0","0.0","0.0","1.2","61.2"
+"Catcher India","WAS","40.0","450.0","2.0","0.0","0.0","0.0","0.0","77.0"
+"","low","30.0","337.5","1.2","0.0","0.0","0.0","0.0","56.2"
+"Catcher Juliet","TEN","35.0","420.0","2.0","0.0","0.0","0.0","0.0","71.5"
+"","low","24.5","294.0","1.1","0.0","0.0","0.0","0.0","48.3"
+"Catcher Kilo","NE","30.0","380.0","2.0","0.0","0.0","0.0","0.0","65.0"
+"","low","21.0","266.0","1.1","0.0","0.0","0.0","0.0","43.7"
+"Catcher Lima","NYJ","25.0","300.0","1.0","0.0","0.0","0.0","0.0","48.5"
+"","low","16.2","195.0","0.5","0.0","0.0","0.0","0.0","30.5"
+</script>
+<script type="text/plain" id="sample-ros-TE">"Player","Team","REC","YDS","TDS","FL","FPTS"
+" ","",""
+"Blocker Able","KC","60.0","700.0","6.0","0.0","136.0"
+"","high","70.8","826.0","7.6","0.0","163.7"
+"","low","49.2","574.0","4.4","0.0","108.3"
+"Blocker Baker","BAL","50.0","550.0","5.0","1.0","108.0"
+"","low","40.0","440.0","3.5","1.2","82.6"
+"Blocker Charlie","LV","45.0","500.0","4.0","0.0","96.5"
+"","low","36.0","400.0","2.8","0.0","74.8"
+"Blocker Delta","DET","40.0","450.0","3.0","0.0","83.0"
+"","low","30.0","337.5","1.9","0.0","60.0"
+"Blocker Echo","SF","35.0","400.0","3.0","1.0","73.5"
+"","low","26.2","300.0","1.9","1.2","51.9"
+"Blocker Foxtrot","PHI","30.0","350.0","2.0","0.0","62.0"
+"","low","22.5","262.5","1.2","0.0","45.0"
+"Blocker Golf","ATL","30.0","300.0","2.0","0.0","57.0"
+"","low","21.0","210.0","1.1","0.0","38.1"
+"Blocker Hotel","CHI","25.0","260.0","1.0","0.0","44.5"
+"","low","17.5","182.0","0.6","0.0","30.2"
+"Blocker India","GB","20.0","220.0","1.0","0.0","38.0"
+"","low","14.0","154.0","0.6","0.0","25.7"
+"Blocker Juliet","DEN","15.0","180.0","1.0","0.0","31.5"
+"","low","9.8","117.0","0.5","0.0","19.4"
+</script>
+<script type="text/plain" id="sample-ros-K">"Player","Team","FG","FGA","XPT","FPTS"
+" ","","",""
+"Kicker Able","BAL","22.0","25.0","28.0","94.0"
+"","high","26.4","22.5","33.6","112.8"
+"","low","17.6","30.0","22.4","75.2"
+"Kicker Baker","DAL","20.0","23.0","25.0","85.0"
+"","low","16.0","27.6","20.0","68.0"
+"Kicker Charlie","KC","19.0","22.0","24.0","81.0"
+"","low","15.2","26.4","19.2","64.8"
+"Kicker Delta","BUF","18.0","21.0","22.0","76.0"
+"","low","14.4","25.2","17.6","60.8"
+"Kicker Echo","MIA","17.0","20.0","20.0","71.0"
+"","low","12.8","25.0","15.0","53.2"
+"Kicker Foxtrot","LAC","16.0","19.0","21.0","69.0"
+"","low","12.0","23.8","15.8","51.8"
+"Kicker Golf","SEA","15.0","18.0","19.0","64.0"
+"","low","11.2","22.5","14.2","48.0"
+"Kicker Hotel","GB","14.0","17.0","18.0","60.0"
+"","low","10.5","21.2","13.5","45.0"
+"Kicker India","TB","13.0","16.0","16.0","55.0"
+"","low","9.1","20.8","11.2","38.5"
+"Kicker Juliet","NO","12.0","15.0","15.0","51.0"
+"","low","8.4","19.5","10.5","35.7"
+</script>
+<script type="text/plain" id="sample-ros-DST">"Player","Team","SACK","INT","FR","FF","TD","SAFETY","PA","YDS_AGN","FPTS"
+" ","","",""
+"Sample City Foxes","","32.0","10.0","7.0","11.0","2.0","1.0","170.0","3,200.0","80.0"
+"","high","38.4","13.0","9.1","14.3","2.6","1.3","153.0","2,880.0","100.8"
+"","low","25.6","7.0","4.9","7.7","1.4","0.7","204.0","3,840.0","59.2"
+"Test Town Otters","","29.0","9.0","6.0","10.0","1.5","1.0","185.0","3,300.0","70.0"
+"","low","23.2","6.3","4.2","7.0","1.0","0.7","222.0","3,960.0","51.9"
+"Mock Harbor Herons","","27.0","8.0","6.0","9.0","1.0","1.0","190.0","3,350.0","63.0"
+"","low","21.6","5.6","4.2","6.3","0.7","0.7","228.0","4,020.0","46.8"
+"Demo Valley Lynx","","25.0","8.0","5.0","9.0","1.0","0.5","205.0","3,400.0","58.0"
+"","low","20.0","5.6","3.5","6.3","0.7","0.3","246.0","4,080.0","43.1"
+"Placeholder Plains Bison","","24.0","7.0","5.0","8.0","1.0","0.5","210.0","3,450.0","55.0"
+"","low","18.0","4.4","3.1","5.0","0.6","0.3","262.5","4,312.5","37.4"
+"Example Ridge Elk","","22.0","7.0","5.0","8.0","1.0","0.0","220.0","3,500.0","52.0"
+"","low","16.5","4.4","3.1","5.0","0.6","0.0","275.0","4,375.0","35.2"
+"Dummy Lake Pike","","20.0","6.0","4.0","7.0","1.0","0.0","235.0","3,550.0","46.0"
+"","low","15.0","3.8","2.5","4.4","0.6","0.0","293.8","4,437.5","31.2"
+"Fixture Falls Cranes","","19.0","6.0","4.0","7.0","0.5","0.0","240.0","3,600.0","42.0"
+"","low","13.3","3.3","2.2","3.9","0.3","0.0","312.0","4,680.0","25.9"
+"Specimen Springs Moose","","18.0","5.0","4.0","6.0","0.5","0.0","250.0","3,650.0","39.0"
+"","low","12.6","2.8","2.2","3.3","0.3","0.0","325.0","4,745.0","24.1"
+"Stub Creek Wolves","","16.0","5.0","3.0","6.0","0.0","0.0","270.0","3,750.0","32.0"
+"","low","11.2","2.8","1.7","3.3","0.0","0.0","351.0","4,875.0","20.0"
+</script>
+<script type="text/plain" id="sample-league1-league"># League settings: one 'name = value' per line. Lines starting with # are ignored.
+# These are Yahoo's DEFAULT settings (help.yahoo.com/kb/SLN6489.html, half-PPR).
+# A commissioner can change any of them: verify against your league's settings page.
+
+# Starting slots
+QB = 1
+RB = 2
+WR = 2
+TE = 1
+FLEX = 1
+FLEX_FROM = WR,RB,TE      # Yahoo's W/R/T flex
+K = 1
+DEF = 1
+
+# Offense
+pass_yds = 0.04           # 1 point per 25 passing yards
+pass_td = 4
+pass_int = -1
+rush_yds = 0.1            # 1 per 10
+rush_td = 6
+rec = 0.5                 # half-PPR
+rec_yds = 0.1
+rec_td = 6
+fumble_lost = -2
+
+# Kickers. Yahoo pays 3/4/5 by distance; the FantasyPros file has no distances, so one
+# average per field goal is used. 3.3 estimates Yahoo's tiers; FantasyPros' own FPTS uses 3.
+fg = 3.3
+fg_missed = 0             # Yahoo default: no penalty
+xpt = 1
+
+# Defense / special teams
+dst_sack = 1
+dst_int = 2
+dst_fr = 2
+dst_td = 6
+dst_safety = 2
+dst_pa_0 = 10             # points allowed 0
+dst_pa_1_6 = 7
+dst_pa_7_13 = 4
+dst_pa_14_20 = 1
+dst_pa_21_27 = 0
+dst_pa_28_34 = -1
+dst_pa_35 = -4            # 35 or more
+</script>
+<script type="text/plain" id="sample-league1-roster">player,position
+Passer Baker,QB
+AJ Sample,QB
+Runner Able,RB
+Runner Charlie,RB
+Runner Delta,RB
+Runner Zulu,RB
+Catcher Abel,WR
+Catcher Delta,WR
+Catcher Foxtrot,WR
+Catcher Hotel,WR
+Catcher Kilo,WR
+Blocker Baker,TE
+Blocker Echo,TE
+Kicker Baker,K
+Sample City D/ST,DEF
+</script>
+<script type="text/plain" id="sample-league2-league"># A second league with different slots and scoring: full PPR, 6-point passing TDs, three WR.
+# Verify every line against your league's settings page.
+
+QB = 1
+RB = 2
+WR = 3
+TE = 1
+FLEX = 1
+FLEX_FROM = WR,RB,TE
+K = 1
+DEF = 1
+
+pass_yds = 0.04
+pass_td = 6               # 6-point passing TD league
+pass_int = -2
+rush_yds = 0.1
+rush_td = 6
+rec = 1                   # full PPR
+rec_yds = 0.1
+rec_td = 6
+fumble_lost = -2
+
+fg = 3
+fg_missed = -1
+xpt = 1
+
+dst_sack = 1
+dst_int = 2
+dst_fr = 2
+dst_td = 6
+dst_safety = 2
+dst_pa_0 = 10
+dst_pa_1_6 = 7
+dst_pa_7_13 = 4
+dst_pa_14_20 = 1
+dst_pa_21_27 = 0
+dst_pa_28_34 = -1
+dst_pa_35 = -4
+</script>
+<script type="text/plain" id="sample-league2-roster">player,position
+Passer Able,QB
+Passer Echo,QB
+Runner Baker,RB
+Runner Foxtrot,RB
+Runner Golf,RB
+Catcher Charlie,WR
+Catcher Echo,WR
+Catcher Golf,WR
+Catcher India,WR
+Catcher Juliet,WR
+Blocker Able,TE
+Blocker Delta,TE
+Kicker Able,K
+Test Town D/ST,DEF
+Mock Harbor Herons,DEF
+</script>
+<script type="text/plain" id="sample-free-agents"># Players available on the waiver wire, one per line (as spelled on FantasyPros)
+Catcher Baker
+Runner Echo
+Blocker Able
+Kicker Able
+</script>
+
+<script id="logic">
+'use strict';
+/* fantasy_helper logic: a line-by-line port of fantasy_helper/parse.py, scoring.py, names.py,
+   lineup.py and helper.py (plus floor_differences from report.py). Pure functions on plain data:
+   nothing in this block touches document or window, so tests/test_fantasy_page.py can run it in node
+   and compare every number with the Python package. */
+
+var POSITIONS = ["QB", "RB", "WR", "TE", "K", "DST"];
+
+var EXPECTED_HEADERS = {
+  QB: ["Player", "Team", "ATT", "CMP", "YDS", "TDS", "INTS", "ATT", "YDS", "TDS", "FL", "FPTS"],
+  RB: ["Player", "Team", "ATT", "YDS", "TDS", "REC", "YDS", "TDS", "FL", "FPTS"],
+  WR: ["Player", "Team", "REC", "YDS", "TDS", "ATT", "YDS", "TDS", "FL", "FPTS"],
+  TE: ["Player", "Team", "REC", "YDS", "TDS", "FL", "FPTS"],
+  K: ["Player", "Team", "FG", "FGA", "XPT", "FPTS"],
+  DST: ["Player", "Team", "SACK", "INT", "FR", "FF", "TD", "SAFETY", "PA", "YDS_AGN", "FPTS"]
+};
+var STAT_KEYS = {
+  QB: ["pass_att", "pass_cmp", "pass_yds", "pass_td", "pass_int", "rush_att", "rush_yds", "rush_td", "fumble_lost"],
+  RB: ["rush_att", "rush_yds", "rush_td", "rec", "rec_yds", "rec_td", "fumble_lost"],
+  WR: ["rec", "rec_yds", "rec_td", "rush_att", "rush_yds", "rush_td", "fumble_lost"],
+  TE: ["rec", "rec_yds", "rec_td", "fumble_lost"],
+  K: ["fg", "fga", "xpt"],
+  DST: ["dst_sack", "dst_int", "dst_fr", "dst_ff", "dst_td", "dst_safety", "dst_pa", "dst_yds_agn"]
+};
+var HEADER_SYNONYMS = { "YDS AGN": "YDS_AGN", "DEF TD": "TD", "DEF_TD": "TD" };
+var FILE_WORDS = { QB: ["qb"], RB: ["rb"], WR: ["wr"], TE: ["te"], K: ["k"], DST: ["dst", "def"] };
+var SEASON_SIGNALS = {
+  QB: ["pass_att", "pass attempts", 100],
+  RB: ["rush_att", "rush attempts", 60],
+  WR: ["rec", "receptions", 30],
+  TE: ["rec", "receptions", 30],
+  K: ["fga", "field-goal attempts", 10],
+  DST: ["dst_sack", "sacks", 12]
+};
+var POSITION_ALIASES = { DEF: "DST", "D/ST": "DST", DST: "DST", D: "DST", DEFENSE: "DST",
+  QB: "QB", RB: "RB", WR: "WR", TE: "TE", K: "K", PK: "K" };
+
+function ExportFormatError(message) {
+  var e = new Error(message);
+  e.name = "ExportFormatError";
+  return e;
+}
+
+/* ------------------------------------------------------------ number and text formatting (Python style) */
+
+function pyG(x) {
+  /* Python's format(x, 'g'): six significant digits, trailing zeros dropped. */
+  if (!isFinite(x)) return String(x);
+  var s = Number(x.toPrecision(6));
+  var a = Math.abs(s);
+  if (a !== 0 && (a < 1e-4 || a >= 1e6)) {
+    var m = s.toExponential(5).replace(/\.?0+e/, "e");
+    return m.replace(/e([+-])(\d)$/, "e$10$2");
+  }
+  return String(s);
+}
+
+function fmtFixed(x, digits) {
+  /* Python's f"{x:.Nf}": correctly rounded, exact ties go to the even digit. */
+  var neg = x < 0 || (x === 0 && 1 / x < 0);
+  var ax = Math.abs(x);
+  var exact = ax.toFixed(30);
+  var dot = exact.indexOf(".");
+  var tail = exact.slice(dot + 1 + digits);
+  var out;
+  if (tail.charAt(0) === "5" && /^0*$/.test(tail.slice(1))) {
+    var kept = exact.slice(0, dot + 1 + digits);
+    var keptDigits = kept.replace(".", "");
+    var last = parseInt(keptDigits.charAt(keptDigits.length - 1), 10);
+    var base = Number(kept);
+    out = (last % 2 === 1 ? base + Math.pow(10, -digits) : base).toFixed(digits);
+  } else {
+    out = ax.toFixed(digits);
+  }
+  return (neg ? "-" : "") + out;
+}
+
+function withCommas(s) {
+  var neg = s.charAt(0) === "-";
+  if (neg) s = s.slice(1);
+  var parts = s.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return (neg ? "-" : "") + parts.join(".");
+}
+
+function pts(x) { return withCommas(fmtFixed(x, 1)); }
+function spts(x) { return (x >= 0 ? "+" : "-") + withCommas(fmtFixed(Math.abs(x), 1)); }
+function pct0(ratio) { return fmtFixed(ratio * 100, 0) + "%"; }
+
+/* ------------------------------------------------------------ parse.py */
+
+function parseCsv(text) {
+  /* Python csv.reader defaults: comma, double quotes, "" inside quotes is one quote, \r\n or \n or \r. */
+  var rows = [], row = [], field = "", inQuotes = false, i = 0, n = text.length, fieldStarted = false;
+  while (i < n) {
+    var c = text.charAt(i);
+    if (inQuotes) {
+      if (c === '"') {
+        if (text.charAt(i + 1) === '"') { field += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += c; i++; continue;
+    }
+    if (c === '"' && !fieldStarted) { inQuotes = true; fieldStarted = true; i++; continue; }
+    if (c === ",") { row.push(field); field = ""; fieldStarted = false; i++; continue; }
+    if (c === "\r" || c === "\n") {
+      row.push(field); field = ""; fieldStarted = false;
+      rows.push(row); row = [];
+      if (c === "\r" && text.charAt(i + 1) === "\n") i++;
+      i++; continue;
+    }
+    field += c; fieldStarted = true; i++;
+  }
+  if (fieldStarted || field !== "" || row.length) { row.push(field); rows.push(row); }
+  /* an empty line is an empty list, as in Python */
+  return rows.map(function (r) { return (r.length === 1 && r[0] === "") ? [] : r; });
+}
+
+var FLOAT_RE = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/;
+
+function toNumber(text) {
+  var cleaned = text.trim().split(",").join("").split("$").join("");
+  if (cleaned === "" || cleaned === "-" || cleaned === "--") return 0.0;
+  if (!FLOAT_RE.test(cleaned)) throw new TypeError("could not convert string to float: '" + cleaned + "'");
+  return parseFloat(cleaned);
+}
+
+function cleanHeader(cells) {
+  var out = [];
+  for (var i = 0; i < cells.length; i++) {
+    var c = cells[i].trim().replace(/^﻿+/, "").trim().toUpperCase();
+    out.push(Object.prototype.hasOwnProperty.call(HEADER_SYNONYMS, c) ? HEADER_SYNONYMS[c] : c);
+  }
+  while (out.length && out[out.length - 1] === "") out.pop();
+  return out;
+}
+
+function sameList(a, b) {
+  if (a.length !== b.length) return false;
+  for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
+function parseProjectionFile(text, pos, fileName) {
+  /* One FantasyPros position file -> list of projections (with high/low rows attached). */
+  var expected = EXPECTED_HEADERS[pos], keys = STAT_KEYS[pos];
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  var rows = parseCsv(text);
+  if (!rows.length) throw ExportFormatError(fileName + " is empty.");
+  if (!sameList(cleanHeader(rows[0]), expected.map(function (h) { return h.toUpperCase(); }))) {
+    throw ExportFormatError(
+      fileName + " does not look like a FantasyPros " + pos + " projection export.\n" +
+      "  Header found:    " + rows[0].map(function (c) { return c.trim(); }).join(",") + "\n" +
+      "  Header expected: " + expected.join(",") + "\n" +
+      "  Check that the file is the Projections export for that position (not Rankings). " +
+      "If FantasyPros changed its columns, EXPECTED_HEADERS needs a one-line fix.");
+  }
+  var width = expected.length, players = [];
+  for (var r = 1; r < rows.length; r++) {
+    var raw = rows[r], lineno = r + 1;
+    var row = raw.map(function (c) { return c.trim(); });
+    while (row.length < width) row.push("");
+    var name = row[0], team = row[1];
+    try {
+      if (name === "") {
+        var tag = team.toLowerCase();
+        if ((tag === "high" || tag === "low") && players.length) {
+          var st = {};
+          for (var k = 0; k < keys.length; k++) st[keys[k]] = toNumber(row[2 + k]);
+          var fp = row[2 + keys.length] ? toNumber(row[2 + keys.length]) : null;
+          var last = players[players.length - 1];
+          if (tag === "high") { last.high = st; last.highFpts = fp; } else { last.low = st; last.lowFpts = fp; }
+        }
+        continue;
+      }
+      var stats = {};
+      for (var j = 0; j < keys.length; j++) stats[keys[j]] = toNumber(row[2 + j]);
+      var fpts = row[2 + keys.length] ? toNumber(row[2 + keys.length]) : null;
+    } catch (e) {
+      if (e instanceof TypeError) throw ExportFormatError(fileName + " line " + lineno + ": could not read a number (" + e.message + ").");
+      throw e;
+    }
+    players.push({ name: name, team: team, pos: pos, stats: stats, fpts: fpts, high: null, low: null, highFpts: null, lowFpts: null });
+  }
+  return players;
+}
+
+function fileStem(name) {
+  var base = name.split("/").pop().split("\\").pop();
+  var dot = base.lastIndexOf(".");
+  return dot > 0 ? base.slice(0, dot) : base;
+}
+
+function fileExt(name) {
+  var base = name.split("/").pop().split("\\").pop();
+  var dot = base.lastIndexOf(".");
+  return dot > 0 ? base.slice(dot).toLowerCase() : "";
+}
+
+function positionsInFileName(name) {
+  /* Which position word(s) the file name carries: FantasyPros_Fantasy_Football_Projections_QB.csv -> ["QB"]. */
+  var tokens = {}, parts = fileStem(name).toLowerCase().split(/[^a-z0-9]+/);
+  for (var i = 0; i < parts.length; i++) if (parts[i] !== "") tokens[parts[i]] = true;
+  var out = [];
+  for (var p = 0; p < POSITIONS.length; p++) {
+    var words = FILE_WORDS[POSITIONS[p]];
+    for (var w = 0; w < words.length; w++) if (tokens[words[w]]) { out.push(POSITIONS[p]); break; }
+  }
+  return out;
+}
+
+function findProjectionFiles(files, where) {
+  /* files: [{name, text}] -> {pos: file}; picks each position's CSV by the word in its name, like Python
+     walking a folder in sorted order. */
+  var sorted = files.slice().sort(function (a, b) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; });
+  var found = {};
+  for (var i = 0; i < sorted.length; i++) {
+    var f = sorted[i];
+    if (fileExt(f.name) !== ".csv") continue;
+    var poss = positionsInFileName(f.name);
+    for (var p = 0; p < poss.length; p++) {
+      var pos = poss[p];
+      if (found[pos]) throw ExportFormatError("two " + pos + " files in " + where + ": " + found[pos].name + " and " + f.name + ". Keep one.");
+      found[pos] = f;
+    }
+  }
+  return found;
+}
+
+function looksLikeSeason(byPos) {
+  for (var i = 0; i < POSITIONS.length; i++) {
+    var pos = POSITIONS[i], sig = SEASON_SIGNALS[pos], rows = byPos[pos];
+    if (rows && rows.length) {
+      var biggest = -Infinity;
+      for (var r = 0; r < rows.length; r++) {
+        var v = Object.prototype.hasOwnProperty.call(rows[r].stats, sig[0]) ? rows[r].stats[sig[0]] : 0.0;
+        if (v > biggest) biggest = v;
+      }
+      if (biggest > sig[2]) {
+        return [true, "look like SEASON TOTALS (largest " + pos + " " + sig[1] + " is " + pyG(biggest) + "; one game never reaches " + sig[2] + ")"];
+      }
+      return [false, "look like WEEKLY numbers (largest " + pos + " " + sig[1] + " is " + pyG(biggest) + "; a season file would be above " + sig[2] + ")"];
+    }
+  }
+  return [false, "could not tell weekly from season (no files)"];
+}
+
+function loadProjections(files, needed, where) {
+  /* files: [{name, text}] -> projection set {byPos, season, kindNote, files, where}. */
+  needed = needed || POSITIONS;
+  where = where || "the files you chose";
+  var found = findProjectionFiles(files, where);
+  var missing = [];
+  for (var i = 0; i < needed.length; i++) if (!found[needed[i]]) missing.push(needed[i]);
+  if (missing.length) {
+    var names = files.map(function (f) { return f.name; }).sort().join(", ") || "(no files)";
+    throw ExportFormatError("no projection file for " + missing.join(", ") + " in " + where + ". I look for a CSV whose name contains " +
+      "qb, rb, wr, te, k, or dst/def. Files there: " + names);
+  }
+  var byPos = {};
+  var order = Object.keys(found);
+  for (var k = 0; k < order.length; k++) byPos[order[k]] = parseProjectionFile(found[order[k]].text, order[k], found[order[k]].name);
+  var sk = looksLikeSeason(byPos);
+  return { byPos: byPos, season: sk[0], kindNote: sk[1], files: found, where: where };
+}
+
+function allProjections(projset) {
+  var out = [], keys = Object.keys(projset.byPos);
+  for (var i = 0; i < keys.length; i++) out = out.concat(projset.byPos[keys[i]]);
+  return out;
+}
+
+/* ---------------------------------------------------------------- league settings and roster */
+
+var DEFAULT_SLOTS = { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 };
+var DEFAULT_FLEX_FROM = ["WR", "RB", "TE"];
+var SLOT_ORDER = ["QB", "RB", "WR", "TE", "FLEX", "K", "DEF"];
+
+function positionOf(text) {
+  var p = text.trim().toUpperCase();
+  if (p === "") return "";
+  if (!Object.prototype.hasOwnProperty.call(POSITION_ALIASES, p)) {
+    throw ExportFormatError("unknown position '" + text + "'; use QB, RB, WR, TE, K or DEF.");
+  }
+  return POSITION_ALIASES[p];
+}
+
+var INT_RE = /^[+-]?\d+$/;
+
+function pyInt(value) {
+  var v = value.trim();
+  if (!INT_RE.test(v)) throw new TypeError("invalid literal for int(): '" + value + "'");
+  return parseInt(v, 10);
+}
+
+function pyFloat(value) {
+  var v = value.trim();
+  if (!FLOAT_RE.test(v)) throw new TypeError("could not convert string to float: '" + value + "'");
+  return parseFloat(v);
+}
+
+function buildLeague(counts, flexFrom, order, scoring, source) {
+  /* The tail of parse_league_text: counts {QB:1,...}, flexFrom {FLEX:["WR","RB","TE"]}, order of the
+     named flex slots as they were written. Returns {slots, scoring, counts, flexFrom}. */
+  counts = Object.assign({}, counts);
+  flexFrom = Object.assign({}, flexFrom);
+  var k;
+  for (k in DEFAULT_SLOTS) if (!(k in counts)) counts[k] = DEFAULT_SLOTS[k];
+  if (!("FLEX" in flexFrom)) flexFrom.FLEX = DEFAULT_FLEX_FROM.slice();
+  for (k in counts) {
+    if (counts[k] > 0 && !(k in DEFAULT_SLOTS) && !(k in flexFrom)) {
+      throw ExportFormatError(source + ": '" + k + " = " + counts[k] + "' needs a '" + k + "_FROM = WR,RB,TE' line saying which positions may fill it.");
+    }
+  }
+  for (k in flexFrom) if (!(k in counts)) counts[k] = 0;
+  var slots = [], i;
+  for (i = 0; i < 4; i++) {
+    var label = SLOT_ORDER[i];
+    if (counts[label] > 0) slots.push({ label: label, allowed: [label], count: counts[label] });
+  }
+  var labels = order.concat(["FLEX"]);
+  for (i = 0; i < labels.length; i++) {
+    var lab = labels[i];
+    if ((lab in flexFrom) && (counts[lab] || 0) > 0 && !slots.some(function (s) { return s.label === lab; })) {
+      slots.push({ label: lab, allowed: flexFrom[lab].slice(), count: counts[lab] });
+    }
+  }
+  if (counts.K > 0) slots.push({ label: "K", allowed: ["K"], count: counts.K });
+  if (counts.DEF > 0) slots.push({ label: "DEF", allowed: ["DST"], count: counts.DEF });
+  if (!slots.length) throw ExportFormatError(source + ": every starting slot is 0, so there is no lineup to fill.");
+  return { slots: slots, scoring: Object.assign({}, scoring), counts: counts, flexFrom: flexFrom };
+}
+
+function parseLeagueText(text, scoringDefaults, source) {
+  /* league.txt: 'name = value' lines, # comments. Unknown keys are an error so a typo cannot silently do nothing. */
+  source = source || "league.txt";
+  var counts = {}, flexFrom = {}, scoring = Object.assign({}, scoringDefaults), order = [], seen = {};
+  var lines = text.split(/\r\n|\r|\n/);
+  for (var li = 0; li < lines.length; li++) {
+    var raw = lines[li], lineno = li + 1;
+    var line = raw.split("#")[0].trim();
+    if (!line) continue;
+    if (line.indexOf("=") < 0) throw ExportFormatError(source + " line " + lineno + ": expected 'name = value', got '" + raw.trim() + "'.");
+    var eq = line.indexOf("=");
+    var key = line.slice(0, eq).trim(), value = line.slice(eq + 1).trim();
+    var k = key.replace(/^﻿+/, "").toUpperCase().split("-").join("_");
+    try {
+      if (k === "DST") k = "DEF";
+      if (k in seen) throw ExportFormatError(source + " line " + lineno + ": '" + key + "' was already set on line " + seen[k] + "; keep one.");
+      seen[k] = lineno;
+      if (k.length > 5 && k.slice(-5) === "_FROM") {
+        var base = k.slice(0, -5);
+        flexFrom[base] = value.split("/").join(",").split(",").filter(function (v) { return v.trim(); }).map(positionOf);
+        if (order.indexOf(base) < 0) order.push(base);
+      } else if ((k in DEFAULT_SLOTS) || k.indexOf("FLEX") === 0 || (k.length >= 4 && k.slice(-4) === "FLEX")) {
+        counts[k] = pyInt(value);
+        if (counts[k] < 0) throw ExportFormatError(source + " line " + lineno + ": " + key + " = " + value + " is below 0; use 0 for no such slot.");
+        if (order.indexOf(k) < 0) order.push(k);
+      } else if (Object.prototype.hasOwnProperty.call(scoring, key.toLowerCase())) {
+        scoring[key.toLowerCase()] = pyFloat(value);
+      } else {
+        var known = Object.keys(DEFAULT_SLOTS).concat(["FLEX_FROM", "<NAME>FLEX / <NAME>FLEX_FROM"]).concat(Object.keys(scoring)).join(", ");
+        throw ExportFormatError(source + " line " + lineno + ": unknown setting '" + key + "'. Known settings: " + known);
+      }
+    } catch (e) {
+      if (e instanceof TypeError) throw ExportFormatError(source + " line " + lineno + ": '" + value + "' is not a number.");
+      throw e;
+    }
+  }
+  return buildLeague(counts, flexFrom, order, scoring, source);
+}
+
+function settingsFromLeague(league) {
+  /* League -> the plain settings the page's fields hold: {counts, flexFrom, scoring}. */
+  var counts = {};
+  Object.keys(DEFAULT_SLOTS).forEach(function (k) { counts[k] = league.counts[k] || 0; });
+  return { counts: counts, flexFrom: (league.flexFrom.FLEX || DEFAULT_FLEX_FROM).slice(), scoring: Object.assign({}, league.scoring) };
+}
+
+function leagueFromSettings(s) {
+  return buildLeague(s.counts, { FLEX: s.flexFrom.slice() }, [], s.scoring, "your settings");
+}
+
+function positionsNeeded(league) {
+  return POSITIONS.filter(function (p) {
+    return league.slots.some(function (s) { return s.allowed.indexOf(p) >= 0; });
+  });
+}
+
+function rosterCsvToLines(csvText) {
+  /* roster.csv (player,position) -> the 'Name, POS' lines the team box uses. */
+  if (csvText.charCodeAt(0) === 0xFEFF) csvText = csvText.slice(1);
+  var rows = parseCsv(csvText).map(function (r) { return r.map(function (c) { return c.trim(); }); });
+  if (!rows.length) return "";
+  var header = rows[0].map(function (c) { return c.toLowerCase(); });
+  var pi = header.indexOf("player"), qi = header.indexOf("position");
+  if (pi < 0) return csvText;
+  var out = [];
+  for (var i = 1; i < rows.length; i++) {
+    var r = rows[i];
+    if (!r.length || pi >= r.length || !r[pi] || r[pi].charAt(0) === "#") continue;
+    var pos = (qi >= 0 && qi < r.length) ? r[qi] : "";
+    out.push(pos ? r[pi] + ", " + pos : r[pi]);
+  }
+  return out.join("\n");
+}
+
+/* A line pasted straight from the Yahoo roster page carries the team and position after the name
+   ("Passer Baker Dal - QB", sometimes with an injury tag: "Passer Baker Dal - QB Q"). Such a line is read as
+   the name plus the position; the tail is reported so the page can show what it did. */
+var ROSTER_TAIL = /^(.+?)(?:\s+[A-Za-z]{2,3})?\s*-\s*(QB|RB|WR|TE|K|DEF|DST|D\/ST)(?:\s+(?:Q|D|O|P|IR|IR-R|PUP|NA|SUSP|NFI|COVID))?\s*$/i;
+function tidyRosterLine(line) {
+  var m = ROSTER_TAIL.exec(line);
+  if (!m || line.indexOf(",") >= 0) return null;
+  return { name: m[1].trim(), posText: m[2].toUpperCase() };
+}
+
+function parseRosterLines(text) {
+  /* The team box: one player per line, optionally ', POS'. A pasted roster.csv header line is skipped.
+     Returns {roster: [[name, pos]], errors: [{line, text, message}], tidied: [{line, text, name, pos}]};
+     pos is '' when not given. tidied lists the lines whose Yahoo-style tail (team, position, injury tag) was dropped. */
+  var roster = [], errors = [], tidied = [];
+  var lines = text.split(/\r\n|\r|\n/);
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].split("#")[0].trim();
+    if (!line) continue;
+    var parts = line.split(",").map(function (s) { return s.trim(); });
+    var name = parts[0], posText = parts.length > 1 ? parts[1] : "";
+    var tidy = tidyRosterLine(line);
+    if (tidy) { name = tidy.name; posText = tidy.posText; }
+    if (!name) continue;
+    if (name.toLowerCase() === "player" && (posText === "" || posText.toLowerCase() === "position")) continue;
+    try {
+      roster.push([name, positionOf(posText)]);
+      if (tidy) tidied.push({ line: i + 1, text: line, name: name, pos: positionOf(posText) === "DST" ? "DEF" : positionOf(posText) });
+    } catch (e) {
+      errors.push({ line: i + 1, text: lines[i], message: "'" + posText + "' is not a position I know. Use QB, RB, WR, TE, K or DEF after the comma, or leave it off." });
+    }
+  }
+  return { roster: roster, errors: errors, tidied: tidied };
+}
+
+function parseNameList(text) {
+  var names = [], lines = text.split(/\r\n|\r|\n/);
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].split("#")[0].trim();
+    if (line) names.push(line);
+  }
+  return names;
+}
+
+/* ---------------------------------------------------------------- scoring.py */
+
+var DEFAULT_SCORING = {
+  pass_yds: 0.04, pass_td: 4, pass_int: -1,
+  rush_yds: 0.1, rush_td: 6,
+  rec: 0.5, rec_yds: 0.1, rec_td: 6,
+  fumble_lost: -2,
+  fg: 3.3, fg_missed: 0, xpt: 1,
+  dst_sack: 1, dst_int: 2, dst_fr: 2, dst_td: 6, dst_safety: 2,
+  dst_pa_0: 10, dst_pa_1_6: 7, dst_pa_7_13: 4, dst_pa_14_20: 1, dst_pa_21_27: 0, dst_pa_28_34: -1, dst_pa_35: -4
+};
+var FANTASYPROS_HALF_PPR = Object.assign({}, DEFAULT_SCORING, { fg: 3 });
+
+function pointsAllowedTier(pa, rules) {
+  var n = Math.floor(pa + 1e-9);
+  if (n <= 0) return rules.dst_pa_0;
+  if (n <= 6) return rules.dst_pa_1_6;
+  if (n <= 13) return rules.dst_pa_7_13;
+  if (n <= 20) return rules.dst_pa_14_20;
+  if (n <= 27) return rules.dst_pa_21_27;
+  if (n <= 34) return rules.dst_pa_28_34;
+  return rules.dst_pa_35;
+}
+
+function score(pos, stats, rules, paTier) {
+  if (paTier === undefined) paTier = true;
+  function g(k) { return Object.prototype.hasOwnProperty.call(stats, k) ? stats[k] : 0.0; }
+  if (pos === "K") {
+    var misses = Math.max(g("fga") - g("fg"), 0.0);
+    return g("fg") * rules.fg + g("xpt") * rules.xpt + misses * rules.fg_missed;
+  }
+  if (pos === "DST") {
+    var total = g("dst_sack") * rules.dst_sack + g("dst_int") * rules.dst_int
+      + g("dst_fr") * rules.dst_fr + g("dst_td") * rules.dst_td + g("dst_safety") * rules.dst_safety;
+    if (paTier) total += pointsAllowedTier(g("dst_pa"), rules);
+    return total;
+  }
+  return g("pass_yds") * rules.pass_yds + g("pass_td") * rules.pass_td
+    + g("pass_int") * rules.pass_int
+    + g("rush_yds") * rules.rush_yds + g("rush_td") * rules.rush_td
+    + g("rec") * rules.rec + g("rec_yds") * rules.rec_yds
+    + g("rec_td") * rules.rec_td
+    + g("fumble_lost") * rules.fumble_lost;
+}
+
+/* ---------------------------------------------------------------- names.py (with difflib ported) */
+
+var SUFFIXES = { jr: 1, sr: 1, ii: 1, iii: 1, iv: 1, v: 1 };
+var DST_WORDS = { dst: 1, d: 1, st: 1, def: 1, defense: 1, defence: 1, dt: 1 };
+var CLOSE_CUTOFF = 0.85;
+var NFL_TEAMS = {
+  ARI: "Arizona Cardinals", ATL: "Atlanta Falcons", BAL: "Baltimore Ravens", BUF: "Buffalo Bills",
+  CAR: "Carolina Panthers", CHI: "Chicago Bears", CIN: "Cincinnati Bengals", CLE: "Cleveland Browns",
+  DAL: "Dallas Cowboys", DEN: "Denver Broncos", DET: "Detroit Lions", GB: "Green Bay Packers",
+  HOU: "Houston Texans", IND: "Indianapolis Colts", JAC: "Jacksonville Jaguars",
+  JAX: "Jacksonville Jaguars", KC: "Kansas City Chiefs", LAC: "Los Angeles Chargers",
+  LAR: "Los Angeles Rams", LV: "Las Vegas Raiders", MIA: "Miami Dolphins", MIN: "Minnesota Vikings",
+  NE: "New England Patriots", NO: "New Orleans Saints", NYG: "New York Giants", NYJ: "New York Jets",
+  PHI: "Philadelphia Eagles", PIT: "Pittsburgh Steelers", SEA: "Seattle Seahawks",
+  SF: "San Francisco 49ers", TB: "Tampa Bay Buccaneers", TEN: "Tennessee Titans",
+  WAS: "Washington Commanders"
+};
+
+function normalise(name) {
+  var s = name.toLowerCase().split(".").join("").split("'").join("").split("’").join("");
+  s = s.replace(/[^a-z0-9]+/g, " ");
+  var tokens = s.split(" ").filter(function (t) { return t !== ""; });
+  while (tokens.length && SUFFIXES[tokens[tokens.length - 1]]) tokens.pop();
+  return tokens.join(" ");
+}
+
+function dstTokens(name) {
+  var tokens = normalise(name).split(" ").filter(function (t) { return t !== "" && !DST_WORDS[t]; });
+  if (tokens.length === 1 && NFL_TEAMS[tokens[0].toUpperCase()]) {
+    tokens = normalise(NFL_TEAMS[tokens[0].toUpperCase()]).split(" ").filter(function (t) { return t !== ""; });
+  }
+  var set = {};
+  for (var i = 0; i < tokens.length; i++) set[tokens[i]] = true;
+  return set;
+}
+
+function setSize(s) { return Object.keys(s).length; }
+function isSubset(a, b) { for (var k in a) if (!b[k]) return false; return true; }
+
+function looksLikeDst(name) {
+  var toks = normalise(name).split(" ");
+  for (var i = 0; i < toks.length; i++) if (toks[i] !== "" && DST_WORDS[toks[i]]) return true;
+  return false;
+}
+
+/* difflib.SequenceMatcher, ported from CPython (Ratcliff/Obershelp with the autojunk rule, which only
+   kicks in for strings of 200 or more characters, exactly as Python applies it). */
+function SequenceMatcher(a, b, autojunk) {
+  this.autojunk = autojunk === undefined ? true : autojunk;
+  this.a = null; this.b = null;
+  this.setSeqs(a, b);
+}
+SequenceMatcher.prototype.setSeqs = function (a, b) { this.setSeq1(a); this.setSeq2(b); };
+SequenceMatcher.prototype.setSeq1 = function (a) {
+  if (a === this.a) return;
+  this.a = a; this.matchingBlocks = null;
+};
+SequenceMatcher.prototype.setSeq2 = function (b) {
+  if (b === this.b) return;
+  this.b = b; this.matchingBlocks = null; this.fullbcount = null;
+  this.chainB();
+};
+SequenceMatcher.prototype.chainB = function () {
+  var b = this.b, b2j = new Map(), i, elt, idx;
+  for (i = 0; i < b.length; i++) {
+    elt = b.charAt(i);
+    idx = b2j.get(elt);
+    if (!idx) { idx = []; b2j.set(elt, idx); }
+    idx.push(i);
+  }
+  this.bjunk = new Set();           /* no isjunk function is ever passed */
+  this.bpopular = new Set();
+  var n = b.length;
+  if (this.autojunk && n >= 200) {
+    var ntest = Math.floor(n / 100) + 1;
+    b2j.forEach(function (idxs, key) { if (idxs.length > ntest) this.bpopular.add(key); }, this);
+    this.bpopular.forEach(function (key) { b2j.delete(key); });
+  }
+  this.b2j = b2j;
+};
+SequenceMatcher.prototype.findLongestMatch = function (alo, ahi, blo, bhi) {
+  var a = this.a, b = this.b, b2j = this.b2j, bjunk = this.bjunk;
+  var besti = alo, bestj = blo, bestsize = 0;
+  var j2len = new Map(), nothing = [];
+  for (var i = alo; i < ahi; i++) {
+    var newj2len = new Map();
+    var js = b2j.get(a.charAt(i)) || nothing;
+    for (var x = 0; x < js.length; x++) {
+      var j = js[x];
+      if (j < blo) continue;
+      if (j >= bhi) break;
+      var k = (j2len.get(j - 1) || 0) + 1;
+      newj2len.set(j, k);
+      if (k > bestsize) { besti = i - k + 1; bestj = j - k + 1; bestsize = k; }
+    }
+    j2len = newj2len;
+  }
+  while (besti > alo && bestj > blo && !bjunk.has(b.charAt(bestj - 1)) && a.charAt(besti - 1) === b.charAt(bestj - 1)) {
+    besti--; bestj--; bestsize++;
+  }
+  while (besti + bestsize < ahi && bestj + bestsize < bhi && !bjunk.has(b.charAt(bestj + bestsize))
+         && a.charAt(besti + bestsize) === b.charAt(bestj + bestsize)) {
+    bestsize++;
+  }
+  while (besti > alo && bestj > blo && bjunk.has(b.charAt(bestj - 1)) && a.charAt(besti - 1) === b.charAt(bestj - 1)) {
+    besti--; bestj--; bestsize++;
+  }
+  while (besti + bestsize < ahi && bestj + bestsize < bhi && bjunk.has(b.charAt(bestj + bestsize))
+         && a.charAt(besti + bestsize) === b.charAt(bestj + bestsize)) {
+    bestsize++;
+  }
+  return [besti, bestj, bestsize];
+};
+SequenceMatcher.prototype.getMatchingBlocks = function () {
+  if (this.matchingBlocks) return this.matchingBlocks;
+  var la = this.a.length, lb = this.b.length;
+  var queue = [[0, la, 0, lb]], blocks = [];
+  while (queue.length) {
+    var q = queue.pop(), alo = q[0], ahi = q[1], blo = q[2], bhi = q[3];
+    var m = this.findLongestMatch(alo, ahi, blo, bhi), i = m[0], j = m[1], k = m[2];
+    if (k) {
+      blocks.push(m);
+      if (alo < i && blo < j) queue.push([alo, i, blo, j]);
+      if (i + k < ahi && j + k < bhi) queue.push([i + k, ahi, j + k, bhi]);
+    }
+  }
+  blocks.sort(function (p, q2) { return p[0] - q2[0] || p[1] - q2[1] || p[2] - q2[2]; });
+  var i1 = 0, j1 = 0, k1 = 0, out = [];
+  for (var t = 0; t < blocks.length; t++) {
+    var i2 = blocks[t][0], j2 = blocks[t][1], k2 = blocks[t][2];
+    if (i1 + k1 === i2 && j1 + k1 === j2) {
+      k1 += k2;
+    } else {
+      if (k1) out.push([i1, j1, k1]);
+      i1 = i2; j1 = j2; k1 = k2;
+    }
+  }
+  if (k1) out.push([i1, j1, k1]);
+  out.push([la, lb, 0]);
+  this.matchingBlocks = out;
+  return out;
+};
+SequenceMatcher.prototype.ratio = function () {
+  var blocks = this.getMatchingBlocks(), matches = 0;
+  for (var i = 0; i < blocks.length; i++) matches += blocks[i][2];
+  var length = this.a.length + this.b.length;
+  return length ? 2.0 * matches / length : 1.0;
+};
+SequenceMatcher.prototype.quickRatio = function () {
+  var i, elt, fullbcount;
+  if (!this.fullbcount) {
+    fullbcount = new Map();
+    for (i = 0; i < this.b.length; i++) { elt = this.b.charAt(i); fullbcount.set(elt, (fullbcount.get(elt) || 0) + 1); }
+    this.fullbcount = fullbcount;
+  }
+  fullbcount = this.fullbcount;
+  var avail = new Map(), matches = 0;
+  for (i = 0; i < this.a.length; i++) {
+    elt = this.a.charAt(i);
+    var numb = avail.has(elt) ? avail.get(elt) : (fullbcount.get(elt) || 0);
+    avail.set(elt, numb - 1);
+    if (numb > 0) matches++;
+  }
+  var length = this.a.length + this.b.length;
+  return length ? 2.0 * matches / length : 1.0;
+};
+SequenceMatcher.prototype.realQuickRatio = function () {
+  var la = this.a.length, lb = this.b.length, length = la + lb;
+  return length ? 2.0 * Math.min(la, lb) / length : 1.0;
+};
+
+function getCloseMatches(word, possibilities, n, cutoff) {
+  /* difflib.get_close_matches: the matcher holds a = possibility, b = word, as in CPython. */
+  var s = new SequenceMatcher("", word), result = [];
+  for (var i = 0; i < possibilities.length; i++) {
+    var x = possibilities[i];
+    s.setSeq1(x);
+    if (s.realQuickRatio() >= cutoff && s.quickRatio() >= cutoff && s.ratio() >= cutoff) {
+      result.push([s.ratio(), x]);
+    }
+  }
+  /* heapq.nlargest on (score, string) tuples: ties on score go to the larger string */
+  result.sort(function (p, q) {
+    if (p[0] !== q[0]) return q[0] - p[0];
+    return p[1] < q[1] ? 1 : p[1] > q[1] ? -1 : 0;
+  });
+  return result.slice(0, n).map(function (r) { return r[1]; });
+}
+
+function seqRatio(a, b) { return new SequenceMatcher(a, b).ratio(); }
+
+function matchLine(m) {
+  if (m.how === "exact" || m.how === "none") return "";
+  return "I matched '" + m.query + "' to '" + m.projection.name + "' (" + m.detail + ")";
+}
+
+function makeMatch(query, projection, how, detail) {
+  var m = { query: query, projection: projection, how: how, detail: detail || "" };
+  m.line = matchLine(m);
+  return m;
+}
+
+function matchName(query, pos, projections) {
+  /* Exact (after normalising) first, then D/ST aliases, then a close spelling above 0.85. */
+  var pool = projections.filter(function (p) { return !pos || p.pos === pos; });
+  var q = normalise(query), i, p;
+  for (i = 0; i < pool.length; i++) {
+    p = pool[i];
+    if (normalise(p.name) === q) {
+      if (p.name === query) return makeMatch(query, p, "exact");
+      return makeMatch(query, p, "spelling", "same name, different punctuation or suffix");
+    }
+  }
+  function byTeam() {
+    var want = dstTokens(query);
+    var hits = pool.filter(function (c) { return c.pos === "DST" && setSize(want) > 0 && isSubset(want, dstTokens(c.name)); });
+    if (hits.length === 1) return makeMatch(query, hits[0], "team", "team name");
+    if (hits.length > 1) {
+      return makeMatch(query, null, "none", "'" + query + "' fits more than one defense: " + hits.map(function (h) { return h.name; }).join(", "));
+    }
+    return null;
+  }
+  var m;
+  if (pos === "DST" || (!pos && looksLikeDst(query))) {
+    m = byTeam();
+    if (m !== null) return m;
+  }
+  var names = new Map();
+  for (i = 0; i < pool.length; i++) names.set(normalise(pool[i].name), pool[i]);
+  var close = getCloseMatches(q, Array.from(names.keys()), 1, CLOSE_CUTOFF);
+  if (close.length) {
+    p = names.get(close[0]);
+    var ratio = seqRatio(q, close[0]);
+    return makeMatch(query, p, "close", "closest spelling, " + pct0(ratio) + " similar; fix roster.csv if that is wrong");
+  }
+  if (!pos) {
+    m = byTeam();
+    if (m !== null) return m;
+  }
+  return makeMatch(query, null, "none");
+}
+
+/* ---------------------------------------------------------------- lineup.py */
+
+function makePlayer(projection, rules, weekly, name) {
+  if (weekly === undefined) weekly = true;
+  var pa = weekly;
+  var proj = score(projection.pos, projection.stats, rules, pa);
+  var hasLow = projection.low !== null && projection.low !== undefined;
+  var floor = hasLow ? score(projection.pos, projection.low, rules, pa) : proj;
+  floor = Math.min(floor, proj);
+  var ceil, estimated;
+  if (projection.high !== null && projection.high !== undefined) {
+    ceil = Math.max(score(projection.pos, projection.high, rules, pa), proj); estimated = false;
+  } else {
+    ceil = proj + (proj - floor); estimated = true;
+  }
+  return { name: name || projection.name, pos: projection.pos, proj: proj, floor: floor, ceil: ceil,
+    ceilEstimated: estimated, fptsCsv: projection.fpts === undefined ? null : projection.fpts,
+    team: projection.team || "", hasLow: hasLow };
+}
+
+function lineupTotal(lu, key) {
+  key = key || lu.key;
+  var vals = [];
+  for (var i = 0; i < lu.entries.length; i++) if (lu.entries[i].player) vals.push(lu.entries[i].player[key]);
+  return pySum(vals);
+}
+function lineupStarters(lu) { return lu.entries.filter(function (e) { return e.player; }).map(function (e) { return e.player; }); }
+function lineupNames(lu) { var s = {}; lineupStarters(lu).forEach(function (p) { s[p.name] = true; }); return s; }
+function slotOf(lu, name) {
+  for (var i = 0; i < lu.entries.length; i++) if (lu.entries[i].player && lu.entries[i].player.name === name) return lu.entries[i].slot;
+  return null;
+}
+
+function byKeyDesc(key, tiebreak) {
+  return function (p, q) { return (q[key] - p[key]) || (q[tiebreak] - p[tiebreak]); };
+}
+
+function prune(players, slots, key, tiebreak) {
+  var room = {}, i, s, pos;
+  for (i = 0; i < slots.length; i++) {
+    s = slots[i];
+    for (var a = 0; a < s.allowed.length; a++) room[s.allowed[a]] = (room[s.allowed[a]] || 0) + s.count;
+  }
+  var keep = new Set();
+  for (pos in room) {
+    var same = players.filter(function (p) { return p.pos === pos; }).sort(byKeyDesc(key, tiebreak));
+    same.slice(0, room[pos]).forEach(function (p) { keep.add(p); });
+  }
+  return players.filter(function (p) { return keep.has(p); });
+}
+
+function combinations(list, n, fn) {
+  /* itertools.combinations order; fn(combo) is called for each, returns true to stop */
+  var idx = [], len = list.length;
+  if (n > len) return;
+  for (var i = 0; i < n; i++) idx.push(i);
+  for (;;) {
+    if (fn(idx.map(function (i2) { return list[i2]; }))) return;
+    var k = n - 1;
+    while (k >= 0 && idx[k] === k + len - n) k--;
+    if (k < 0) return;
+    idx[k]++;
+    for (var j = k + 1; j < n; j++) idx[j] = idx[j - 1] + 1;
+  }
+}
+
+function round6(x) { return Math.round(x * 1e6) / 1e6; }
+
+function pySum(values) {
+  /* Python 3.12's sum() of floats (Neumaier compensated summation), so totals round the same way. */
+  var f = 0.0, c = 0.0;
+  for (var i = 0; i < values.length; i++) {
+    var x = values[i], t = f + x;
+    if (Math.abs(f) >= Math.abs(x)) c += (f - t) + x; else c += (x - t) + f;
+    f = t;
+  }
+  if (c && isFinite(c)) f += c;
+  return f;
+}
+
+function bestLineup(players, slots, key, tiebreak) {
+  /* Exact search over every way of filling the slots; highest sum of key wins, ties by tiebreak sum. */
+  key = key || "proj"; tiebreak = tiebreak || "floor";
+  players = prune(players, slots, key, tiebreak);
+  var groups = [], i;
+  for (i = 0; i < slots.length; i++) {
+    var s = slots[i];
+    var elig = players.filter(function (p) { return s.allowed.indexOf(p.pos) >= 0; }).sort(byKeyDesc(key, tiebreak));
+    groups.push([s, elig]);
+  }
+  var atMost = groups.map(function (g) {
+    return pySum(g[1].slice(0, g[0].count).map(function (p) { return p[key]; }));
+  });
+  var stillPossible = new Array(groups.length + 1).fill(0.0);
+  for (i = groups.length - 1; i >= 0; i--) stillPossible[i] = stillPossible[i + 1] + atMost[i];
+  var bestVal = null, bestPick = null;
+
+  function search(i2, used, picked, val, tb) {
+    if (i2 === groups.length) {
+      var keyVal = [round6(val), round6(tb)];
+      if (bestVal === null || keyVal[0] > bestVal[0] || (keyVal[0] === bestVal[0] && keyVal[1] > bestVal[1])) {
+        bestVal = keyVal; bestPick = picked.slice();
+      }
+      return;
+    }
+    if (bestVal !== null && round6(val + stillPossible[i2]) < bestVal[0]) return;
+    var slot = groups[i2][0], elig = groups[i2][1];
+    var free = elig.filter(function (p) { return !used.has(p); });
+    var n = Math.min(slot.count, free.length);
+    combinations(free, n, function (combo) {
+      var used2 = new Set(used), v = val, t = tb;
+      combo.forEach(function (p) { used2.add(p); });
+      var sv = pySum(combo.map(function (p) { return p[key]; }));
+      var st = pySum(combo.map(function (p) { return p[tiebreak]; }));
+      search(i2 + 1, used2, picked.concat([[slot, combo]]), v + sv, t + st);
+      return false;
+    });
+  }
+  search(0, new Set(), [], 0.0, 0.0);
+  var entries = [];
+  (bestPick || []).forEach(function (pair) {
+    var slot = pair[0], combo = pair[1];
+    var chosen = combo.slice().sort(function (p, q) { return q[key] - p[key]; });
+    for (var k = 0; k < slot.count; k++) entries.push({ slot: slot.label, allowed: slot.allowed, player: k < chosen.length ? chosen[k] : null });
+  });
+  return { entries: entries, key: key };
+}
+
+function permutations(list, fn) {
+  /* itertools.permutations order (lexicographic by index); fn(perm) returns true to stop */
+  var n = list.length, used = new Array(n).fill(false), cur = [];
+  function rec() {
+    if (cur.length === n) return fn(cur.slice());
+    for (var i = 0; i < n; i++) {
+      if (used[i]) continue;
+      used[i] = true; cur.push(list[i]);
+      if (rec()) return true;
+      cur.pop(); used[i] = false;
+    }
+    return false;
+  }
+  rec();
+}
+
+function align(other, reference) {
+  /* Re-slot `other` so players shared with `reference` sit in the same slots. */
+  var remaining = lineupStarters(other);
+  var entries = reference.entries.map(function (e) { return { slot: e.slot, allowed: e.allowed, player: null }; });
+  for (var i = 0; i < reference.entries.length; i++) {
+    var e = reference.entries[i];
+    if (e.player) {
+      var hitIdx = -1;
+      for (var r = 0; r < remaining.length; r++) if (remaining[r].name === e.player.name) { hitIdx = r; break; }
+      if (hitIdx >= 0) { entries[i].player = remaining[hitIdx]; remaining.splice(hitIdx, 1); }
+    }
+  }
+  var empties = [];
+  entries.forEach(function (e, idx) { if (e.player === null) empties.push(idx); });
+  var result = null;
+  permutations(remaining, function (perm) {
+    var m = Math.min(empties.length, perm.length), ok = true;
+    for (var z = 0; z < m; z++) if (entries[empties[z]].allowed.indexOf(perm[z].pos) < 0) { ok = false; break; }
+    if (ok) {
+      for (var z2 = 0; z2 < m; z2++) entries[empties[z2]].player = perm[z2];
+      result = { entries: entries, key: other.key };
+      return true;
+    }
+    return false;
+  });
+  return result || other;
+}
+
+function bench(players, lineup) {
+  var names = lineupNames(lineup);
+  return players.filter(function (p) { return !names[p.name]; }).sort(function (p, q) { return q.proj - p.proj; });
+}
+
+function closeCalls(lineup, benchPlayers, within) {
+  var out = [];
+  lineup.entries.forEach(function (e) {
+    if (!e.player) return;
+    benchPlayers.forEach(function (b) {
+      if (e.allowed.indexOf(b.pos) >= 0 && Math.abs(e.player.proj - b.proj) <= within + 1e-9) {
+        out.push({ slot: e.slot, starter: e.player, other: b, gap: Math.abs(e.player.proj - b.proj) });
+      }
+    });
+  });
+  return out.sort(function (c, d) { return c.gap - d.gap; });
+}
+
+function deltaChange(d) { return lineupTotal(d.after, "proj") - lineupTotal(d.before, "proj"); }
+function startersOut(d) { var after = lineupNames(d.after); return lineupStarters(d.before).filter(function (p) { return !after[p.name]; }); }
+function startersIn(d) { var before = lineupNames(d.before); return lineupStarters(d.after).filter(function (p) { return !before[p.name]; }); }
+function positionChanges(d) {
+  var out = {};
+  [[d.before, -1], [d.after, 1]].forEach(function (pair) {
+    lineupStarters(pair[0]).forEach(function (p) {
+      var label = p.pos === "DST" ? "DEF" : p.pos;
+      out[label] = (out[label] || 0.0) + pair[1] * p.proj;
+    });
+  });
+  var order = ["QB", "RB", "WR", "TE", "K", "DEF"], res = {};
+  order.forEach(function (k) { if (k in out && Math.abs(out[k]) > 1e-9) res[k] = out[k]; });
+  return res;
+}
+
+function applyTrade(players, give, get, slots) {
+  var giveNames = {};
+  give.forEach(function (p) { giveNames[p.name] = true; });
+  var after = players.filter(function (p) { return !giveNames[p.name]; }).concat(get);
+  return { before: bestLineup(players, slots), after: bestLineup(after, slots) };
+}
+
+function weakestBench(players, lineup) {
+  var b = bench(players, lineup);
+  if (b.length) return b[b.length - 1];
+  var starters = lineupStarters(lineup);
+  if (!starters.length) return null;
+  var m = starters[0];
+  for (var i = 1; i < starters.length; i++) if (starters[i].proj < m.proj) m = starters[i];
+  return m;
+}
+
+function applyWaiver(players, add, drop, slots) {
+  var before = bestLineup(players, slots);
+  var isDefault = (drop === null || drop === undefined);
+  if (isDefault) drop = weakestBench(players, before);
+  var afterPlayers = players.filter(function (p) { return drop === null || p.name !== drop.name; }).concat([add]);
+  return { add: add, drop: drop, delta: { before: before, after: bestLineup(afterPlayers, slots) }, dropWasDefault: isDefault };
+}
+
+function rankCandidates(players, candidates, drop, slots) {
+  var results = candidates.map(function (c) { return applyWaiver(players, c, drop, slots); });
+  return results.sort(function (r, s) { return (deltaChange(s.delta) - deltaChange(r.delta)) || (s.add.proj - r.add.proj); });
+}
+
+/* ---------------------------------------------------------------- helper.py */
+
+var MISMATCH_TOLERANCE = 0.5;
+
+function resolveName(name, pos, projset) { return matchName(name, pos, allProjections(projset)); }
+
+function ctxProjected(ctx, player) { return ctx.players.some(function (p) { return p.name === player.name; }); }
+
+function mismatchWarnings(projset, rules) {
+  var weekly = !projset.season, off = [];
+  allProjections(projset).forEach(function (p) {
+    if (p.fpts === null || p.fpts === undefined) return;
+    var mine = makePlayer(p, rules, weekly).proj;
+    if (Math.abs(mine - p.fpts) > MISMATCH_TOLERANCE) off.push([Math.abs(mine - p.fpts), p, mine]);
+  });
+  if (!off.length) return [];
+  var nonK = off.filter(function (o) { return o[1].pos !== "K"; });
+  var pool = nonK.length ? nonK : off, worst = pool[0];
+  for (var i = 1; i < pool.length; i++) if (pool[i][0] > worst[0]) worst = pool[i];
+  var p = worst[1], mine = worst[2], others = off.length - 1;
+  var tail = others ? " (" + others + " other player" + (others !== 1 ? "s" : "") + " differ too)" : "";
+  var fp = FANTASYPROS_HALF_PPR, why = [];
+  if (rules.fg !== fp.fg) why.push("league.txt pays " + pyG(rules.fg) + " per field goal and FantasyPros' FPTS column uses a flat " + pyG(fp.fg));
+  if ((rules.fg_missed === undefined ? 0 : rules.fg_missed) !== fp.fg_missed) {
+    why.push("league.txt takes " + pyG(rules.fg_missed) + " per missed field goal (FGA minus FG) and FantasyPros' FPTS column takes nothing off");
+  }
+  if (!nonK.length && why.length) {
+    return [p.name + " (K): I get " + fmtFixed(mine, 1) + ", FantasyPros' own number is " + fmtFixed(p.fpts, 1) + tail + ". " +
+      "That is expected: " + why.join("; ") + "; the lineup uses my number."];
+  }
+  return [p.name + ": I get " + fmtFixed(mine, 1) + " from the stat columns, FantasyPros' own FPTS number is " + fmtFixed(p.fpts, 1) + tail + ". " +
+    "Your league.txt may not match the scoring (Standard / Half PPR / PPR) selected on FantasyPros when " +
+    "you downloaded. The lineup uses MY number (your scoring); FPTS is shown for comparison only."];
+}
+
+function loadContext(league, roster, projset, label) {
+  /* league {slots, scoring}, roster [[name, pos]], projset from loadProjections -> context. */
+  var weekly = !projset.season;
+  var players = [], matchLines = [], matches = [], unmatched = [], problems = [], entries = [], seen = {};
+  var prefix = label ? "(" + label + ") " : "";
+  roster.forEach(function (row) {
+    var name = row[0], pos = row[1];
+    var m = resolveName(name, pos, projset);
+    if (m.projection === null) {
+      var why = m.detail || "not in any projection file (typo in roster.csv, or on bye / injured / not projected)";
+      var elsewhere = (pos && !m.detail) ? resolveName(name, "", projset).projection : null;
+      if (elsewhere !== null && elsewhere !== undefined) {
+        why = "roster.csv says " + (pos === "DST" ? "DEF" : pos) + " but '" + elsewhere.name + "' is in the " +
+          (elsewhere.pos === "DST" ? "DEF" : elsewhere.pos) + " file; change the position in roster.csv (or leave it blank)";
+      }
+      unmatched.push(prefix + "'" + name + "': " + why);
+      entries.push({ name: name, pos: pos, player: null });
+      return;
+    }
+    var key = normalise(m.projection.name);
+    if (seen[key]) {
+      var who = name === m.projection.name ? "is listed twice" : "is '" + m.projection.name + "', which is already listed";
+      problems.push(prefix + "Duplicate in roster.csv: '" + name + "' " + who + "; the second row is skipped.");
+      return;
+    }
+    seen[key] = true;
+    if (m.line) matchLines.push(prefix + m.line);
+    matches.push(m);
+    var player = makePlayer(m.projection, league.scoring, weekly);
+    players.push(player);
+    entries.push({ name: name, pos: pos, player: player });
+  });
+  var notes = [];
+  var est = players.filter(function (p) { return p.ceilEstimated; });
+  if (est.length) {
+    notes.push(prefix + "Ceiling for " + est.length + " of " + players.length + " players is estimated as projection + " +
+      "(projection - floor) because the file has no 'high' row for them.");
+  }
+  var nolow = players.filter(function (p) { return !p.hasLow; });
+  if (nolow.length) {
+    notes.push(prefix + nolow.length + " player(s) have no 'low' row, so their floor equals their projection: " + nolow.map(function (p) { return p.name; }).join(", "));
+  }
+  if (projset.season) {
+    notes.push(prefix + "Season-total file: the defense points-allowed tier was skipped (PA is a season total there, not one game's).");
+  }
+  return { league: league, proj: projset, players: players, matchLines: matchLines, matches: matches, unmatched: unmatched, notes: notes,
+    warnings: mismatchWarnings(projset, league.scoring).map(function (w) { return prefix + w; }), roster: entries, problems: problems,
+    weekly: weekly };
+}
+
+function floorDifferences(best, floor) {
+  var out = [];
+  for (var i = 0; i < best.entries.length; i++) {
+    var eb = best.entries[i], ef = floor.entries[i];
+    var same = (eb.player === null && ef.player === null) || (eb.player && ef.player && eb.player.name === ef.player.name);
+    if (!same) {
+      out.push(eb.slot + ": " + ef.player.name + " (floor " + pts(ef.player.floor) + ") instead of " +
+        (eb.player ? eb.player.name : "(empty)") + " (floor " + (eb.player ? pts(eb.player.floor) : "0.0") + ")");
+    }
+  }
+  return out;
+}
+
+function baseReport(ctx, command, within) {
+  var lu = bestLineup(ctx.players, ctx.league.slots, "proj", "floor");
+  var fl = align(bestLineup(ctx.players, ctx.league.slots, "floor", "proj"), lu);
+  var b = bench(ctx.players, lu);
+  return { command: command, kindNote: ctx.proj.kindNote, matchLines: ctx.matchLines.slice(), unmatched: ctx.unmatched.slice(),
+    lineup: lu, floorLineup: fl, bench: b, close: closeCalls(lu, b, within), closeWithin: within,
+    notes: ctx.notes.slice(), warnings: ctx.warnings.slice(), problems: ctx.problems.slice(), trade: null, waiver: null };
+}
+
+function notProjectedStandIn(name, pos) {
+  return { name: name, pos: pos, proj: 0.0, floor: 0.0, ceil: 0.0, ceilEstimated: false, fptsCsv: null, team: "", hasLow: false };
+}
+
+function findOnRoster(ctx, name, matchLines) {
+  var q = normalise(name), i;
+  for (i = 0; i < ctx.players.length; i++) if (normalise(ctx.players[i].name) === q) return ctx.players[i];
+  var m = matchName(name, "", ctx.roster);
+  if (m.projection !== null) {
+    var entry = m.projection;
+    if (m.line && matchLines) matchLines.push(m.line.replace("fix roster.csv if that is wrong", "check the spelling if that is wrong"));
+    return entry.player || notProjectedStandIn(entry.name, entry.pos);
+  }
+  var close = ctx.players.filter(function (p) { return normalise(p.name).indexOf(q) >= 0; });
+  if (close.length === 1) return close[0];
+  throw ExportFormatError("'" + name + "' is not on your roster. roster.csv lists: " + ctx.roster.map(function (e) { return e.name; }).join(", "));
+}
+
+function findInFiles(ctx, name, matchLines) {
+  var m = resolveName(name, "", ctx.proj);
+  if (m.projection === null) {
+    throw ExportFormatError("COULD NOT FIND '" + name + "' in the projection files in " + ctx.proj.where +
+      (m.detail ? " (" + m.detail + ")" : "") + ". Check the spelling on FantasyPros.");
+  }
+  if (m.line) matchLines.push(m.line);
+  var key = normalise(m.projection.name);
+  if (ctx.players.some(function (p) { return normalise(p.name) === key; })) throw ExportFormatError("'" + m.projection.name + "' is already on your roster.");
+  return makePlayer(m.projection, ctx.league.scoring, ctx.weekly);
+}
+
+function tradeVerdict(week, ros, giveOnBench) {
+  var s = "Your starting lineup goes from " + pts(lineupTotal(week.before, "proj")) + " to " + pts(lineupTotal(week.after, "proj")) +
+    " this week (" + spts(deltaChange(week)) + ")";
+  if (ros !== null && ros !== undefined) {
+    s += " and from " + pts(lineupTotal(ros.before, "proj")) + " to " + pts(lineupTotal(ros.after, "proj")) + " rest of season (" + spts(deltaChange(ros)) + ")";
+  }
+  var changes = positionChanges(week), gains = [], losses = [];
+  Object.keys(changes).forEach(function (k) { if (changes[k] > 0) gains.push(k); else if (changes[k] < 0) losses.push(k); });
+  var depthSet = {};
+  giveOnBench.forEach(function (p) { if (p.pos) depthSet[p.pos === "DST" ? "DEF" : p.pos] = true; });
+  var depth = Object.keys(depthSet).sort();
+  var parts = [];
+  if (gains.length) parts.push("the gain is at " + gains.join(", "));
+  if (losses.length) parts.push("the loss is at " + losses.join(", "));
+  if (depth.length) parts.push("the loss is " + depth.join(", ") + " depth (bench)");
+  if (!gains.length && !losses.length) parts.unshift("no starter changes this week");
+  return s + "; " + parts.join(", ") + ".";
+}
+
+function uniqueNames(names, flag, problems) {
+  var out = [], seen = {};
+  names.forEach(function (n) {
+    var k = normalise(n);
+    if (seen[k]) { problems.push("'" + n + "' was given twice with " + flag + "; counted once."); return; }
+    seen[k] = true; out.push(n);
+  });
+  return out;
+}
+
+function tradeReport(ctx, giveNames, getNames, within, rosCtx) {
+  var rep = baseReport(ctx, "trade", within);
+  giveNames = uniqueNames(giveNames, "--give", rep.problems);
+  getNames = uniqueNames(getNames, "--get", rep.problems);
+  var give = giveNames.map(function (n) { return findOnRoster(ctx, n, rep.matchLines); });
+  var get = getNames.map(function (n) { return findInFiles(ctx, n, rep.matchLines); });
+  var notes = give.filter(function (p) { return !ctxProjected(ctx, p); })
+    .map(function (p) { return p.name + " is not projected this week (bye or out?), so giving him counts as 0.0 this week."; });
+  var week = applyTrade(ctx.players, give, get, ctx.league.slots);
+  var ros = null;
+  if (rosCtx) {
+    var prefix = "(rest of season) ";
+    [[rep.matchLines, rosCtx.matchLines], [rep.unmatched, rosCtx.unmatched], [rep.notes, rosCtx.notes], [rep.warnings, rosCtx.warnings]].forEach(function (pair) {
+      var mine = pair[0];
+      pair[1].forEach(function (x) { if (mine.indexOf(x.replace(prefix, "")) < 0) mine.push(x); });
+    });
+    if (!rosCtx.proj.season) {
+      rep.warnings.push("The --ros folder " + rosCtx.proj.kindNote + "; rest-of-season numbers should be season-style totals.");
+    }
+    var rosGive = [], rosGet = [], missing = [];
+    giveNames.forEach(function (n) {
+      var p = findOnRoster(rosCtx, n, null);
+      rosGive.push(p);
+      if (!ctxProjected(rosCtx, p)) notes.push("(rest of season) " + p.name + " is not in the --ros files, so giving him counts as 0.0 there.");
+    });
+    getNames.forEach(function (n) {
+      try { rosGet.push(findInFiles(rosCtx, n, rep.matchLines)); }
+      catch (e) { if (e.name !== "ExportFormatError") throw e; missing.push(n); rep.problems.push("(rest of season) Skipped trade target: " + e.message); }
+    });
+    if (missing.length) {
+      notes.push("(rest of season) not computed: " + missing.join(", ") + " " + (missing.length === 1 ? "is" : "are") + " not in the --ros files.");
+    } else {
+      ros = applyTrade(rosCtx.players, rosGive, rosGet, rosCtx.league.slots);
+    }
+  }
+  var beforeNames = lineupNames(week.before);
+  var giveOnBench = give.filter(function (p) { return !beforeNames[p.name]; });
+  rep.trade = { give: give, get: get, week: week, ros: ros, verdict: tradeVerdict(week, ros, giveOnBench), notes: notes };
+  return rep;
+}
+
+function waiverReport(ctx, addName, dropName, candidateNames, within) {
+  var rep = baseReport(ctx, "waiver", within);
+  var drop = dropName ? findOnRoster(ctx, dropName, rep.matchLines) : null;
+  var notes = [];
+  if (drop !== null && !ctxProjected(ctx, drop)) notes.push(drop.name + " is not projected this week (bye or out?), so dropping him costs 0.0 this week.");
+  var single = null;
+  if (addName) {
+    var add = findInFiles(ctx, addName, rep.matchLines);
+    single = applyWaiver(ctx.players, add, drop, ctx.league.slots);
+  }
+  var cands = [];
+  uniqueNames(candidateNames, "--candidates", rep.problems).forEach(function (n) {
+    try { cands.push(findInFiles(ctx, n, rep.matchLines)); }
+    catch (e) { if (e.name !== "ExportFormatError") throw e; rep.problems.push("Skipped candidate: " + e.message); }
+  });
+  var ranked = cands.length ? rankCandidates(ctx.players, cands, drop, ctx.league.slots) : [];
+  rep.waiver = { single: single, ranked: ranked, notes: notes };
+  return rep;
+}
+
+/* ---------------------------------------------------------------- plain-data view of a report (for tests and the page) */
+
+function lineupJson(lu) {
+  return { slots: lu.entries.map(function (e) { return { slot: e.slot, player: e.player ? e.player.name : null,
+      proj: e.player ? e.player.proj : null, floor: e.player ? e.player.floor : null, ceil: e.player ? e.player.ceil : null }; }),
+    projTotal: lineupTotal(lu, "proj"), floorTotal: lineupTotal(lu, "floor"), ceilTotal: lineupTotal(lu, "ceil") };
+}
+
+function deltaJson(d) {
+  return { before: lineupTotal(d.before, "proj"), after: lineupTotal(d.after, "proj"), change: deltaChange(d),
+    beforeFloor: lineupTotal(d.before, "floor"), afterFloor: lineupTotal(d.after, "floor"),
+    startersOut: startersOut(d).map(function (p) { return p.name + " (" + slotOf(d.before, p.name) + ")"; }),
+    startersIn: startersIn(d).map(function (p) { return p.name + " (" + slotOf(d.after, p.name) + ")"; }),
+    positionChanges: positionChanges(d) };
+}
+
+function reportJson(rep) {
+  var out = {
+    kindNote: rep.kindNote, matchLines: rep.matchLines, unmatched: rep.unmatched, problems: rep.problems,
+    lineup: lineupJson(rep.lineup), floorLineup: lineupJson(rep.floorLineup), floorDifferences: floorDifferences(rep.lineup, rep.floorLineup),
+    close: rep.close.map(function (c) { return { slot: c.slot, starter: c.starter.name, other: c.other.name, gap: c.gap,
+      starterProj: c.starter.proj, otherProj: c.other.proj, starterFloor: c.starter.floor, otherFloor: c.other.floor }; }),
+    bench: rep.bench.map(function (p) { return { name: p.name, pos: p.pos === "DST" ? "DEF" : p.pos, proj: p.proj, floor: p.floor, ceil: p.ceil, fpts: p.fptsCsv }; }),
+    notes: rep.notes, warnings: rep.warnings, trade: null, waiver: null
+  };
+  if (rep.trade) {
+    var t = rep.trade;
+    out.trade = { give: t.give.map(function (p) { return { name: p.name, pos: p.pos === "DST" ? "DEF" : p.pos, proj: p.proj }; }),
+      get: t.get.map(function (p) { return { name: p.name, pos: p.pos === "DST" ? "DEF" : p.pos, proj: p.proj }; }),
+      week: deltaJson(t.week), ros: t.ros ? deltaJson(t.ros) : null, verdict: t.verdict, notes: t.notes };
+  }
+  if (rep.waiver) {
+    var w = rep.waiver;
+    out.waiver = { notes: w.notes, single: null,
+      ranked: w.ranked.map(function (r) { return { name: r.add.name, pos: r.add.pos === "DST" ? "DEF" : r.add.pos, proj: r.add.proj,
+        gain: deltaChange(r.delta), drop: r.drop ? r.drop.name : null, dropWasDefault: r.dropWasDefault,
+        startersOut: startersOut(r.delta).map(function (p) { return p.name; }) }; }) };
+    if (w.single) {
+      var s = w.single;
+      out.waiver.single = { name: s.add.name, pos: s.add.pos === "DST" ? "DEF" : s.add.pos, proj: s.add.proj, gain: deltaChange(s.delta),
+        drop: s.drop ? s.drop.name : null, dropProj: s.drop ? s.drop.proj : null, dropWasDefault: s.dropWasDefault,
+        before: lineupTotal(s.delta.before, "proj"), after: lineupTotal(s.delta.after, "proj"),
+        startersIn: startersIn(s.delta).map(function (p) { return p.name + " starts at " + slotOf(s.delta.after, p.name); }),
+        startersOut: startersOut(s.delta).map(function (p) { return p.name; }) };
+    }
+  }
+  return out;
+}
+</script>
+
+<script id="ui">
+(function () {
+'use strict';
+var $ = function (id) { return document.getElementById(id); };
+var STORAGE_KEY = "fantasy_helper_page_v1";
+var SAMPLE_FILE_NAMES = { QB: "FantasyPros_Fantasy_Football_Projections_QB.csv", RB: "FantasyPros_Fantasy_Football_Projections_RB.csv",
+  WR: "FantasyPros_Fantasy_Football_Projections_WR.csv", TE: "FantasyPros_Fantasy_Football_Projections_TE.csv",
+  K: "FantasyPros_Fantasy_Football_Projections_K.csv", DST: "FantasyPros_Fantasy_Football_Projections_DST.csv" };
+var POS_LABEL = { QB: "QB (quarterback)", RB: "RB (running back)", WR: "WR (wide receiver)", TE: "TE (tight end)", K: "K (kicker)", DST: "DST (defense / special teams)" };
+
+var SLOT_FIELDS = [["QB", "QB"], ["RB", "RB"], ["WR", "WR"], ["TE", "TE"], ["FLEX", "Flex"], ["K", "K (kicker)"], ["DEF", "DEF (defense)"]];
+var FLEX_OPTIONS = ["WR", "RB", "TE", "QB"];
+var SCORING_FIELDS = [
+  ["Passing", "pass_yds", "per", "Passing yards", "Yahoo default: 1 point per 25 yards."],
+  ["Passing", "pass_td", "pts", "Passing touchdown", "Points for each one thrown."],
+  ["Passing", "pass_int", "pts", "Interception thrown", "Usually a minus number."],
+  ["Running and catching", "rush_yds", "per", "Rushing yards", "Yahoo default: 1 point per 10 yards."],
+  ["Running and catching", "rush_td", "pts", "Rushing touchdown", ""],
+  ["Running and catching", "rec", "pts", "Each catch (reception)", "0 in a standard league, 0.5 in a half-PPR league, 1 in a full PPR league (PPR means a point per reception, that is, per catch)."],
+  ["Running and catching", "rec_yds", "per", "Receiving yards", "Yahoo default: 1 point per 10 yards."],
+  ["Running and catching", "rec_td", "pts", "Receiving touchdown", ""],
+  ["Running and catching", "fumble_lost", "pts", "Fumble lost", "Usually a minus number."],
+  ["Kicking", "fg", "pts", "Field goal made", "One average value for every distance, because the file has none. 3.3 estimates Yahoo's 3, 4 and 5 by distance."],
+  ["Kicking", "fg_missed", "pts", "Field goal missed", "Yahoo default is 0 (no penalty)."],
+  ["Kicking", "xpt", "pts", "Extra point made", ""],
+  ["Defense / special teams", "dst_sack", "pts", "Sack", ""],
+  ["Defense / special teams", "dst_int", "pts", "Interception", ""],
+  ["Defense / special teams", "dst_fr", "pts", "Fumble recovery", ""],
+  ["Defense / special teams", "dst_td", "pts", "Touchdown", ""],
+  ["Defense / special teams", "dst_safety", "pts", "Safety", ""],
+  ["Defense / special teams", "dst_pa_0", "pts", "Points allowed: 0", ""],
+  ["Defense / special teams", "dst_pa_1_6", "pts", "Points allowed: 1 to 6", ""],
+  ["Defense / special teams", "dst_pa_7_13", "pts", "Points allowed: 7 to 13", ""],
+  ["Defense / special teams", "dst_pa_14_20", "pts", "Points allowed: 14 to 20", ""],
+  ["Defense / special teams", "dst_pa_21_27", "pts", "Points allowed: 21 to 27", ""],
+  ["Defense / special teams", "dst_pa_28_34", "pts", "Points allowed: 28 to 34", ""],
+  ["Defense / special teams", "dst_pa_35", "pts", "Points allowed: 35 or more", ""]
+];
+
+function defaultSettings() {
+  return { counts: Object.assign({}, DEFAULT_SLOTS), flexFrom: DEFAULT_FLEX_FROM.slice(), scoring: Object.assign({}, DEFAULT_SCORING) };
+}
+var state = {
+  files: {}, rosFiles: {}, ignored: { week: [], ros: [] }, current: 0, example: null, own: null, ran: false, problem: "",
+  leagues: [{ name: "League 1", roster: "", settings: defaultSettings() }, { name: "League 2", roster: "", settings: defaultSettings() }],
+  ctx: null, rosCtx: null, rosError: "", tidied: []
+};
+
+/* ---------- storage (works without it) */
+function loadState() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    var saved = JSON.parse(raw);
+    if (saved && saved.leagues && saved.leagues.length === 2) {
+      saved.leagues.forEach(function (lg, i) {
+        state.leagues[i].name = typeof lg.name === "string" && lg.name ? lg.name : state.leagues[i].name;
+        state.leagues[i].roster = typeof lg.roster === "string" ? lg.roster : "";
+        if (lg.settings && lg.settings.counts && lg.settings.scoring && lg.settings.flexFrom) {
+          state.leagues[i].settings = { counts: Object.assign({}, DEFAULT_SLOTS, lg.settings.counts), flexFrom: lg.settings.flexFrom.slice(),
+            scoring: Object.assign({}, DEFAULT_SCORING, lg.settings.scoring) };
+        }
+      });
+      state.current = saved.current === 1 ? 1 : 0;
+    }
+  } catch (e) { /* storage unavailable: the page still works */ }
+}
+function saveState() {
+  if (state.example) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ current: state.current, leagues: state.leagues }));
+  } catch (e) { /* ignore */ }
+}
+
+/* ---------- small helpers */
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+function showError(id, msg) { var el = $(id); el.textContent = msg; el.hidden = !msg; }
+function posWord(p) { return p === "DST" ? "DEF" : p; }
+function plain(s) {
+  /* The logic block speaks like the command-line tool; translate its file names into page words. */
+  return String(s)
+    .replace(/^\(rest of season\) /, "Rest of season: ")
+    .replace(/^The --ros folder look like WEEKLY numbers \(([^;]*);[^)]*\); rest-of-season numbers should be season-style totals\.$/,
+      "The rest-of-season files look like one week's numbers, not season totals ($1). Download the rest-of-season view for these; the 'rest of season' numbers above mean nothing until you do.")
+    .replace(/fix roster\.csv if that is wrong/g, "fix the name in step 2 if that is wrong")
+    .replace(/typo in roster\.csv, or on bye \/ injured \/ not projected/g, "check the spelling in step 2 and type only the name, nothing after it; or he may be on bye, injured or not projected")
+    .replace(/typo in roster\.csv/g, "check the spelling in step 2 and type only the name, nothing after it")
+    .replace(/: I get /g, ": this page gets ")
+    .replace(/The lineup uses MY number \(your scoring\)/g, "The lineup uses this page's number (your scoring)")
+    .replace(/the lineup uses my number/g, "the lineup uses this page's number")
+    .replace(/roster\.csv says/g, "your team list says")
+    .replace(/change the position in roster\.csv/g, "change the position in step 2")
+    .replace(/Duplicate in roster\.csv/g, "Duplicate in your team list")
+    .replace(/roster\.csv lists/g, "your team list has")
+    .replace(/Your league\.txt may not match/g, "Your scoring in step 3 may not match")
+    .replace(/league\.txt pays/g, "step 3 pays")
+    .replace(/league\.txt takes/g, "step 3 takes")
+    .replace(/league\.txt/g, "step 3")
+    .replace(/The --ros folder/g, "The rest-of-season files")
+    .replace(/the --ros files/g, "the rest-of-season files")
+    .replace(/was given twice with --\w+/g, "was listed twice")
+    .replace(/in the projection files in this week's files/g, "in this week's projection files")
+    .replace(/in the projection files in the rest-of-season files/g, "in the rest-of-season projection files")
+    .replace(/EXPECTED_HEADERS needs a one-line fix/g, "this page needs a small update")
+    .replace(/FantasyPros' own FPTS number/g, "FantasyPros' own points number (the FPTS column in the file)")
+    .replace(/FantasyPros' FPTS column/g, "FantasyPros' own points column")
+    .replace(/FPTS is shown for comparison only/g, "their number is shown for comparison only")
+    .replace(/the scoring \(Standard \/ Half PPR \/ PPR\) selected on FantasyPros/g, "the scoring tab (Standard, Half PPR or PPR; PPR means a point per catch) selected on FantasyPros");
+}
+function spellingNote(s) {
+  /* A name typed in the trade or pickup boxes lives there, not in step 2 (the Python tool rewrites the same way for --give / --drop). */
+  return String(s).replace(/fix roster\.csv if that is wrong/g, "check the spelling if that is wrong");
+}
+function nameWarning(w) {
+  /* The scoring-mismatch note names the worst player in the whole file, who need not be on the user's team. */
+  var m = /^(\(rest of season\) )?(.+?)( \(K\))?: I get /.exec(w);
+  if (m && state.ctx && !state.ctx.players.some(function (p) { return p.name === m[2]; })) {
+    var head = m[2] + (m[3] || "");
+    return w.replace(head + ": I get ", m[2] + " (" + (m[3] ? "K, " : "") + "a player in the file, not on your team): I get ");
+  }
+  return w;
+}
+function readFileText(file) {
+  return new Promise(function (resolve, reject) {
+    var r = new FileReader();
+    r.onload = function () { resolve({ name: file.name, text: String(r.result) }); };
+    r.onerror = function () { reject(new Error("Could not read " + file.name)); };
+    r.readAsText(file);
+  });
+}
+function sample(id) { return $(id).textContent; }
+function sampleFiles(folder) {
+  var out = {};
+  POSITIONS.forEach(function (pos) { out[pos] = { name: SAMPLE_FILE_NAMES[pos], text: sample("sample-" + folder + "-" + pos) }; });
+  return out;
+}
+
+/* ---------- step 1: files */
+function takeFiles(list, target, errId, statusId, ignoredKey) {
+  var batch = {}, ignored = [], problem = "";
+  list.forEach(function (f) {
+    var poss = positionsInFileName(f.name);
+    if (fileExt(f.name) !== ".csv" || !poss.length) { ignored.push(f.name); return; }
+    poss.forEach(function (pos) {
+      if (batch[pos]) problem = "You chose two " + pos + " files at once: " + batch[pos].name + " and " + f.name + ". Keep one of them.";
+      batch[pos] = f;
+    });
+  });
+  if (problem) { showError(errId, problem); return; }
+  Object.keys(batch).forEach(function (pos) { target[pos] = batch[pos]; });
+  state.ignored[ignoredKey] = ignored;
+  showError(errId, "");
+  renderStatus(target, statusId, ignoredKey);
+}
+function renderStatus(target, statusId, ignoredKey) {
+  var html = "";
+  POSITIONS.forEach(function (pos) {
+    var f = target[pos];
+    if (!f) { html += "<li class='missing'>" + esc(POS_LABEL[pos]) + ": not chosen yet</li>"; return; }
+    try {
+      var n = parseProjectionFile(f.text, pos, f.name).length;
+      html += "<li class='ok'>" + esc(POS_LABEL[pos]) + ": " + esc(f.name) + " (" + n + " players)</li>";
+    } catch (e) {
+      html += "<li class='problem'>" + esc(POS_LABEL[pos]) + ": " + esc(f.name) + " " + esc(plain(e.message).split("\n")[0].replace(f.name + " ", "")) +
+        " Open the file in Excel and check the first line of headings; make sure you downloaded Projections, not Rankings.</li>";
+    }
+  });
+  (state.ignored[ignoredKey] || []).forEach(function (n) {
+    html += "<li class='missing'>Ignored " + esc(n) + ": the file name has no position word (QB, RB, WR, TE, K, DST or DEF) and it must end in .csv.</li>";
+  });
+  $(statusId).innerHTML = html;
+  if (statusId === "status-week") nextNote();
+}
+function nextNote() {
+  /* After the six files are in and nothing has run yet: say what to do next. */
+  var all = POSITIONS.every(function (pos) { return state.files[pos]; });
+  var note = "";
+  if (all && !state.ran && !state.example) {
+    note = $("roster").value.trim() ? "All six files are in. Now press 'Show my best lineup' under step 3." :
+      "All six files are in. Now type your team in step 2, then press 'Show my best lineup' under step 3.";
+  }
+  $("next-note").textContent = note;
+  $("next-note").hidden = !note;
+}
+function onFilesChosen(inputId, key, errId, statusId, ignoredKey) {
+  /* key: "files" or "rosFiles"; looked up after leaveExample, which swaps those objects back to the user's own. */
+  var input = $(inputId), files = Array.prototype.slice.call(input.files || []);
+  if (!files.length) return;
+  Promise.all(files.map(readFileText)).then(function (list) {
+    if (state.example) leaveExample(inputId);
+    takeFiles(list, state[key], errId, statusId, ignoredKey);
+    if (state.ran) computeNow({});
+  }).catch(function (e) { showError(errId, e.message); });
+}
+
+/* ---------- step 2 and 3: league fields */
+function buildFields() {
+  var html = "";
+  SLOT_FIELDS.forEach(function (f) {
+    html += "<div class='field'><label for='slot-" + f[0] + "'>" + esc(f[1]) + "</label><input type='number' min='0' step='1' inputmode='numeric' id='slot-" + f[0] + "'></div>";
+  });
+  $("slot-fields").innerHTML = html;
+  html = "";
+  FLEX_OPTIONS.forEach(function (p) {
+    html += "<label class='check' style='flex:0 0 auto'><input type='checkbox' id='flex-" + p + "'>" + p + "</label>";
+  });
+  $("flex-fields").innerHTML = html;
+  html = ""; var group = "";
+  SCORING_FIELDS.forEach(function (f) {
+    if (f[0] !== group) { if (group) html += "</div>"; group = f[0]; html += "<h3>" + esc(group) + "</h3><div class='fields'>"; }
+    var help = f[4] ? "<span class='mute'>" + esc(f[4]) + "</span>" : "";
+    if (f[2] === "per") {
+      html += "<div class='field'><label for='sc-" + f[1] + "'>" + esc(f[3]) + help + "</label><div class='per'><span>1 point per</span>" +
+        "<input type='number' step='any' min='0' inputmode='decimal' id='sc-" + f[1] + "'><span>yards</span></div></div>";
+    } else {
+      html += "<div class='field'><label for='sc-" + f[1] + "'>" + esc(f[3]) + help + "</label><input type='number' step='any' inputmode='decimal' id='sc-" + f[1] + "'></div>";
+    }
+  });
+  if (group) html += "</div>";
+  $("scoring-fields").innerHTML = html;
+}
+function fillSettings(s) {
+  SLOT_FIELDS.forEach(function (f) { $("slot-" + f[0]).value = s.counts[f[0]] === undefined ? 0 : s.counts[f[0]]; });
+  FLEX_OPTIONS.forEach(function (p) { $("flex-" + p).checked = s.flexFrom.indexOf(p) >= 0; });
+  SCORING_FIELDS.forEach(function (f) {
+    var v = s.scoring[f[1]];
+    if (f[2] === "per") $("sc-" + f[1]).value = v ? String(Math.round(1 / v * 1e6) / 1e6) : "0";
+    else $("sc-" + f[1]).value = v === undefined ? "" : String(v);
+  });
+}
+function readSettings() {
+  /* fields -> settings; throws a plain-English Error for a bad field */
+  var s = { counts: {}, flexFrom: [], scoring: {} };
+  SLOT_FIELDS.forEach(function (f) {
+    var v = $("slot-" + f[0]).value.trim();
+    if (!/^\d+$/.test(v)) throw new Error("Starting spots: '" + f[1] + "' must be a whole number (0 or more).");
+    s.counts[f[0]] = parseInt(v, 10);
+  });
+  FLEX_OPTIONS.forEach(function (p) { if ($("flex-" + p).checked) s.flexFrom.push(p); });
+  if (s.counts.FLEX > 0 && !s.flexFrom.length) throw new Error("You have a flex spot but no position ticked for it. Tick at least one of RB, WR, TE.");
+  if (!s.flexFrom.length) s.flexFrom = DEFAULT_FLEX_FROM.slice();
+  SCORING_FIELDS.forEach(function (f) {
+    var v = $("sc-" + f[1]).value.trim();
+    if (v === "" || isNaN(Number(v))) throw new Error("Scoring: '" + f[3] + "' needs a number.");
+    var n = Number(v);
+    if (f[2] === "per") {
+      if (n < 0) throw new Error("Scoring: '" + f[3] + "' cannot be below 0.");
+      s.scoring[f[1]] = n === 0 ? 0 : 1 / n;
+    } else s.scoring[f[1]] = n;
+  });
+  return s;
+}
+function currentLeague() { return state.leagues[state.current]; }
+function showLeague(i) {
+  state.current = i;
+  $("btn-league-0").setAttribute("aria-pressed", i === 0 ? "true" : "false");
+  $("btn-league-1").setAttribute("aria-pressed", i === 1 ? "true" : "false");
+  var lg = currentLeague();
+  $("league-name").value = lg.name;
+  $("btn-league-0").textContent = state.leagues[0].name;
+  $("btn-league-1").textContent = state.leagues[1].name;
+  $("roster").value = lg.roster;
+  fillSettings(lg.settings);
+}
+function switchLeague(i) {
+  if (state.example) leaveExample();
+  showLeague(i);
+  saveState();
+  showError("err-roster", ""); showError("err-settings", "");
+  nextNote();
+  if (state.ran) { computeNow({}); if (state.ctx) showTab("lineup"); }
+}
+function leaveExample(keepInputId) {
+  /* Back to the user's own saved team, scoring and files. Nothing from the example is kept, and nothing
+     typed while it was loaded is saved. keepInputId: a file chooser the user has just used; its files
+     are about to be taken, so its box is left alone. */
+  if (!state.example) return;
+  var own = state.own || { files: {}, rosFiles: {}, ignored: { week: [], ros: [] } };
+  state.own = null;
+  state.files = own.files; state.rosFiles = own.rosFiles; state.ignored = own.ignored;
+  if (!Object.keys(state.files).length && keepInputId !== "files-week") $("files-week").value = "";
+  if (!Object.keys(state.rosFiles).length && keepInputId !== "files-ros") $("files-ros").value = "";
+  ["get-names", "add-name", "cand-names"].forEach(function (id) { $(id).value = ""; });
+  $("drop-select").value = "";
+  ["give-list", "lineup-out", "trade-out", "pickup-out"].forEach(function (id) { $(id).innerHTML = ""; });
+  ["err-files", "err-ros", "err-roster", "err-settings", "err-trade", "err-pickup"].forEach(function (id) { showError(id, ""); });
+  $("kind-note").textContent = "";
+  state.ctx = null; state.rosCtx = null; state.rosError = ""; state.ran = false; state.problem = "";
+  $("results").hidden = true; $("updated-note").hidden = true;
+  showLeague(state.current);          /* restores the user's own roster, league name and scoring fields */
+  state.example = null;
+  $("example-banner").hidden = true; $("example-note").hidden = true;
+  renderStatus(state.files, "status-week", "week"); renderStatus(state.rosFiles, "status-ros", "ros");
+}
+function rememberFields() {
+  if (state.example) return;
+  var lg = currentLeague();
+  lg.roster = $("roster").value;
+  var name = $("league-name").value.trim();
+  if (name) { lg.name = name; $("btn-league-" + state.current).textContent = name; }
+  try { lg.settings = readSettings(); } catch (e) { /* keep the last good settings until the field is fixed */ }
+  saveState();
+}
+
+/* ---------- compute */
+function fileList(target) { return Object.keys(target).map(function (pos) { return target[pos]; }); }
+
+var PROBLEM_STEP = { "err-files": "1", "err-roster": "2", "err-settings": "3" };
+function stopWith(errId, msg, scroll) {
+  /* A problem in step 1, 2 or 3: show it there and take the old answer off the screen, so no stale
+     numbers sit under fields they no longer match. The trade and pickup tabs point back to the step.
+     Only the button scrolls to the box: a recompute fired by leaving a field never moves the page,
+     because the user may be in the middle of a click on something else. */
+  showError(errId, msg);
+  state.problem = errId;
+  $("results").hidden = true;
+  $("updated-note").hidden = true;
+  if (scroll) {
+    var r = $(errId).getBoundingClientRect(), vh = window.innerHeight || document.documentElement.clientHeight;
+    if (r.top < 0 || r.bottom > vh) $(errId).scrollIntoView();
+  }
+}
+var pendingCompute = null;
+function scheduleCompute() {
+  /* A field was changed in step 2 or 3. Recompute a moment later, so a click the user is making at the
+     same time (Reset, Show my best lineup, a tab) lands before anything on the page moves. */
+  if (!state.ran) return;
+  if (pendingCompute) clearTimeout(pendingCompute);
+  pendingCompute = setTimeout(function () { pendingCompute = null; compute({ fromFields: true }); }, 350);
+}
+function computeNow(opts) {
+  if (pendingCompute) { clearTimeout(pendingCompute); pendingCompute = null; }
+  compute(opts || {});
+}
+function notReadyMessage() {
+  if (state.problem) return "There is a problem in step " + PROBLEM_STEP[state.problem] + " (see the red box there). Fix it, then press 'Show my best lineup' again.";
+  return "Press 'Show my best lineup' first.";
+}
+
+function compute(opts) {
+  /* opts.scroll: the button was pressed, so a problem box may be scrolled to.
+     opts.fromFields: a field in step 2 or 3 changed; say under the button that the answer below is new. */
+  opts = opts || {};
+  showError("err-files", ""); showError("err-roster", ""); showError("err-settings", ""); showError("err-trade", ""); showError("err-pickup", "");
+  state.ctx = null; state.rosCtx = null; state.rosError = ""; state.problem = ""; state.tidied = [];
+  $("updated-note").hidden = true;
+  var settings, league, roster, projset;
+  try { settings = readSettings(); league = leagueFromSettings(settings); }
+  catch (e) { stopWith("err-settings", plain(e.message), opts.scroll); return; }
+  var parsed = parseRosterLines($("roster").value);
+  if (parsed.errors.length) {
+    stopWith("err-roster", parsed.errors.map(function (er) { return "Line " + er.line + " (" + er.text.trim() + "): " + er.message; }).join("\n"), opts.scroll);
+    return;
+  }
+  roster = parsed.roster;
+  state.tidied = parsed.tidied;
+  if (!roster.length) { stopWith("err-roster", "Type your players in the box above, one per line, then press the button again.", opts.scroll); return; }
+  var needed = positionsNeeded(league);
+  try {
+    if (!Object.keys(state.files).length) throw ExportFormatError("Choose this week's projection files first (step 1), or press 'Try it with example data'.");
+    projset = loadProjections(fileList(state.files), needed, "this week's files");
+  } catch (e) {
+    var msg = plain(e.message);
+    if (msg.indexOf("no projection file for") === 0) {
+      var miss = msg.slice("no projection file for ".length).split(" in ")[0];
+      msg = "Still missing the file for: " + miss + ". Choose it in step 1 (the file name must contain the position word).";
+    }
+    stopWith("err-files", msg, opts.scroll); return;
+  }
+  var ctx = loadContext(league, roster, projset, "");
+  state.ctx = ctx;
+  if (Object.keys(state.rosFiles).length) {
+    try { state.rosCtx = loadContext(league, roster, loadProjections(fileList(state.rosFiles), needed, "the rest-of-season files"), "rest of season"); }
+    catch (e) { state.rosError = plain(e.message); }
+  }
+  state.ran = true;
+  nextNote();
+  $("kind-note").textContent = "Your files " + projset.kindNote.replace("SEASON TOTALS", "season totals").replace("WEEKLY", "weekly") + ".";
+  var rep = baseReport(ctx, "lineup", 1.5);
+  renderLineup(rep);
+  renderRosterPickers(ctx);
+  $("results").hidden = false;
+  if ($("get-names").value.trim() || anyGiveTicked()) runTrade(); else $("trade-out").innerHTML = "";
+  if ($("add-name").value.trim() || $("cand-names").value.trim()) runPickup(); else $("pickup-out").innerHTML = "";
+  if (opts.fromFields) {
+    var tabName = $("tab-lineup").getAttribute("aria-selected") === "true" ? "" : " Open the 'Who do I start?' tab below to see it.";
+    $("updated-note").textContent = "Updated: with these settings your best lineup projects to " + pts(lineupTotal(rep.lineup, "proj")) +
+      " points (floor " + pts(lineupTotal(rep.lineup, "floor")) + ")." + tabName;
+    $("updated-note").hidden = false;
+  }
+}
+
+function numCell(x) { return "<td class='num'>" + (x === null || x === undefined ? "" : pts(x)) + "</td>"; }
+
+function lineupTable(lu, withCeil) {
+  var h = "<div class='wrap'><table><tr><th>Spot</th><th>Player</th><th class='num'>Projected</th><th class='num'>Floor</th>" + (withCeil ? "<th class='num'>Ceiling</th>" : "") + "</tr>";
+  lu.entries.forEach(function (e) {
+    h += "<tr><td>" + esc(e.slot) + "</td><td>" + (e.player ? esc(e.player.name) : "<span class='mute'>(empty: nobody left for this spot)</span>") + "</td>" +
+      numCell(e.player ? e.player.proj : null) + numCell(e.player ? e.player.floor : null) + (withCeil ? numCell(e.player ? e.player.ceil : null) : "") + "</tr>";
+  });
+  h += "<tr class='tot'><td>Total</td><td></td>" + numCell(lineupTotal(lu, "proj")) + numCell(lineupTotal(lu, "floor")) + (withCeil ? numCell(lineupTotal(lu, "ceil")) : "") + "</tr></table></div>";
+  return h;
+}
+
+function renderLineup(rep) {
+  var h = "";
+  var names = "";
+  if (state.tidied && state.tidied.length) {
+    names += "<p><b>Lines pasted from Yahoo, read as name and position:</b></p><ul>" + state.tidied.map(function (t) {
+      return "<li>I read “" + esc(t.text) + "” as " + esc(t.name) + (t.pos ? ", " + esc(t.pos) : "") + "</li>";
+    }).join("") + "</ul>";
+  }
+  if (rep.matchLines.length) {
+    names += "<p><b>I read these names as:</b></p><ul>" + rep.matchLines.map(function (m) { return "<li>" + esc(plain(m)) + "</li>"; }).join("") + "</ul>";
+  }
+  if (rep.unmatched.length) {
+    names += "<p class='neg'><b>COULD NOT FIND</b> (left out of the lineup, never counted as zero):</p><ul>" +
+      rep.unmatched.map(function (u) { return "<li class='neg'>" + esc(plain(u)) + "</li>"; }).join("") + "</ul>";
+  }
+  if (rep.problems.length) {
+    names += "<p><b>Names I could not use:</b></p><ul>" + rep.problems.map(function (u) { return "<li>" + esc(plain(u)) + "</li>"; }).join("") + "</ul>";
+  }
+  if (!names) names = "<p>Every name in your team list matched a projection exactly.</p>";
+  h += "<div class='box'><p class='mute'>First, the names. Anything that was not an exact match is listed so you can check it.</p>" + names + "</div>";
+
+  var lu = rep.lineup, filled = lineupStarters(lu).length, total = lu.entries.length;
+  var verdict = "Start these " + filled + " players. Together they project to " + pts(lineupTotal(lu, "proj")) + " points, with a floor of " + pts(lineupTotal(lu, "floor")) + ".";
+  if (filled < total) verdict += " " + (total - filled) + " starting spot" + (total - filled === 1 ? " is" : "s are") + " empty: nobody on your list fits.";
+  h += "<p class='verdict' id='lineup-verdict'>" + esc(verdict) + "</p>";
+  if (state.ctx && state.ctx.proj.season) {
+    var why = /\(([^;)]*)/.exec(rep.kindNote || "");
+    h += "<div class='box warn' id='season-warning'>These files look like season totals, not one week" + (why ? " (" + esc(why[1]) + ")" : "") +
+      ". The totals above are for a whole season. For who to start this week, download the weekly projections on FantasyPros and choose those in step 1.</div>";
+  }
+  h += lineupTable(lu, true);
+  h += "<p class='mute'><b>Projected</b> = FantasyPros' main estimate for this week, scored with your league's points. " +
+    "<b>Floor</b> = FantasyPros' low estimate (a bad game), scored the same way; a higher floor is the safer choice. " +
+    "<b>Ceiling</b> = the high estimate (a great game). Flex = the best leftover RB, WR or TE.</p>";
+  var diffs = floorDifferences(rep.lineup, rep.floorLineup);
+  if (diffs.length) {
+    /* Who comes in and who goes out, as sets: the slot-by-slot list can name one player both leaving one spot and
+       entering another, which reads as nonsense. The slot-by-slot version stays in the logic block for the golden test. */
+    var bestNames = lineupNames(rep.lineup), floorNames = lineupNames(rep.floorLineup);
+    var withFloor = function (p) { return p.name + " (floor " + pts(p.floor) + ")"; };
+    var ins = lineupStarters(rep.floorLineup).filter(function (p) { return !bestNames[p.name]; }).map(withFloor);
+    var outs = lineupStarters(rep.lineup).filter(function (p) { return !floorNames[p.name]; }).map(withFloor);
+    var change = ins.length ? "start " + ins.join(" and ") + " instead of " + (outs.join(" and ") || "an empty spot") :
+      "the same players in different spots (" + diffs.join("; ") + ")";
+    h += "<p><b>If you would rather play it safe</b> (highest floor instead of highest projection): " + esc(change) +
+      ". That lineup has a floor of " + pts(lineupTotal(rep.floorLineup, "floor")) + " and projects to " + pts(lineupTotal(rep.floorLineup, "proj")) + ".</p>";
+  } else {
+    h += "<p>The safest lineup (highest floor) is the same as this one.</p>";
+  }
+  h += "<h3>Close calls</h3><p class='mute'>A starter and a bench player who fits the same spot, within 1.5 points of each other. Worth a second look at the floors.</p>";
+  if (rep.close.length) {
+    h += "<ul>" + rep.close.map(function (c) {
+      return "<li>" + esc(c.slot) + ": " + esc(c.starter.name) + " (" + pts(c.starter.proj) + ") over " + esc(c.other.name) + " (" + pts(c.other.proj) + "), " +
+        pts(c.gap) + " apart; floors " + pts(c.starter.floor) + " vs " + pts(c.other.floor) + "</li>";
+    }).join("") + "</ul>";
+  } else h += "<p>None.</p>";
+  h += "<h3>Bench</h3><p class='mute'>Everyone else with a projection, best first. The last column is FantasyPros' own number, for comparison only.</p>";
+  if (rep.bench.length) {
+    h += "<div class='wrap'><table><tr><th>Pos</th><th>Player</th><th class='num'>Projected</th><th class='num'>Floor</th><th class='num'>Ceiling</th><th class='num'>FantasyPros' number</th></tr>";
+    rep.bench.forEach(function (p) {
+      h += "<tr><td>" + esc(posWord(p.pos)) + "</td><td>" + esc(p.name) + "</td>" + numCell(p.proj) + numCell(p.floor) + numCell(p.ceil) +
+        "<td class='num'>" + (p.fptsCsv === null ? "n/a" : pts(p.fptsCsv)) + "</td></tr>";
+    });
+    h += "</table></div>";
+  } else h += "<p>None.</p>";
+  h += "<h3>Not projected this week (bye or injured?)</h3>";
+  if (rep.unmatched.length) h += "<ul>" + rep.unmatched.map(function (u) { return "<li>" + esc(plain(u)) + "</li>"; }).join("") + "</ul>";
+  else h += "<p>None: every player on your list has a projection.</p>";
+  var notes = rep.warnings.map(nameWarning).concat(rep.notes);
+  if (notes.length) {
+    h += "<h3>Please check</h3><div class='box warn'><ul>" + notes.map(function (n) { return "<li>" + esc(plain(n)) + "</li>"; }).join("") + "</ul></div>";
+  }
+  var text = lu.entries.map(function (e) { return e.slot + ": " + (e.player ? e.player.name + " " + pts(e.player.proj) : "(empty)"); }).join("\n") +
+    "\nTotal " + pts(lineupTotal(lu, "proj")) + " projected, floor " + pts(lineupTotal(lu, "floor"));
+  h += "<h3>Lineup as text</h3><p class='mute'>For a group chat. If the Copy button does nothing, press and hold (phone) or drag over the text (PC) and copy it.</p>" +
+    "<pre id='lineup-text'>" + esc(text) + "</pre><button type='button' id='btn-copy'>Copy lineup</button> <span class='mute' id='copy-note'></span>";
+  $("lineup-out").innerHTML = h;
+  $("btn-copy").addEventListener("click", function () {
+    var t = $("lineup-text").textContent;
+    var done = function () { $("copy-note").textContent = "Copied."; };
+    var fail = function () {
+      try { var r = document.createRange(); r.selectNodeContents($("lineup-text")); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch (e) { /* ignore */ }
+      $("copy-note").textContent = "Could not copy by itself; the text is selected, press Ctrl+C or Copy.";
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fail); else fail();
+    } catch (e) { fail(); }
+  });
+}
+
+/* ---------- trade and pickup pickers built from the team list */
+function renderRosterPickers(ctx) {
+  var ticked = {};
+  Array.prototype.forEach.call(document.querySelectorAll("#give-list input:checked"), function (cb) { ticked[cb.value] = true; });
+  var h = "";
+  ctx.roster.forEach(function (e, i) {
+    var info = e.player ? posWord(e.player.pos) + ", " + pts(e.player.proj) + " projected" : (e.pos ? posWord(e.pos) + ", " : "") + "not projected this week";
+    h += "<label class='check'><input type='checkbox' id='give-" + i + "' value='" + esc(e.name) + "'" + (ticked[e.name] ? " checked" : "") + ">" + esc(e.name) + " <span class='mute'>(" + esc(info) + ")</span></label>";
+  });
+  $("give-list").innerHTML = h || "<p class='mute'>No players yet.</p>";
+  var sel = $("drop-select"), keep = sel.value;
+  sel.innerHTML = "<option value=''>Let the page pick my weakest bench player</option>" +
+    ctx.roster.map(function (e) { return "<option value='" + esc(e.name) + "'>" + esc(e.name) + (e.player ? " (" + pts(e.player.proj) + ")" : " (not projected)") + "</option>"; }).join("");
+  sel.value = keep;
+  if (sel.value !== keep) sel.value = "";
+}
+function anyGiveTicked() { return !!document.querySelector("#give-list input:checked"); }
+function tickGive(names) {
+  Array.prototype.forEach.call(document.querySelectorAll("#give-list input"), function (cb) { cb.checked = names.indexOf(cb.value) >= 0; });
+}
+
+function runTrade() {
+  showError("err-trade", "");
+  var ctx = state.ctx;
+  if (!ctx) { showError("err-trade", notReadyMessage()); return; }
+  var give = [];
+  Array.prototype.forEach.call(document.querySelectorAll("#give-list input:checked"), function (cb) { give.push(cb.value); });
+  var get = parseNameList($("get-names").value);
+  if (!give.length && !get.length) { showError("err-trade", "Tick at least one player you give and type at least one player you get."); return; }
+  if (!give.length) { showError("err-trade", "Tick the player(s) you would give away."); return; }
+  if (!get.length) { showError("err-trade", "Type the player(s) you would get, one per line."); return; }
+  var rep;
+  try { rep = tradeReport(ctx, give, get, 1.5, state.rosCtx); }
+  catch (e) { if (e.name !== "ExportFormatError") throw e; showError("err-trade", plain(e.message)); $("trade-out").innerHTML = ""; return; }
+  var t = rep.trade, h = "";
+  h += "<p class='verdict' id='trade-verdict'>" + esc(t.verdict) + "</p>";
+  h += "<div class='wrap'><table><tr><th></th><th class='num'>Before</th><th class='num'>After</th><th class='num'>Change</th></tr>";
+  h += "<tr><td>This week (best lineup)</td>" + numCell(lineupTotal(t.week.before, "proj")) + numCell(lineupTotal(t.week.after, "proj")) + "<td class='num'>" + esc(spts(deltaChange(t.week))) + "</td></tr>";
+  h += "<tr><td>This week (floor)</td>" + numCell(lineupTotal(t.week.before, "floor")) + numCell(lineupTotal(t.week.after, "floor")) + "<td class='num'>" + esc(spts(lineupTotal(t.week.after, "floor") - lineupTotal(t.week.before, "floor"))) + "</td></tr>";
+  if (t.ros) h += "<tr><td>Rest of season (best lineup)</td>" + numCell(lineupTotal(t.ros.before, "proj")) + numCell(lineupTotal(t.ros.after, "proj")) + "<td class='num'>" + esc(spts(deltaChange(t.ros))) + "</td></tr>";
+  h += "</table></div>";
+  h += "<p class='mute'>Before = your best starting lineup's projected total with the team you have now; After = the same after the trade. Rest of season uses season-style totals from the rest-of-season files.</p>";
+  h += "<p>Give: " + esc(t.give.map(function (p) { return p.name + " (" + posWord(p.pos) + ", " + pts(p.proj) + ")"; }).join(", ")) + "<br>Get: " +
+    esc(t.get.map(function (p) { return p.name + " (" + posWord(p.pos) + ", " + pts(p.proj) + ")"; }).join(", ")) + "</p>";
+  var outs = startersOut(t.week).map(function (p) { return p.name + " (" + slotOf(t.week.before, p.name) + ")"; }).join(", ") || "none";
+  var ins = startersIn(t.week).map(function (p) { return p.name + " (" + slotOf(t.week.after, p.name) + ")"; }).join(", ") || "none";
+  h += "<p>Leaves your starting lineup: " + esc(outs) + ". Enters it: " + esc(ins) + ".</p>";
+  var ch = positionChanges(t.week), keys = Object.keys(ch);
+  if (keys.length) h += "<p>Starter points by position: " + esc(keys.map(function (k) { return k + " " + spts(ch[k]); }).join(", ")) + "</p>";
+  var notes = t.notes.slice();
+  if (!t.ros && !state.rosCtx) notes.push(state.rosError ? "Rest-of-season files problem: " + state.rosError : "Add rest-of-season files in step 1 to see the longer view as well.");
+  if (rep.problems.length) notes = notes.concat(rep.problems);
+  /* Warnings and notes the trade check adds on top of this week's (the rest-of-season files look weekly, a
+     rest-of-season scoring mismatch, the season-total points-allowed note): this week's own are under 'Please check'. */
+  var rosWarnings = rep.warnings.filter(function (w) { return state.ctx.warnings.indexOf(w) < 0; }).map(nameWarning);
+  var rosNotes = rep.notes.filter(function (n) { return state.ctx.notes.indexOf(n) < 0; });
+  notes = notes.concat(rosWarnings, rosNotes);
+  if (notes.length) h += "<div class='box warn' id='trade-notes'><ul>" + notes.map(function (n) { return "<li>" + esc(plain(n)) + "</li>"; }).join("") + "</ul></div>";
+  var extra = rep.matchLines.filter(function (m) { return state.ctx.matchLines.indexOf(m) < 0; });
+  if (extra.length) h += "<p class='mute'>" + extra.map(function (m) { return esc(plain(spellingNote(m))); }).join("<br>") + "</p>";
+  h += "<p class='mute'>The verdict is built only from these numbers. It does not say accept or reject; that is your call.</p>";
+  $("trade-out").innerHTML = h;
+}
+
+function runPickup() {
+  showError("err-pickup", "");
+  var ctx = state.ctx;
+  if (!ctx) { showError("err-pickup", notReadyMessage()); return; }
+  var add = $("add-name").value.trim(), drop = $("drop-select").value, cands = parseNameList($("cand-names").value);
+  if (!add && !cands.length) { showError("err-pickup", "Type a player to add, or a list of free agents to compare."); return; }
+  var rep;
+  try { rep = waiverReport(ctx, add || null, drop || null, cands, 1.5); }
+  catch (e) { if (e.name !== "ExportFormatError") throw e; showError("err-pickup", plain(e.message)); $("pickup-out").innerHTML = ""; return; }
+  var w = rep.waiver, h = "";
+  if (w.single) {
+    var s = w.single, gain = deltaChange(s.delta);
+    var dropText = s.drop ? "drop " + s.drop.name + " (" + pts(s.drop.proj) + ")" + (s.dropWasDefault ? ", your weakest bench player" : "") : "drop nobody";
+    h += "<p class='verdict' id='pickup-verdict'>Add " + esc(s.add.name) + " (" + esc(posWord(s.add.pos)) + ", " + pts(s.add.proj) + ") and " + esc(dropText) +
+      ": your best lineup goes from " + pts(lineupTotal(s.delta.before, "proj")) + " to " + pts(lineupTotal(s.delta.after, "proj")) + " (" + esc(spts(gain)) + ").</p>";
+    var ins = startersIn(s.delta), outs = startersOut(s.delta);
+    if (ins.length) {
+      h += "<p>" + esc(ins.map(function (p) { return p.name + " would start at " + slotOf(s.delta.after, p.name); }).join(", ")) +
+        (outs.length ? ", replacing " + esc(outs.map(function (p) { return p.name; }).join(", ")) : "") + ".</p>";
+    } else h += "<p>" + esc(s.add.name) + " would sit on your bench this week (no lineup gain).</p>";
+  }
+  if (w.ranked.length) {
+    h += "<p" + (w.single ? "" : " class='verdict' id='pickup-verdict'") + ">Ranked by how much each one raises your best lineup" + (w.single ? "" : ": " + esc(w.ranked[0].add.name) + " helps most (" + esc(spts(deltaChange(w.ranked[0].delta))) + ")") + ".</p>";
+    h += "<div class='wrap'><table><tr><th>#</th><th>Player</th><th>Pos</th><th class='num'>Projected</th><th class='num'>Lineup gain</th><th>Would replace</th></tr>";
+    w.ranked.forEach(function (r, i) {
+      h += "<tr><td>" + (i + 1) + "</td><td>" + esc(r.add.name) + "</td><td>" + esc(posWord(r.add.pos)) + "</td>" + numCell(r.add.proj) + "<td class='num'>" + esc(spts(deltaChange(r.delta))) + "</td><td>" +
+        esc(startersOut(r.delta).map(function (p) { return p.name; }).join(", ") || "(bench only)") + "</td></tr>";
+    });
+    h += "</table></div>";
+    var d = w.ranked[0].drop;
+    if (d) h += "<p class='mute'>Each candidate replaces " + esc(d.name) + (w.ranked[0].dropWasDefault ? ", your weakest bench player (change that with the drop box above)." : ".") + "</p>";
+    h += "<p class='mute'><b>Lineup gain</b> = your best lineup's projected total after the add and drop, minus the total now. A gain of +0.0 means he would sit on the bench this week.</p>";
+  }
+  var notes = w.notes.concat(rep.problems);
+  if (notes.length) h += "<div class='box warn'><ul>" + notes.map(function (n) { return "<li>" + esc(plain(n)) + "</li>"; }).join("") + "</ul></div>";
+  var extra = rep.matchLines.filter(function (m) { return state.ctx.matchLines.indexOf(m) < 0; });
+  if (extra.length) h += "<p class='mute'>" + extra.map(function (m) { return esc(plain(spellingNote(m))); }).join("<br>") + "</p>";
+  $("pickup-out").innerHTML = h;
+}
+
+/* ---------- example data */
+function loadExample(which) {
+  if (!state.example) state.own = { files: state.files, rosFiles: state.rosFiles, ignored: state.ignored };   /* the user's own files, given back on leaving */
+  state.example = which;
+  state.problem = "";
+  state.files = sampleFiles("week8");
+  state.rosFiles = sampleFiles("ros");
+  state.ignored = { week: [], ros: [] };
+  renderStatus(state.files, "status-week", "week");
+  renderStatus(state.rosFiles, "status-ros", "ros");
+  showError("err-files", ""); showError("err-ros", "");
+  var league = parseLeagueText(sample("sample-" + which + "-league"), DEFAULT_SCORING, "league.txt");
+  fillSettings(settingsFromLeague(league));
+  $("roster").value = rosterCsvToLines(sample("sample-" + which + "-roster"));
+  $("league-name").value = which === "league1" ? "Example league 1 (Yahoo default, half point per catch)" : "Example league 2 (full point per catch, 6-point passing TD, 3 WR)";
+  $("btn-league-0").setAttribute("aria-pressed", "false"); $("btn-league-1").setAttribute("aria-pressed", "false");
+  $("example-banner").hidden = false; $("example-note").hidden = false;
+  $("next-note").hidden = true;
+  if (which === "league1") {
+    $("get-names").value = "Catcher Charlie";
+    $("add-name").value = "Catcher Baker";
+    $("drop-select").value = "";
+    $("cand-names").value = parseNameList(sample("sample-free-agents")).join("\n");
+  } else {
+    $("get-names").value = "Runner Able";
+    $("add-name").value = "";
+    $("cand-names").value = "Catcher Baker\nKicker Baker\nBlocker Baker\nSample City D/ST";
+  }
+  state.ran = true;
+  computeNow({});
+  if (state.ctx) {
+    tickGive(which === "league1" ? ["Runner Charlie"] : ["Runner Golf", "Catcher Juliet"]);
+    runTrade();
+    showTab("lineup");
+    $("results-heading").scrollIntoView();
+  }
+}
+
+/* ---------- tabs */
+function showTab(name) {
+  ["lineup", "trade", "pickup"].forEach(function (t) {
+    $("tab-" + t).setAttribute("aria-selected", t === name ? "true" : "false");
+    $("panel-" + t).hidden = t !== name;
+  });
+}
+
+/* ---------- wiring */
+buildFields();
+loadState();
+showLeague(state.current);
+renderStatus(state.files, "status-week", "week");
+renderStatus(state.rosFiles, "status-ros", "ros");
+$("btn-example").addEventListener("click", function () { loadExample("league1"); });
+$("btn-example2").addEventListener("click", function () { loadExample("league2"); });
+$("files-week").addEventListener("change", function () { onFilesChosen("files-week", "files", "err-files", "status-week", "week"); });
+$("files-ros").addEventListener("change", function () { onFilesChosen("files-ros", "rosFiles", "err-ros", "status-ros", "ros"); });
+$("btn-clear-files").addEventListener("click", function () {
+  if (state.example) { state.own = null; leaveExample(); return; }   /* the example files go, and so does the rest of the example */
+  state.files = {}; state.rosFiles = {}; state.ignored = { week: [], ros: [] };
+  $("files-week").value = ""; $("files-ros").value = "";
+  renderStatus(state.files, "status-week", "week"); renderStatus(state.rosFiles, "status-ros", "ros");
+  showError("err-files", ""); showError("err-ros", ""); $("kind-note").textContent = "";
+  state.ctx = null; state.rosCtx = null; state.ran = false; state.problem = ""; $("results").hidden = true; $("updated-note").hidden = true;
+});
+$("btn-league-0").addEventListener("click", function () { switchLeague(0); });
+$("btn-league-1").addEventListener("click", function () { switchLeague(1); });
+["roster", "league-name"].forEach(function (id) { $(id).addEventListener("input", function () { rememberFields(); nextNote(); }); });
+$("roster").addEventListener("change", scheduleCompute);
+document.querySelectorAll("#slot-fields input, #flex-fields input, #scoring-fields input").forEach(function (el) {
+  el.addEventListener("change", function () { rememberFields(); scheduleCompute(); });
+});
+$("btn-preset").addEventListener("click", function () {
+  fillSettings(defaultSettings()); rememberFields(); showError("err-settings", ""); state.problem = "";
+  if (state.ran) computeNow({ fromFields: true });
+});
+$("btn-run").addEventListener("click", function () { computeNow({ scroll: true }); if (state.ctx) { showTab("lineup"); $("results-heading").scrollIntoView(); } });
+$("tab-lineup").addEventListener("click", function () { showTab("lineup"); });
+$("tab-trade").addEventListener("click", function () { showTab("trade"); });
+$("tab-pickup").addEventListener("click", function () { showTab("pickup"); });
+$("btn-trade").addEventListener("click", runTrade);
+$("btn-pickup").addEventListener("click", runPickup);
+})();
+</script>
+</body>
+</html>

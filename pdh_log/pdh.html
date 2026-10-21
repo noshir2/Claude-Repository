@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PE continuing-education log</title>
+<meta name="description" content="Keep a list of your continuing-education courses and see whether your Illinois PE renewal has the hours it needs.">
+<style>
+/* layout: one column, max 760px, cards only around inputs and results */
+:root{--bg:#fbfaf7;--fg:#1f2328;--mute:#5d6671;--line:#d9d6cf;--panel:#f1efe9;--accent:#1b5e9e;--accent-fg:#ffffff;
+      --good:#1b7f3b;--warn:#9a6700;--bad:#b42318;--focus:#7fb3e6;
+      --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--font);margin:0}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+.wrap{max-width:760px;margin:0 auto;padding-block:16px 48px;
+      padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:1.6em;line-height:1.25;margin:.4em 0 .3em}
+h2{font-size:1.25em;margin:1.6em 0 .4em}
+h3{font-size:1.05em;margin:1.1em 0 .3em}
+p{margin:.5em 0}
+a{color:var(--accent)}
+.mute{color:var(--mute)}
+.small{font-size:.9em}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:12px 0}
+.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+button{font:inherit;min-height:44px;padding:8px 16px;border-radius:8px;border:1px solid var(--line);
+       background:var(--bg);color:var(--fg);cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);font-weight:600}
+button.danger{color:var(--bad)}
+button.link{min-height:44px;min-width:44px;padding:4px 10px;border:0;background:none;color:var(--accent);text-decoration:underline}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+@media (max-width:600px){.btnrow button{flex:1 1 100%}}
+label{display:block;font-weight:600;margin-top:12px}
+.meaning{display:block;font-weight:400;color:var(--mute);font-size:.9em;margin-bottom:4px}
+input[type=text],input[type=date],input[type=number],textarea,select{width:100%;min-height:44px;padding:8px 10px;
+   font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+textarea{min-height:120px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+fieldset{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:12px 0 0}
+legend{font-weight:600;padding:0 4px}
+.radio{display:flex;align-items:flex-start;gap:10px;font-weight:400;margin:6px 0;min-height:36px}
+.radio input{width:22px;height:22px;margin-top:2px;flex:none}
+.check{display:flex;align-items:center;gap:10px;font-weight:600;margin-top:14px;min-height:44px}
+.check input{width:22px;height:22px;flex:none}
+.err{border:1px solid var(--bad);border-left:6px solid var(--bad);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--bg)}
+.ok{border:1px solid var(--good);border-left:6px solid var(--good);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--bg)}
+.ask{border:1px solid var(--warn);border-left:6px solid var(--warn);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--bg)}
+.verdict{font-size:1.2em;font-weight:600;line-height:1.4;margin:0 0 8px}
+.bar{background:var(--line);border-radius:8px;height:20px;overflow:hidden;margin:8px 0}
+.bar div{height:100%;background:var(--good);width:0}
+@media (prefers-reduced-motion:no-preference){.bar div{transition:width .3s}}
+.rows{display:grid;gap:6px;margin:8px 0}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:baseline;border-top:1px solid var(--line);padding-top:6px}
+.row b{font-weight:600}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:8px 0}
+table{border-collapse:collapse;width:100%;min-width:700px;font-size:.92em}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.out td{color:var(--mute)}
+tr.confirm td{background:var(--bg)}
+.inline-btns{display:inline-flex;flex-wrap:nowrap;gap:8px;white-space:nowrap;vertical-align:middle}
+button.mark{min-height:36px;padding:4px 10px;font-size:.92em}
+#course-table td.date{white-space:normal}
+#course-table td.actions{white-space:normal}
+#course-table td.soft{white-space:normal}
+/* On a phone each course becomes a stacked card, so nothing hides off the right edge. */
+@media (max-width:600px){
+  #course-table{min-width:0}
+  #course-table thead{display:none}
+  #course-table,#course-table tbody,#course-table tr,#course-table td{display:block;width:100%}
+  #course-table tr{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:10px 0;background:var(--bg)}
+  #course-table tr.confirm{border-color:var(--warn);border-left-width:6px}
+  #course-table td{border:0;padding:3px 0;text-align:left;white-space:normal}
+  #course-table td[data-label]::before{content:attr(data-label) ": ";color:var(--mute);font-size:.9em}
+  #course-table td.actions{padding-top:8px;display:flex;gap:8px}
+  #course-table td.actions button{flex:1 1 auto;border:1px solid var(--line);border-radius:8px;text-decoration:none}
+  .swipe-hint{display:block}
+}
+.swipe-hint{display:none}
+details{margin:8px 0}
+summary{cursor:pointer;font-weight:600;min-height:32px}
+ol.steps li{margin:6px 0}
+dl dt{font-weight:600;margin-top:10px}
+dl dd{margin:2px 0 0}
+code{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:.92em;overflow-wrap:anywhere}
+a,code,p,li,dd{overflow-wrap:anywhere}
+.cite{color:var(--mute);font-size:.88em}
+.back{display:inline-block;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
+
+<h1>PE continuing-education log</h1>
+<p>Keep a list of the courses you have taken and see at a glance whether your Illinois PE license renewal has the hours it needs and what is still missing.</p>
+<p class="mute small">Nothing you type or choose leaves your device. Close the page and your list is still here, because this browser keeps it on this device; nothing else is remembered.</p>
+<div id="storage-warn" class="err" hidden>This browser is not keeping your list (a private window, or site data is blocked). Your list will be gone when you close the page. Use "Copy as spreadsheet text" or "Download" below before you close it.</div>
+<div id="load-note" class="err" hidden></div>
+
+<div class="btnrow">
+  <button class="primary" id="btn-example" type="button">Try it with example data</button>
+</div>
+<div id="example-ask" class="ask" hidden>
+  <p>You already have courses in your list. Replace them with the 13 made-up example courses?</p>
+  <div class="btnrow"><button type="button" id="example-yes">Yes, replace my list</button><button type="button" id="example-no">No, keep my list</button></div>
+</div>
+<div id="example-note" class="ok" hidden></div>
+
+<ol class="steps">
+  <li><b>Add each course you take</b> in the form below: the date, the hours on the certificate, the title, who ran it, and which of the four kinds it is.</li>
+  <li><b>Tick "I have saved the certificate"</b> once the certificate of attendance is saved somewhere safe (a folder on your PC, or a cloud drive). If you save it later, press "Mark as saved" next to the course in your list. Illinois can ask for it up to 6 years later.</li>
+  <li><b>Read the status card.</b> It says how many hours you have for the current renewal, which of the three required hours are done, and how many days are left.</li>
+  <li><b>Back up your list now and then</b> with "Copy as spreadsheet text" or "Download", because the list lives only in this browser on this device.</li>
+</ol>
+
+<!-- ---------------------------------------------------------------- (1) status card -->
+<h2 id="status-heading">Where you stand</h2>
+<div class="card" id="status-card">
+  <div id="status-note" class="ok" hidden></div>
+  <p class="verdict" id="verdict"></p>
+  <div class="bar" aria-hidden="true"><div id="bar-fill"></div></div>
+  <p class="mute small" id="bar-label"></p>
+
+  <div class="rows" id="core-rows"></div>
+  <p class="mute small">The three required hours (Illinois calls them core hours) count inside the 30, not on top of it. They must be earned again in every renewal period; last period's do not carry.</p>
+
+  <div class="rows">
+    <div class="row"><span>Renewal period<span class="meaning">The 24 months whose courses count for this renewal</span></span><b id="period-text"></b></div>
+    <div class="row"><span>Days left<span class="meaning">Until the last day of the period, when the license expires</span></span><b id="days-left"></b></div>
+    <div class="row"><span>Hours counted this period<span class="meaning">After the 12-hours-a-day limit</span></span><b id="earned-text"></b></div>
+    <div class="row"><span>Carried over from the previous period<span class="meaning">Spare hours Illinois lets you bring forward</span></span><b id="carry-text"></b></div>
+    <div class="row"><span>Total toward the 30</span><b id="total-text"></b></div>
+  </div>
+
+  <h3>Carry-over</h3>
+  <p id="carry-sentence"></p>
+  <p id="next-carry" class="mute small"></p>
+
+  <h3>Days with more than 12 hours</h3>
+  <p class="mute small">Illinois counts at most 12 hours in one calendar day. Extra hours come off that day's general (elective) courses first, so your required hours are kept.</p>
+  <ul id="flagged-list"></ul>
+
+  <h3>Courses without a saved certificate</h3>
+  <p class="mute small">A bare list is not accepted in an audit. For each course keep the certificate of attendance plus the sponsor's name and address, the date and place, the hours and a short note of the subject, for 6 years. Once you have saved one, press "Mark as saved" next to that course in the list further down. A course brought in from the Python tool with a file name counts as saved here; the page cannot check that the file is really there.</p>
+  <ul id="missing-list"></ul>
+
+  <div id="warn-block" hidden>
+    <h3>Please check</h3>
+    <ul id="warn-list"></ul>
+  </div>
+
+  <fieldset>
+    <legend>Which period to show</legend>
+    <label class="radio"><input type="radio" name="period" id="period-this" value="this" checked><span>This period <span class="mute" id="period-this-dates"></span></span></label>
+    <label class="radio"><input type="radio" name="period" id="period-prev" value="prev"><span>Previous period <span class="mute" id="period-prev-dates"></span></span></label>
+  </fieldset>
+
+  <details id="advanced">
+    <summary>Advanced</summary>
+    <label for="pretend-today">Pretend today is<span class="meaning">Leave blank to use the real date. Useful to see what a renewal day will look like.</span></label>
+    <input type="date" id="pretend-today">
+    <button type="button" id="pretend-clear" class="link">Use the real date</button>
+  </details>
+</div>
+
+<!-- ---------------------------------------------------------------- (2) add a course -->
+<h2 id="form-heading">Add a course</h2>
+<div class="card">
+  <form id="course-form" novalidate>
+    <div id="form-error" class="err" hidden></div>
+
+    <label for="f-date">Date<span class="meaning">The day you took the course (the date on the certificate)</span></label>
+    <input type="date" id="f-date" required>
+
+    <label for="f-hours">Hours<span class="meaning">The number of hours (PDH) printed on the certificate. One hour means at least 50 minutes of instruction. Quarter hours are fine (1, 1.5, 0.25).</span></label>
+    <input type="number" id="f-hours" min="0.25" step="0.25" inputmode="decimal" placeholder="1">
+
+    <label for="f-title">Title<span class="meaning">What the course was called</span></label>
+    <input type="text" id="f-title" placeholder="Engineering ethics webinar">
+
+    <label for="f-provider">Who ran it<span class="meaning">The sponsor or provider (society, employer, vendor, college)</span></label>
+    <input type="text" id="f-provider" placeholder="Example Engineering Society">
+
+    <fieldset>
+      <legend>What kind of course<span class="meaning">Illinois needs one hour of each of the last three every renewal; everything else is general.</span></legend>
+      <label class="radio"><input type="radio" name="category" id="f-cat-elective" value="elective" checked><span>General engineering topic (elective)</span></label>
+      <label class="radio"><input type="radio" name="category" id="f-cat-statutes" value="statutes_rules"><span>Illinois rules for engineers (statutes and rules)</span></label>
+      <label class="radio"><input type="radio" name="category" id="f-cat-ethics" value="ethics"><span>Ethics / professional conduct</span></label>
+      <label class="radio"><input type="radio" name="category" id="f-cat-harassment" value="harassment"><span>Sexual-harassment prevention</span></label>
+    </fieldset>
+
+    <label for="f-format">Format<span class="meaning">Webinar, in-person, online course, college course...</span></label>
+    <input type="text" id="f-format" list="format-list" placeholder="webinar">
+    <datalist id="format-list"><option value="webinar"><option value="in-person"><option value="online course"><option value="college course"><option value="in-house training"></datalist>
+
+    <label for="f-location">Location<span class="meaning">"online", or the city</span></label>
+    <input type="text" id="f-location" placeholder="online">
+
+    <label class="check" for="f-cert"><input type="checkbox" id="f-cert"><span>I have saved the certificate</span></label>
+    <p class="mute small" style="margin-top:0">Tick this once the certificate of attendance is saved somewhere you can find it again. Courses without the tick are listed as missing a certificate.</p>
+
+    <label for="f-notes">Notes<span class="meaning">Illinois wants the sponsor's address in your records, so put it here.</span></label>
+    <input type="text" id="f-notes" placeholder="sponsor address: 100 Example St, Example City IL">
+
+    <div class="btnrow">
+      <button class="primary" type="submit" id="btn-add">Add this course</button>
+      <button type="button" id="btn-cancel-edit" hidden>Cancel</button>
+    </div>
+  </form>
+</div>
+
+<!-- ---------------------------------------------------------------- (3) the list -->
+<h2 id="list-heading">Your courses</h2>
+<p class="mute small" id="list-count"></p>
+<p class="mute small">"Counts" is what the course adds to the period shown above, after the 12-hours-a-day limit. Courses outside that period are greyed out. Each course has Edit and Delete at the end of its row, and a "Mark as saved" button under Certificate until you have saved its certificate.</p>
+<div class="scroll">
+<table id="course-table">
+  <thead><tr><th>Date</th><th class="num">Hours</th><th class="num">Counts</th><th>Title</th><th>Who ran it</th><th>Kind</th><th>Certificate</th><th></th></tr></thead>
+  <tbody id="course-body"></tbody>
+</table>
+</div>
+<p class="mute small">This list is kept only in this browser on this device. Clearing the browser's site data, or opening the page in another browser or on your phone, starts with an empty list. To keep a copy or move it, use the section below.</p>
+
+<!-- ---------------------------------------------------------------- (4) backup -->
+<h2>Back up or move your list</h2>
+<div class="card">
+  <h3 style="margin-top:0">Copy as spreadsheet text</h3>
+  <p class="mute small">The same spreadsheet file format (.csv) the Python version of this tool uses: one line per course, columns separated by commas. Paste it into a note or a file, or open it in Excel.</p>
+  <textarea id="csv-out" readonly aria-label="Your list as spreadsheet text"></textarea>
+  <div class="btnrow">
+    <button type="button" id="btn-copy">Copy</button>
+    <button type="button" id="btn-download">Download pdh_log.csv</button>
+  </div>
+  <p id="copy-note" class="mute small"></p>
+  <p class="mute small">If nothing happens when you press Download, you are using the online copy: use Copy instead. To turn the copied text into a file on a PC, paste it into Notepad, choose File then Save As, and name it <code>pdh_log.csv</code> (set the file type to "All files"). On a phone, keep it in a note and paste it into the box under "Bring a list in" when you need it back.</p>
+
+  <h3>Bring a list in</h3>
+  <p class="mute small">Either choose a .csv file saved from this page (or the Python tool's log file), or paste the text you copied earlier into the box. The first line must be: <code>date,hours,title,provider,category,format,location,certificate_file,notes</code></p>
+  <label for="f-import">Choose a file</label>
+  <input type="file" id="f-import" accept=".csv,text/csv,text/plain" aria-label="Choose a spreadsheet file to bring in">
+  <label for="f-paste">Or paste the text here<span class="meaning">The text from "Copy as spreadsheet text", kept in a note or an email</span></label>
+  <textarea id="f-paste" placeholder="date,hours,title,provider,category,format,location,certificate_file,notes"></textarea>
+  <div class="btnrow"><button type="button" id="btn-paste-import">Bring in the pasted text</button></div>
+  <div id="import-error" class="err" hidden></div>
+  <div id="import-ask" class="ask" hidden>
+    <p id="import-summary"></p>
+    <div class="btnrow">
+      <button type="button" id="import-merge">Add them to my list</button>
+      <button type="button" id="import-replace">Replace my list</button>
+      <button type="button" id="import-cancel">Cancel</button>
+    </div>
+  </div>
+  <div id="import-note" class="ok" hidden></div>
+
+  <h3>Start over</h3>
+  <button type="button" class="danger" id="btn-clear">Remove every course</button>
+  <div id="clear-ask" class="ask" hidden>
+    <p>Remove every course from this list? Copy or download it first if you want to keep it.</p>
+    <div class="btnrow"><button type="button" id="clear-yes">Yes, remove everything</button><button type="button" id="clear-no">No</button></div>
+  </div>
+</div>
+
+<!-- ---------------------------------------------------------------- (5) explanations -->
+<h2>What the words mean</h2>
+<dl>
+  <dt>PDH (professional development hour)</dt><dd>One hour of continuing education. Illinois counts a course as one PDH when it has at least 50 minutes of instruction. Type the number printed on the certificate. If a certificate gives CEUs instead, one CEU is 10 PDH. For a college course Illinois counts 15 PDH per semester hour and 10 per quarter hour.</dd>
+  <dt>Renewal period</dt><dd>Illinois PE licenses expire on 30 November of every odd-numbered year. The courses that count for a renewal are the ones taken in the 24 months ending on that day. The page picks the period that contains today.</dd>
+  <dt>Required hours (core hours)</dt><dd>Every renewal needs at least one hour on Illinois rules for engineers, one hour on ethics or professional conduct, and one hour of sexual-harassment prevention training. They are part of the 30, not extra, and must be taken again each period.</dd>
+  <dt>General (elective) hours</dt><dd>Everything else that relates to engineering practice: 27 of the 30 hours.</dd>
+  <dt>Carry-over</dt><dd>Spare hours from the previous period that Illinois lets you bring into this one. Three conditions: taken between 1 June and 30 November of the previous renewal year; general (not required) hours; and beyond the 30 that period needed. At most 15. Write them on IDFPR form f2476 and keep it with your records.</dd>
+  <dt>12 hours a day</dt><dd>Illinois counts at most 12 PDH in one calendar day, midnight to midnight. If you log more, the extra does not count.</dd>
+  <dt>Certificate</dt><dd>The certificate of attendance the sponsor gives you. Illinois does not accept a bare list; in an audit it wants, for each course, the certificate plus the sponsor's name and address, the date and place, the hours and a short note of the subject. Keep them 6 years.</dd>
+</dl>
+
+<h2>What this can and cannot tell you</h2>
+<ul>
+  <li>Illinois only. Other states have different periods, totals and required hours.</li>
+  <li>It does not know your licensure date. The first renewal after you were first licensed in Illinois is exempt from reporting hours; if that is you, the page still shows you as short.</li>
+  <li>It does not convert units. Type the PDH number the certificate states (see "What the words mean" for CEUs and college credit). More than 12 hours on one date trips the daily limit, so spread a long course across its real dates.</li>
+  <li>It cannot see your certificates; the tick only records that you say you saved one.</li>
+  <li>It does not know whether a course meets Illinois content standards, whether a self-study course had a graded exam, or the 8-hour limit on society and board service credit; that is on you when you type the hours.</li>
+  <li>Carry-over is an estimate from your list. IDFPR decides what it accepts, and you must file the form.</li>
+</ul>
+
+<h2>Where the rules come from</h2>
+<p id="verify-note"></p>
+<p class="small">Every rule the page uses, with its citation in 68 Ill. Adm. Code (Part 1380 unless noted):</p>
+<p class="mute small swipe-hint">On a phone, swipe these tables sideways to see every column.</p>
+<div class="scroll"><table id="rules-table" style="min-width:600px"><thead><tr><th>Rule</th><th>Value</th><th>Citation</th></tr></thead><tbody></tbody></table></div>
+<p class="small">How many hours different activities earn (the page does not convert for you):</p>
+<div class="scroll"><table id="credits-table" style="min-width:600px"><thead><tr><th>Activity</th><th>Credit</th><th>Citation</th></tr></thead><tbody></tbody></table></div>
+<p class="small" id="rule-version"></p>
+<p class="small mute">Advanced: the same rules run in the Python version of this tool (<code>pdh_log/</code> in the toolbox folder), which also checks that each certificate file exists on disk. You do not need it to use this page.</p>
+</div>
+
+<!-- The example list. This block must stay byte-identical to samples/pdh_log_sample.csv (a test checks it). -->
+<script type="text/plain" id="sample-pdh">date,hours,title,provider,category,format,location,certificate_file,notes
+# Made-up sample. Two renewal periods: 2023-12-01..2025-11-30 and 2025-12-01..2027-11-30.
+# certificate_file paths are relative to this file's folder.
+# --- previous period (all three core hours done, 34 hours total, so 4 can carry over) ---
+2024-03-12,1,Illinois statutes and rules update,Example Engineering Society,statutes_rules,webinar,online,pdh_log_certs/2024-03-12-statutes.txt,sponsor address: 100 Example St Example City IL
+2024-05-20,1,Engineering ethics case studies,Example Engineering Society,Ethics,webinar,online,pdh_log_certs/2024-05-20-ethics.txt,
+2024-09-09,1,Sexual harassment prevention training,Employer in-house training,sexual harassment,online,online,pdh_log_certs/2024-09-09-harassment.txt,IHRA-compliant employer course
+2025-02-18,10,Power system protection (1 quarter hour = 10 PDH per 1380.325(b)(1)),Example State University,elective,college course,Example City,pdh_log_certs/2025-02-18-transcript.txt,grade A; transcript on file
+2025-04-22,4,Arc-flash study fundamentals,Example Engineering Society,elective,in-person,Example City,pdh_log_certs/2025-04-22-arcflash.txt,
+2025-07-15,6,Harmonic mitigation webinar series,Example Vendor Training,elective,webinar,online,pdh_log_certs/2025-07-15-harmonics.txt,
+2025-10-03,8,Pumping station electrical design workshop,Example Engineering Society,elective,in-person,Example City,pdh_log_certs/2025-10-03-pumping.txt,
+2025-11-14,3,Variable-frequency drive specification webinar,Example Vendor Training,elective,webinar,online,pdh_log_certs/2025-11-14-vfd.txt,
+# --- current period (statutes/rules hour done; ethics and harassment still missing) ---
+2026-01-20,1,Illinois statutes and rules for design professionals,Example Engineering Society,Statutes and rules,webinar,online,pdh_log_certs/2026-01-20-statutes.txt,
+2026-03-10,8,Generator and transfer-switch design seminar,Example Engineering Society,elective,in-person,Example City,pdh_log_certs/2026-03-10-generator.txt,
+2026-03-10,5,Grounding and bonding workshop (same day as the seminar),Example Engineering Society,Elective,in-person,Example City,pdh_log_certs/2026-03-10-grounding.txt,13 hours on one day: only 12 count
+2026-06-08,2,Harmonic mitigation webinar,Example Vendor Training,elective,webinar,online,,certificate not downloaded yet
+2026-09-22,2,Motor protection and VFD application webinar,Employer in-house training,elective,webinar,online,pdh_log_certs/2026-09-22-motor.pdf,file name typed wrong on purpose: the file does not exist
+</script>
+
+<!-- ================================================================ LOGIC (no document/window here) -->
+<!-- A JavaScript twin of pdh_log/rules.py, log.py and status.py. tests/test_pdh_page.py runs this block in
+     node and compares its numbers with the Python package, so keep the two in step. -->
+<script id="logic">
+"use strict";
+const PDH = (function () {
+  // ---------------------------------------------------------------- rules.py
+  const IL = {
+    name: "Illinois Professional Engineer (PE)",
+    rule_version: "68 Ill. Adm. Code 1380.310 and 1380.325, as amended 49 Ill. Reg. 10161, effective July 23, 2025",
+    source_url: "https://ilga.gov/commission/jcar/admincode/068/068013800003250R.html",
+    period_end_month: 11, period_end_day: 30, period_end_year_parity: "odd",   // 1380.310(a)
+    period_months: 24,                                                          // 1380.325(a)(4)
+    total_hours: 30,                                                            // 1380.325(a)(1)
+    core: {                                                                     // [min hours, label, citation]
+      statutes_rules: [1, "Illinois statutes and rules (Part 1380)", "1380.325(a)(2)(A)"],
+      ethics: [1, "Professional conduct / ethics", "1380.325(a)(2)(B)"],
+      harassment: [1, "Sexual harassment prevention training", "1380.325(a)(3); 1130.400"],
+    },
+    core_order: ["statutes_rules", "ethics", "harassment"],
+    carryover_max: 15,                                                          // 1380.325(a)(8)
+    carryover_window_start_month: 6, carryover_window_start_day: 1,             // IDFPR PDH sheet
+    carryover_form: "IDFPR form f2476 (PE-CO)",
+    pdh_minutes: 50, daily_cap: 12,                                             // 1380.325(a)(5)
+    record_retention_years: 6,                                                  // 1380.325(d)(1)
+    record_must_contain: [
+      "name and address of the sponsor/provider", "number of PDHs for each program", "date and place",
+      "a certificate of attendance", "a brief statement of the subject matter",
+      "program schedule, registration receipt or other proof of participation (or a transcript kept by an acceptable provider)",
+    ],
+    first_renewal_exempt: true,                                                 // 1380.325(j)(1)
+    activity_credits: [
+      ["College/university course", "15 PDH per semester hour; 10 PDH per quarter hour", "1380.325(b)(1)"],
+      ["Course, seminar, webinar, in-house or online course", "1 PDH per 50-minute hour", "1380.325(b)(2)"],
+      ["Self-study", "counts only with an exam graded by the sponsor", "1380.325(b)(3)"],
+      ["Program presentation at a society meeting", "actual presentation time", "1380.325(b)(4)"],
+      ["Teaching a PE course or presentation", "3 PDH per hour presented, first time only", "1380.325(b)(5)"],
+      ["Authoring a paper/article or presenting it", "10 PDH per paper or presentation, not both", "1380.325(b)(6)"],
+      ["Patent received in the period", "10 PDH per patent", "1380.325(b)(7)"],
+      ["PE board/committee membership or society office", "2 PDH each, max 8 PDH per period", "1380.325(b)(8)"],
+      ["1 CEU", "10 PDH", "1380.325(a)(5)"],
+      ["IDFPR Design newsletter quiz (70%+)", "0.25 PDH toward the statutes/rules hour", "IDFPR newsletter 34"],
+    ],
+  };
+  const VERIFY_NOTE = "Verify with IDFPR before relying on this; the rules changed in 2025 and can change again. " +
+                      "This is a bookkeeping aid, not legal advice.";
+  const MONTHS = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September",
+                  "October", "November", "December"];
+
+  function ruleLines(r) {
+    const end = MONTHS[r.period_end_month] + " " + r.period_end_day;
+    const win = MONTHS[r.carryover_window_start_month] + " " + r.carryover_window_start_day;
+    const lines = [
+      ["License expires", end + " of each " + r.period_end_year_parity + "-numbered year", "1380.310(a)"],
+      ["Renewal period", "the " + r.period_months + " months ending on that date", "1380.325(a)(4)"],
+      ["Total PDH per renewal", r.total_hours + " PDH", "1380.325(a)(1)"],
+    ];
+    for (const key of r.core_order) {
+      const [hours, label, cite] = r.core[key];
+      lines.push(["Core hour: " + label, "min " + g(hours) + " PDH each renewal, within the " + r.total_hours, cite]);
+    }
+    lines.push(
+      ["Carry-over maximum", r.carryover_max + " PDH", "1380.325(a)(8)"],
+      ["Carry-over window", "hours earned " + win + " - " + end + " of the renewal year and not needed for that period",
+       "1380.325(a)(8); IDFPR PDH sheet"],
+      ["Carry-over exclusions", "statutes/rules, ethics and harassment hours never carry; re-earn them each period",
+       "1380.325(a)(8)"],
+      ["Carry-over paperwork", "document on " + r.carryover_form + " and keep it with your records",
+       "1380.325(a)(8); form f2476"],
+      ["1 PDH equals", "at least " + r.pdh_minutes + " minutes of instruction or participation", "1380.325(a)(5)"],
+      ["Daily cap", "max " + r.daily_cap + " PDH in any 24-hour period (midnight to midnight)", "1380.325(a)(5)"],
+      ["Record retention", r.record_retention_years + " years", "1380.325(d)(1)"],
+      ["Record must contain", r.record_must_contain.join("; ") + ". A bare log is not accepted.",
+       "1380.325(d)(1)(A),(B); (d)(2)"],
+      ["First renewal after initial licensure", "no hours to report (fee still due; claim the waiver)", "1380.325(j)(1)"]);
+    return lines;
+  }
+
+  // ---------------------------------------------------------------- dates (ISO strings "YYYY-MM-DD", UTC math)
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function ymd(y, m, d) { return y + "-" + pad(m) + "-" + pad(d); }
+  function parts(iso) { return { y: +iso.slice(0, 4), m: +iso.slice(5, 7), d: +iso.slice(8, 10) }; }
+  function toUTC(iso) { const p = parts(iso); return Date.UTC(p.y, p.m - 1, p.d); }
+  function fromUTC(ms) { const t = new Date(ms); return ymd(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate()); }
+  function addDays(iso, n) { return fromUTC(toUTC(iso) + n * 86400000); }
+  function daysBetween(a, b) { return Math.round((toUTC(b) - toUTC(a)) / 86400000); }
+  function longDate(iso) { const p = parts(iso); return p.d + " " + MONTHS[p.m] + " " + p.y; }
+  function g(x) {   // Python's f"{x:g}": 1, 1.5, 12, no trailing zeros
+    if (!isFinite(x)) return String(x);
+    return String(parseFloat(Number(x).toPrecision(6)));
+  }
+
+  // ---------------------------------------------------------------- log.py
+  const HEADER = ["date", "hours", "title", "provider", "category", "format", "location", "certificate_file", "notes"];
+  const CATEGORIES = ["elective", "statutes_rules", "ethics", "harassment"];
+  const ALIASES = {
+    elective: "elective", general: "elective", technical: "elective", "": "elective",
+    statutes_rules: "statutes_rules", statutes: "statutes_rules", rules: "statutes_rules",
+    statutes_and_rules: "statutes_rules", statutes_rules_: "statutes_rules", laws: "statutes_rules",
+    laws_rules: "statutes_rules", laws_and_rules: "statutes_rules", illinois_statutes_rules: "statutes_rules",
+    illinois_statutes_and_rules: "statutes_rules", il_statutes_rules: "statutes_rules",
+    ethics: "ethics", ethic: "ethics", professional_conduct: "ethics", conduct: "ethics",
+    professional_conduct_ethics: "ethics", conduct_ethics: "ethics",
+    harassment: "harassment", sexual_harassment: "harassment", sexual_harassment_prevention: "harassment",
+    harassment_prevention: "harassment", sh: "harassment", shp: "harassment",
+  };
+  class LogFormatError extends Error {}
+
+  function normalizeCategory(text) {
+    let key = String(text).trim().toLowerCase().split("&").join("and");
+    for (const ch of " /-,.") key = key.split(ch).join("_");
+    while (key.includes("__")) key = key.split("__").join("_");
+    key = key.replace(/^_+|_+$/g, "");
+    if (Object.prototype.hasOwnProperty.call(ALIASES, key)) return ALIASES[key];
+    if (["elective", "general", "technical"].some(w => key.includes(w))) return "elective";
+    const found = new Set();
+    for (const [word, cat] of [["harass", "harassment"], ["ethic", "ethics"], ["conduct", "ethics"],
+                               ["statut", "statutes_rules"], ["rules", "statutes_rules"], ["laws", "statutes_rules"]])
+      if (key.includes(word)) found.add(cat);
+    if (found.size === 1) return [...found][0];
+    if (found.size) throw new LogFormatError("category '" + text + "' could be " + [...found].sort().join(" or ") +
+                                             "; use one of: " + CATEGORIES.join(", "));
+    throw new LogFormatError("category '" + text + "' is not one of: " + CATEGORIES.join(", ") +
+                             " (plain words like 'Ethics' or 'sexual harassment' are fine)");
+  }
+
+  // Accept exactly what Python's float() accepts as a finite number: digits (underscores between them allowed),
+  // an optional fraction and exponent. Number() alone would also take "0x10", "0b11" or "0o7", which Python refuses.
+  const FLOAT_RE = /^[+-]?(?:\d+(?:_\d+)*(?:\.(?:\d+(?:_\d+)*)?)?|\.\d+(?:_\d+)*)(?:[eE][+-]?\d+(?:_\d+)*)?$/;
+  function parseHours(text) {
+    const t = String(text).trim();
+    const hours = FLOAT_RE.test(t) ? Number(t.split("_").join("")) : NaN;
+    if (!isFinite(hours)) throw new LogFormatError("hours '" + text + "' is not a number");
+    if (hours <= 0) throw new LogFormatError("hours must be more than 0, got " + t);
+    return hours;
+  }
+
+  function parseDate(text) {
+    const t = String(text).trim();
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t);
+    if (m) {
+      const iso = ymd(+m[1], +m[2], +m[3]);
+      if (+m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && fromUTC(toUTC(iso)) === iso) return iso;
+    }
+    throw new LogFormatError("date '" + text + "' is not YYYY-MM-DD");
+  }
+
+  function makeEntry(fields, line) {   // fields: {date, hours, title, provider, category, ...} as typed
+    const r = {};
+    for (const k of HEADER) r[k] = String(fields[k] == null ? "" : fields[k]).trim();
+    return { date: parseDate(r.date), hours: parseHours(r.hours), title: r.title, provider: r.provider,
+             category: normalizeCategory(r.category), format: r.format, location: r.location,
+             certificate_file: r.certificate_file, notes: r.notes, line: line || 0 };
+  }
+
+  // Split CSV text into records the way Python's csv.reader does (quotes, doubled quotes, line breaks
+  // inside quotes). Each record remembers the physical line it starts on, for messages.
+  function splitCSV(text) {
+    const records = [];
+    let row = [], cell = "", inQuotes = false, line = 1, rowLine = 1, i = 0, started = false;
+    const n = text.length;
+    while (i < n) {
+      const c = text[i];
+      if (!started) { rowLine = line; started = true; }
+      if (inQuotes) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { cell += '"'; i += 2; continue; }
+          inQuotes = false; i++; continue;
+        }
+        if (c === "\n") line++;
+        else if (c === "\r") { line++; if (text[i + 1] === "\n") { cell += "\r"; i++; } }
+        cell += c; i++; continue;
+      }
+      if (c === '"') { inQuotes = true; i++; continue; }
+      if (c === ",") { row.push(cell); cell = ""; i++; continue; }
+      if (c === "\r" || c === "\n") {
+        row.push(cell); records.push({ row, line: rowLine });
+        row = []; cell = ""; started = false; line++;
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        i++; continue;
+      }
+      cell += c; i++;
+    }
+    if (started) { row.push(cell); records.push({ row, line: rowLine }); }
+    return records;
+  }
+
+  function parseCSV(text) {
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    let headerSeen = false;
+    const entries = [];
+    for (const { row, line } of splitCSV(text)) {
+      if (!row.length || !row.join("").trim() || row[0].replace(/^\s+/, "").startsWith("#")) continue;
+      if (!headerSeen) {
+        const got = row.map(c => c.trim().toLowerCase());
+        if (got.length !== HEADER.length || got.some((c, k) => c !== HEADER[k]))
+          throw new LogFormatError("line " + line + ": header must be exactly '" + HEADER.join(",") +
+                                   "', found '" + row.join(",") + "'");
+        headerSeen = true; continue;
+      }
+      if (row.length !== HEADER.length)
+        throw new LogFormatError("line " + line + ": expected " + HEADER.length + " columns, found " + row.length);
+      const fields = {};
+      HEADER.forEach((k, idx) => { fields[k] = row[idx]; });
+      try { entries.push(makeEntry(fields, line)); }
+      catch (e) { if (e instanceof LogFormatError) throw new LogFormatError("line " + line + ": " + e.message); throw e; }
+    }
+    if (!headerSeen) throw new LogFormatError("the file has no header line. Expected: " + HEADER.join(","));
+    return entries;
+  }
+
+  function csvCell(v) {
+    const s = String(v == null ? "" : v);
+    return /[",\r\n]/.test(s) ? '"' + s.split('"').join('""') + '"' : s;
+  }
+  function toCSV(entries) {
+    const lines = [HEADER.join(",")];
+    for (const e of entries)
+      lines.push([e.date, g(e.hours), e.title, e.provider, e.category, e.format, e.location,
+                  e.certificate_file, e.notes].map(csvCell).join(","));
+    return lines.join("\n") + "\n";
+  }
+
+  // ---------------------------------------------------------------- status.py
+  function periodEnding(year, r) {
+    const wantOdd = r.period_end_year_parity === "odd";
+    if ((year % 2 === 1) !== wantOdd)
+      throw new Error("no renewal period ends in " + year + ": licenses expire in " + r.period_end_year_parity + "-numbered years");
+    const end = ymd(year, r.period_end_month, r.period_end_day);
+    const start = addDays(ymd(year - Math.floor(r.period_months / 12), r.period_end_month, r.period_end_day), 1);
+    return { start, end };
+  }
+  function renewalPeriod(today, r) {
+    let year = parts(today).y;
+    if (ymd(year, r.period_end_month, r.period_end_day) < today) year++;
+    const wantOdd = r.period_end_year_parity === "odd";
+    while ((year % 2 === 1) !== wantOdd) year++;
+    return periodEnding(year, r);
+  }
+  function previousPeriod(start, r) {
+    const prevEnd = addDays(start, -1);
+    const p = parts(prevEnd);
+    const prevStart = addDays(ymd(p.y - Math.floor(r.period_months / 12), p.m, p.d), 1);
+    return { start: prevStart, end: prevEnd };
+  }
+
+  // Trim any calendar day above the cap. Excess comes off elective rows first, last row in the list first.
+  function applyDailyCap(entries, cap) {
+    const byDay = new Map();
+    entries.forEach((e, idx) => { if (!byDay.has(e.date)) byDay.set(e.date, []); byDay.get(e.date).push({ e, idx }); });
+    const counted = entries.map(e => e.hours);
+    const flagged = [];
+    for (const day of [...byDay.keys()].sort()) {
+      const rows = byDay.get(day);
+      const raw = rows.reduce((s, x) => s + x.e.hours, 0);
+      if (raw <= cap) continue;
+      let excess = raw - cap;
+      const order = rows.slice().sort((a, b) => {
+        const ka = a.e.category !== "elective" ? 1 : 0, kb = b.e.category !== "elective" ? 1 : 0;
+        if (ka !== kb) return ka - kb;
+        return b.e.line - a.e.line;
+      });
+      for (const x of order) {
+        if (excess <= 0) break;
+        const cut = Math.min(excess, counted[x.idx]);
+        counted[x.idx] -= cut; excess -= cut;
+      }
+      flagged.push({ day, raw, cap });
+    }
+    return { rows: entries.map((e, idx) => ({ entry: e, counted: counted[idx] })), flagged };
+  }
+
+  function carryoverFor(entries, prevStart, prevEnd, r) {
+    const prev = entries.filter(e => prevStart <= e.date && e.date <= prevEnd);
+    let carriedIn = 0;
+    if (entries.some(e => e.date < prevStart)) {
+      const pp = previousPeriod(prevStart, r);
+      carriedIn = carryoverFor(entries, pp.start, pp.end, r).hours;
+    }
+    const { rows } = applyDailyCap(prev, r.daily_cap);
+    const windowStart = ymd(parts(prevEnd).y, r.carryover_window_start_month, r.carryover_window_start_day);
+    const prevTotal = rows.reduce((s, c) => s + c.counted, 0);
+    const surplus = Math.max(0, prevTotal + carriedIn - r.total_hours);
+    const windowElective = rows.filter(c => c.entry.category === "elective" && windowStart <= c.entry.date && c.entry.date <= prevEnd)
+                               .reduce((s, c) => s + c.counted, 0);
+    const hours = Math.min(r.carryover_max, surplus, windowElective);
+    return { hours, prevStart, prevEnd, windowStart, windowEnd: prevEnd, prevTotal, carriedIn, surplus,
+             windowElective, cap: r.carryover_max, form: r.carryover_form, total: r.total_hours };
+  }
+
+  function carryoverSentence(c) {
+    return "Carry-over from the previous period (" + c.prevStart + " to " + c.prevEnd + "): " + g(c.hours) + " PDH. " +
+      "Only hours earned " + c.windowStart + " to " + c.windowEnd + " count, only elective hours " +
+      "(statutes/rules, ethics and harassment hours never carry), only hours beyond that period's own " +
+      "total requirement, and at most " + c.cap + ". " +
+      "(That period had " + g(c.prevTotal) + " counted hours" +
+      (c.carriedIn ? " plus " + g(c.carriedIn) + " carried into it" : "") +
+      ", so " + g(c.surplus) + " were spare; " + g(c.windowElective) + " elective hours fell in the window.) " +
+      "Document carried hours on " + c.form + " and keep it with your records.";
+  }
+
+  // The same three conditions in everyday words, for the status card.
+  function carryoverPlain(c, periodWord) {
+    const w = periodWord || "the previous period";
+    let s = g(c.hours) + " hour" + (c.hours === 1 ? "" : "s") + " carried over from " + w + " (" + longDate(c.prevStart) +
+            " to " + longDate(c.prevEnd) + "). Illinois lets you bring forward only hours that meet all three conditions: " +
+            "taken between " + longDate(c.windowStart) + " and " + longDate(c.windowEnd) + "; general (elective) hours, " +
+            "never the three required hours; and beyond the " + c.total + " that period needed. At most " + c.cap + ". " +
+            "That period had " + g(c.prevTotal) + " counted hours" +
+            (c.carriedIn ? " plus " + g(c.carriedIn) + " carried into it" : "") + ", so " + g(c.surplus) +
+            (c.surplus === 1 ? " was" : " were") + " spare, and " + g(c.windowElective) + " general hour" +
+            (c.windowElective === 1 ? "" : "s") + " fell in the window.";
+    if (c.hours) s += " Write carried hours on " + c.form + " and keep it with your records.";
+    return s;
+  }
+
+  const MISSING_LABELS = { statutes_rules: "the Illinois statutes/rules hour", ethics: "the ethics hour",
+                           harassment: "the harassment hour" };
+
+  function computeStatus(entries, today, opts) {
+    opts = opts || {};
+    const r = opts.rules || IL;
+    const { start, end } = opts.periodYear ? periodEnding(opts.periodYear, r) : renewalPeriod(today, r);
+    const inPeriod = entries.filter(e => start <= e.date && e.date <= end);
+    const { rows, flagged } = applyDailyCap(inPeriod, r.daily_cap);
+    const byCategory = { elective: 0 };
+    for (const k of r.core_order) byCategory[k] = 0;
+    for (const c of rows) byCategory[c.entry.category] = (byCategory[c.entry.category] || 0) + c.counted;
+    const core = {};
+    for (const key of r.core_order) {
+      const need = r.core[key][0];
+      const have = byCategory[key] || 0;
+      core[key] = { have, need, met: have >= need, label: r.core[key][1], cite: r.core[key][2] };
+    }
+    const earned = rows.reduce((s, c) => s + c.counted, 0);
+    const pp = previousPeriod(start, r);
+    const carryover = carryoverFor(entries, pp.start, pp.end, r);
+    const total = earned + carryover.hours;
+    const shortBy = Math.max(0, r.total_hours - total);
+    const missing = [];
+    if (shortBy > 0) missing.push(g(shortBy) + " more hour" + (shortBy !== 1 ? "s" : ""));
+    for (const key of r.core_order) if (!core[key].met) missing.push(MISSING_LABELS[key] || ("the " + key + " hour"));
+    const warnings = [];
+    for (const e of entries) {
+      if (e.date > today) warnings.push("line " + e.line + ": date " + e.date + " is after today (" + today + "); typo?");
+      if (e.hours * 4 !== Math.trunc(e.hours * 4))
+        warnings.push("line " + e.line + ": " + g(e.hours) + " hours is not a multiple of 0.25; one PDH is at least 50 minutes " +
+                      "(the IDFPR newsletter quiz is 0.25), so check the certificate");
+    }
+    const missingCertificate = rows.filter(c => !c.entry.certificate_file).map(c => c.entry);
+    const nextCarryover = carryoverFor(entries, start, end, r);
+    return { today, rules: r, start, end, rows, byCategory, core, elective: byCategory.elective, earned, carryover,
+             total, shortBy, flaggedDays: flagged, missingCertificate, warnings, missing, nextCarryover,
+             daysLeft: daysBetween(today, end), allEntries: entries };
+  }
+
+  function joinAnd(items) {
+    if (items.length <= 1) return items.join("");
+    return items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
+  }
+
+  // verdict(s): the one sentence at the top. labels lets the page use friendlier words for the core hours.
+  function verdict(s, labels) {
+    const need = s.rules.total_hours;
+    let line = "You have " + g(s.total) + " of " + need + " hours for the period ending " + longDate(s.end);
+    if (s.carryover.hours)
+      line += " (" + g(s.earned) + " earned this period plus " + g(s.carryover.hours) + " carried over)";
+    const items = [];
+    if (s.shortBy > 0) items.push(g(s.shortBy) + " more hour" + (s.shortBy !== 1 ? "s" : ""));
+    for (const key of s.rules.core_order)
+      if (!s.core[key].met) items.push((labels && labels[key]) || MISSING_LABELS[key]);
+    if (items.length) return line + " and still need " + joinAnd(items) + ".";
+    return line + " and all three required hours; nothing is missing.";
+  }
+
+  function trimmed(s, day) {   // which rows on `day` lost hours to the cap
+    return s.rows.filter(c => c.entry.date === day && c.counted < c.entry.hours)
+                 .map(c => c.entry.title + " (-" + g(c.entry.hours - c.counted) + ")").join(", ");
+  }
+
+  return { IL, VERIFY_NOTE, HEADER, CATEGORIES, LogFormatError, ruleLines, normalizeCategory, parseHours, parseDate,
+           makeEntry, parseCSV, toCSV, periodEnding, renewalPeriod, previousPeriod, applyDailyCap, carryoverFor,
+           carryoverSentence, carryoverPlain, computeStatus, verdict, trimmed, g, longDate, addDays, daysBetween, ymd };
+})();
+if (typeof module !== "undefined" && module.exports) module.exports = PDH;
+</script>
+
+<!-- ================================================================ UI -->
+<script>
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const STORE_KEY = "pdh_log_courses_v1";
+  const KIND = { elective: "General engineering topic (elective)", statutes_rules: "Illinois rules for engineers (statutes and rules)",
+                 ethics: "Ethics / professional conduct", harassment: "Sexual-harassment prevention" };
+  const CORE_PLAIN = { statutes_rules: "One hour on Illinois rules for engineers", ethics: "One hour on ethics / professional conduct",
+                       harassment: "One hour of sexual-harassment prevention training" };
+  const VERDICT_LABELS = { statutes_rules: "the Illinois rules hour", ethics: "the ethics hour",
+                           harassment: "the harassment-prevention hour" };
+
+  let courses = [];          // plain entry objects (see PDH.makeEntry); `line` is 1-based list position
+  let editing = -1;          // index being edited, or -1
+  let confirmIndex = -1;     // index whose "Remove this course?" row is open
+  let pendingImport = null;  // entries parsed from a chosen file, waiting for merge/replace
+  let status = null;
+  let storageOk = true;      // false once this browser refuses to keep the list (private window, blocked site data)
+
+  // ---------------------------------------------------------------- storage
+  function probeStorage() {
+    try { localStorage.setItem(STORE_KEY + "_probe", "1"); localStorage.removeItem(STORE_KEY + "_probe"); storageOk = true; }
+    catch (e) { storageOk = false; }
+    show("storage-warn", !storageOk);
+  }
+  function load() {   // returns the saved courses; a row this page cannot read is left out and counted in `skipped`
+    let skipped = 0;
+    const out = [];
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr))
+          for (const x of arr) { try { out.push(PDH.makeEntry(x, out.length + 1)); } catch (e) { skipped++; } }
+      }
+    } catch (e) { /* nothing saved, or storage unavailable: start empty */ }
+    note("load-note", skipped ? skipped + " saved course" + (skipped === 1 ? " was" : "s were") +
+         " damaged and could not be read, so " + (skipped === 1 ? "it was" : "they were") + " left out of your list." : "");
+    return out;
+  }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(courses)); storageOk = true; }
+    catch (e) { storageOk = false; /* storage unavailable: the page still works, and says so */ }
+    show("storage-warn", !storageOk);
+  }
+  function renumber() { courses.forEach((e, i) => { e.line = i + 1; }); }
+
+  // ---------------------------------------------------------------- helpers
+  function realToday() {
+    const t = new Date();
+    return PDH.ymd(t.getFullYear(), t.getMonth() + 1, t.getDate());
+  }
+  function today() {
+    const v = $("pretend-today").value;
+    try { return v ? PDH.parseDate(v) : realToday(); } catch (e) { return realToday(); }
+  }
+  function text(id, s) { $(id).textContent = s; }
+  function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function show(id, on) { $(id).hidden = !on; }
+  function note(id, msg) { const e = $(id); e.textContent = msg; e.hidden = !msg; }
+
+  // ---------------------------------------------------------------- (1) status
+  function renderStatus() {
+    const t = today();
+    const cur = PDH.renewalPeriod(t, PDH.IL);
+    const curYear = +cur.end.slice(0, 4);
+    text("period-this-dates", "(" + PDH.longDate(cur.start) + " to " + PDH.longDate(cur.end) + ")");
+    const prev = PDH.periodEnding(curYear - 2, PDH.IL);
+    text("period-prev-dates", "(" + PDH.longDate(prev.start) + " to " + PDH.longDate(prev.end) + ")");
+    const wantPrev = $("period-prev").checked;
+    status = PDH.computeStatus(courses, t, wantPrev ? { periodYear: curYear - 2 } : {});
+    const s = status, r = s.rules;
+
+    const v = $("verdict");
+    v.textContent = PDH.verdict(s, VERDICT_LABELS);
+    v.className = "verdict " + (s.missing.length ? "bad" : "good");
+    if (!courses.length) v.textContent = "Your list is empty. Add a course below, or press \"Try it with example data\" to see how the page works. " + v.textContent;
+    const pct = Math.min(100, Math.round(100 * s.total / r.total_hours));
+    $("bar-fill").style.width = pct + "%";
+    $("bar-fill").style.background = s.shortBy ? "var(--accent)" : "var(--good)";
+    text("bar-label", PDH.g(s.total) + " of " + r.total_hours + " hours (" + pct + "%)");
+
+    const cr = $("core-rows"); cr.textContent = "";
+    for (const key of r.core_order) {
+      const c = s.core[key];
+      const row = el("div", "row");
+      const left = el("span", null, CORE_PLAIN[key]);   // the rule citation is in "Where the rules come from"
+      row.appendChild(left);
+      row.appendChild(el("b", c.met ? "good" : "bad", (c.met ? "met" : "not met") + " (" + PDH.g(c.have) + " of " + PDH.g(c.need) + ")"));
+      cr.appendChild(row);
+    }
+    const erow = el("div", "row");
+    const eleft = el("span", null, "General (elective) hours");
+    eleft.appendChild(el("span", "meaning", "Everything that is not one of the three required hours"));
+    erow.appendChild(eleft); erow.appendChild(el("b", null, PDH.g(s.elective)));
+    cr.appendChild(erow);
+
+    text("period-text", PDH.longDate(s.start) + " to " + PDH.longDate(s.end));
+    text("days-left", s.daysLeft >= 0 ? s.daysLeft + " day" + (s.daysLeft === 1 ? "" : "s") : "ended " + (-s.daysLeft) + " days ago");
+    text("earned-text", PDH.g(s.earned) + " (" + PDH.g(s.elective) + " general + " + PDH.g(s.earned - s.elective) + " required)");
+    text("carry-text", PDH.g(s.carryover.hours));
+    const tt = $("total-text");
+    tt.textContent = PDH.g(s.total) + (s.shortBy ? " (short by " + PDH.g(s.shortBy) + ")" : " (met, " + PDH.g(s.total - r.total_hours) + " to spare)");
+    tt.className = s.shortBy ? "bad" : "good";
+
+    text("carry-sentence", PDH.carryoverPlain(s.carryover, wantPrev ? "the period before it" : "the previous period"));
+    const nx = s.nextCarryover;
+    text("next-carry", nx.hours ? "If the list stays as it is, " + PDH.g(nx.hours) + " hour" + (nx.hours === 1 ? "" : "s") +
+         " could carry into the period after this one (taken " + PDH.longDate(nx.windowStart) + " to " + PDH.longDate(nx.windowEnd) +
+         ", general, beyond the " + r.total_hours + ")." : "");
+
+    const fl = $("flagged-list"); fl.textContent = "";
+    if (s.flaggedDays.length) {
+      for (const f of s.flaggedDays)
+        fl.appendChild(el("li", "warn", PDH.longDate(f.day) + ": " + PDH.g(f.raw) + " hours logged, only " + PDH.g(f.cap) +
+                          " count (the extra " + PDH.g(f.raw - f.cap) + " came off: " + PDH.trimmed(s, f.day) + ")."));
+    } else fl.appendChild(el("li", "mute", "No day over the limit."));
+
+    const ml = $("missing-list"); ml.textContent = "";
+    if (s.missingCertificate.length) {
+      for (const e of s.missingCertificate)
+        ml.appendChild(el("li", "warn", PDH.longDate(e.date) + ": " + e.title + " (" + e.provider + "): certificate not saved yet " +
+                          "(press \"Mark as saved\" next to it in the list once you have it)."));
+    } else ml.appendChild(el("li", "mute", s.rows.length ? "Every course in this period has the certificate box ticked." : "No courses in this period yet."));
+
+    const wl = $("warn-list"); wl.textContent = "";
+    for (const w of s.warnings) wl.appendChild(el("li", "warn", nameCourse(w)));
+    show("warn-block", s.warnings.length > 0);
+  }
+  // The logic block names a course by its line number, as the Python tool does. Say which course that is.
+  function nameCourse(warning) {
+    const m = /^line (\d+): (.*)$/.exec(warning);
+    if (!m) return warning;
+    const e = courses.find(c => c.line === +m[1]);
+    const who = e ? PDH.longDate(e.date) + ", " + (e.title || "(no title)") : "course " + m[1] + " in the list";
+    return who + ": " + m[2];
+  }
+
+  // ---------------------------------------------------------------- (3) list
+  function renderList() {
+    const body = $("course-body"); body.textContent = "";
+    const counted = new Map();
+    if (status) for (const c of status.rows) counted.set(c.entry, c.counted);
+    text("list-count", courses.length ? courses.length + " course" + (courses.length === 1 ? "" : "s") + " in your list." : "No courses yet.");
+    courses.forEach((e, i) => {
+      const tr = el("tr", counted.has(e) ? "" : "out");
+      const cell = (cls, txt, label) => { const td = el("td", cls, txt); td.dataset.label = label; return td; };
+      tr.appendChild(cell("date", PDH.longDate(e.date), "Date"));
+      tr.appendChild(cell("num", PDH.g(e.hours), "Hours"));
+      tr.appendChild(cell(counted.has(e) ? "num" : "num soft", counted.has(e) ? PDH.g(counted.get(e)) : "not this period", "Counts"));
+      const title = cell(null, e.title, "Title");
+      if (e.notes) title.appendChild(el("div", "mute small", e.notes));
+      tr.appendChild(title);
+      const prov = cell(null, e.provider, "Who ran it");
+      if (e.format || e.location) prov.appendChild(el("div", "mute small", [e.format, e.location].filter(Boolean).join(", ")));
+      tr.appendChild(prov);
+      tr.appendChild(cell(null, KIND[e.category], "Kind"));
+      const certCell = cell(e.certificate_file ? "good" : "bad", e.certificate_file ? "saved" : "missing", "Certificate");
+      if (!e.certificate_file) {   // one press records that the certificate is now saved, no need to open Edit
+        const bMark = el("button", "mark", "Mark as saved"); bMark.type = "button"; bMark.id = "cert-" + i;
+        bMark.style.marginLeft = "8px";
+        bMark.addEventListener("click", () => markSaved(i));
+        certCell.appendChild(bMark);
+      }
+      tr.appendChild(certCell);
+      const act = el("td", "actions");
+      const bEdit = el("button", "link", "Edit"); bEdit.type = "button"; bEdit.id = "edit-" + i;
+      bEdit.addEventListener("click", () => startEdit(i));
+      const bDel = el("button", "link", "Delete"); bDel.type = "button"; bDel.id = "delete-" + i;
+      bDel.addEventListener("click", () => { confirmIndex = i; renderList(); $("confirm-yes").focus(); });
+      act.appendChild(bEdit); act.appendChild(bDel);
+      tr.appendChild(act);
+      body.appendChild(tr);
+      if (confirmIndex === i) {
+        const ctr = el("tr", "confirm");
+        const td = el("td"); td.colSpan = 8;
+        td.appendChild(el("span", null, "Remove this course (" + PDH.longDate(e.date) + ", " + e.title + ")? "));
+        const yes = el("button", "danger", "Yes, remove it"); yes.type = "button"; yes.id = "confirm-yes";
+        yes.addEventListener("click", () => { courses.splice(i, 1); renumber(); confirmIndex = -1; if (editing === i) cancelEdit(); else if (editing > i) editing--; afterChange(); });
+        const no = el("button", null, "No"); no.type = "button"; no.id = "confirm-no";
+        no.addEventListener("click", () => { confirmIndex = -1; renderList(); });
+        const btns = el("span", "inline-btns"); btns.appendChild(yes); btns.appendChild(no);   // the two stay on one line
+        td.appendChild(btns);
+        ctr.appendChild(td); body.appendChild(ctr);
+      }
+    });
+    if (!courses.length) {
+      const tr = el("tr"); const td = el("td", "mute", "Nothing here yet. Add a course above, or press \"Try it with example data\"."); td.colSpan = 8;
+      tr.appendChild(td); body.appendChild(tr);
+    }
+    $("csv-out").value = PDH.toCSV(courses);
+  }
+
+  function afterChange() { note("status-note", ""); save(); renderStatus(); renderList(); }
+  function describe(e) { return PDH.longDate(e.date) + ", " + (e.title || "(no title)") + " (" + PDH.g(e.hours) + " hour" + (e.hours === 1 ? "" : "s") + ")"; }
+  function markSaved(i) {
+    const e = courses[i]; if (!e) return;
+    e.certificate_file = "saved";
+    if (editing === i) $("f-cert").checked = true;   // keep an open edit form in step
+    afterChange();
+    note("status-note", "Certificate marked as saved for " + describe(e) + ".");
+  }
+
+  // ---------------------------------------------------------------- (2) form
+  function readForm() {
+    const cat = document.querySelector("input[name=category]:checked");
+    const old = editing >= 0 ? courses[editing] : null;
+    let cert = "";
+    if ($("f-cert").checked) cert = (old && old.certificate_file) ? old.certificate_file : "saved";
+    const problems = [];
+    if (!$("f-date").value) problems.push("Fill in the date.");
+    const h = $("f-hours").value.trim();
+    if (!h) problems.push("Fill in the hours (the number on the certificate).");
+    else {
+      const n = Number(h);
+      if (!isFinite(n)) problems.push("Hours must be a number (you typed " + h + ").");
+      else if (n <= 0) problems.push("Hours must be more than 0 (you typed " + h + ").");
+      else if (n * 4 !== Math.trunc(n * 4))
+        problems.push("Hours must be a whole number or a quarter, such as 1, 1.5 or 0.25 (you typed " + h + "). Check the certificate.");
+    }
+    if (!$("f-title").value.trim()) problems.push("Fill in the title.");
+    if (!$("f-provider").value.trim()) problems.push("Fill in who ran the course.");
+    if (problems.length) throw new PDH.LogFormatError(problems.join(" "));
+    return PDH.makeEntry({ date: $("f-date").value, hours: $("f-hours").value, title: $("f-title").value,
+                           provider: $("f-provider").value, category: cat ? cat.value : "elective",
+                           format: $("f-format").value, location: $("f-location").value,
+                           certificate_file: cert, notes: $("f-notes").value }, 0);
+  }
+  function clearForm() {
+    for (const id of ["f-date", "f-hours", "f-title", "f-provider", "f-format", "f-location", "f-notes"]) $(id).value = "";
+    $("f-cert").checked = false; $("f-cat-elective").checked = true;
+    note("form-error", "");
+  }
+  function startEdit(i) {
+    const e = courses[i]; editing = i; confirmIndex = -1;
+    $("f-date").value = e.date; $("f-hours").value = PDH.g(e.hours); $("f-title").value = e.title; $("f-provider").value = e.provider;
+    $("f-format").value = e.format; $("f-location").value = e.location; $("f-notes").value = e.notes;
+    $("f-cert").checked = !!e.certificate_file;
+    const radio = document.querySelector("input[name=category][value=" + e.category + "]"); if (radio) radio.checked = true;
+    text("form-heading", "Change this course"); text("btn-add", "Save changes"); show("btn-cancel-edit", true);
+    note("form-error", "");
+    renderList();
+    $("form-heading").scrollIntoView({ block: "start" }); $("f-date").focus();
+  }
+  function cancelEdit() { editing = -1; clearForm(); text("form-heading", "Add a course"); text("btn-add", "Add this course"); show("btn-cancel-edit", false); }
+
+  $("course-form").addEventListener("submit", ev => {
+    ev.preventDefault();
+    let entry;
+    try { entry = readForm(); }
+    catch (e) {
+      let msg = (e.message || String(e)).trim();
+      msg = msg.charAt(0).toUpperCase() + msg.slice(1);
+      if (!/[.!?]$/.test(msg)) msg += ".";
+      note("form-error", msg + " Then press the button again."); return;
+    }
+    const wasEdit = editing >= 0;
+    if (wasEdit) { courses[editing] = entry; cancelEdit(); }
+    else {
+      // keep the list in date order: insert after the last course on or before this date
+      let at = courses.length;
+      while (at > 0 && courses[at - 1].date > entry.date) at--;
+      courses.splice(at, 0, entry); clearForm();
+    }
+    renumber(); afterChange();
+    note("status-note", (wasEdit ? "Saved your changes to " : "Added: ") + describe(entry) +
+         ". It is in your list below the form, in date order, and these numbers include it.");
+    $("status-heading").scrollIntoView({ block: "start" });
+  });
+  $("btn-cancel-edit").addEventListener("click", cancelEdit);
+
+  // ---------------------------------------------------------------- example data
+  function loadSample() {
+    const entries = PDH.parseCSV($("sample-pdh").textContent);
+    courses = entries; renumber(); cancelEdit(); confirmIndex = -1; afterChange();
+    show("example-ask", false);
+    note("example-note", "Loaded " + courses.length + " made-up example courses. The card under the steps shows what they add up to; scroll down past it to see the list. Press \"Remove every course\" at the bottom when you want to start your own list.");
+    note("status-note", "These numbers are for the " + courses.length + " made-up example courses you loaded. Scroll down to see the list. When you want to start your own, press \"Remove every course\" at the bottom of the page.");
+    $("status-heading").scrollIntoView({ block: "start" });
+  }
+  $("btn-example").addEventListener("click", () => { if (courses.length) { show("example-ask", true); $("example-yes").focus(); } else loadSample(); });
+  $("example-yes").addEventListener("click", loadSample);
+  $("example-no").addEventListener("click", () => show("example-ask", false));
+
+  // ---------------------------------------------------------------- period picker and pretend-today
+  for (const id of ["period-this", "period-prev"]) $(id).addEventListener("change", () => { renderStatus(); renderList(); });
+  $("pretend-today").addEventListener("change", () => { renderStatus(); renderList(); });
+  $("pretend-clear").addEventListener("click", () => { $("pretend-today").value = ""; renderStatus(); renderList(); });
+
+  // ---------------------------------------------------------------- (4) backup
+  $("btn-copy").addEventListener("click", () => {
+    const ta = $("csv-out");
+    const done = () => note("copy-note", "Copied. Paste it into a note, an email to yourself, or a new file. To get it back later, paste it into the box under \"Bring a list in\".");
+    const fallback = () => { ta.focus(); ta.select(); note("copy-note", "Could not copy by itself. The text is selected: press Ctrl+C (PC) or Copy (phone)."); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(done, fallback);
+      else fallback();
+    } catch (e) { fallback(); }
+  });
+  $("btn-download").addEventListener("click", () => {
+    try {
+      const blob = new Blob([$("csv-out").value], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = "pdh_log.csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      note("copy-note", "If a file called pdh_log.csv appeared in your Downloads folder, that is your backup.");
+    } catch (e) { note("copy-note", "Download did not work here. Use Copy instead."); }
+  });
+
+  function decodeBytes(buf) {
+    try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); }
+    catch (e) { try { return new TextDecoder("windows-1252").decode(buf); } catch (e2) { return new TextDecoder().decode(buf); } }
+  }
+  // Both routes in (a chosen file, or text pasted into the box) end up here. `source` is "file" or "pasted text".
+  function importText(csvText, source) {
+    const fix = source === "file" ? "Open the file in Excel or Notepad, fix that line" : "Fix that line in the box";
+    const again = source === "file" ? "save it, and choose the file again" : "and press the button again";
+    let entries;
+    try { entries = PDH.parseCSV(csvText); }
+    catch (e) {
+      const msg = String(e.message || e);
+      const m = /^line (\d+): (.*)$/.exec(msg);
+      if (m && !/header/.test(m[2]))
+        note("import-error", "The first line of the " + source + " is right, but line " + m[1] + " has a problem: " + m[2] +
+             ". " + fix + " (dates are written like 2026-10-21, hours are a number " +
+             "such as 1.5, and the kind is one of: elective, statutes_rules, ethics, harassment), " + again + ".");
+      else
+        note("import-error", "This does not look like a list this page (or the Python tool) saved: " + msg +
+             ". " + (source === "file" ? "Open the file in Excel or Notepad and check" : "Check") +
+             " that the first line is exactly: " + PDH.HEADER.join(",") + " (one word per column, separated by commas).");
+      return;
+    }
+    if (!entries.length) { note("import-error", "The " + source + " has the right first line but no courses under it."); return; }
+    if (!courses.length) { applyImport(entries, true, source); return; }
+    pendingImport = { entries, source };
+    text("import-summary", "The " + source + " has " + entries.length + " course" + (entries.length === 1 ? "" : "s") + ". Your list has " +
+         courses.length + ". Add the " + source + "'s courses to your list, or replace your list with the " + source + "?");
+    show("import-ask", true); $("import-merge").focus();
+  }
+  function resetImport() { note("import-error", ""); note("import-note", ""); show("import-ask", false); pendingImport = null; }
+  $("f-import").addEventListener("change", () => {
+    const f = $("f-import").files && $("f-import").files[0];
+    resetImport();
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onerror = () => note("import-error", "Could not read that file. Try choosing it again.");
+    reader.onload = () => importText(decodeBytes(reader.result), "file");
+    reader.readAsArrayBuffer(f);
+  });
+  $("btn-paste-import").addEventListener("click", () => {
+    resetImport();
+    const t = $("f-paste").value;
+    if (!t.trim()) { note("import-error", "The box is empty. Paste the text you copied with \"Copy as spreadsheet text\" into it first, then press the button again."); return; }
+    importText(t, "pasted text");
+  });
+  function sameCourse(a, b) { return a.date === b.date && a.hours === b.hours && a.title === b.title && a.provider === b.provider; }
+  function applyImport(entries, replace, source) {
+    const wasEmpty = !courses.length;
+    let added = 0, skipped = 0;
+    if (replace) { courses = entries.slice(); added = entries.length; }
+    else {
+      for (const e of entries) { if (courses.some(c => sameCourse(c, e))) skipped++; else { courses.push(e); added++; } }
+      courses.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));   // stable: keeps the list in date order
+    }
+    renumber(); cancelEdit(); confirmIndex = -1; pendingImport = null; show("import-ask", false); afterChange();
+    const n = added + " course" + (added === 1 ? "" : "s");
+    note("import-note", (wasEmpty ? "Brought in " + n + " from the " + source : replace ? "Replaced your list with " + n : "Added " + n) +
+         (skipped ? " (" + skipped + " already in the list, skipped)" : "") + ". The status card at the top is updated.");
+    $("f-import").value = ""; $("f-paste").value = "";
+  }
+  $("import-merge").addEventListener("click", () => { if (pendingImport) applyImport(pendingImport.entries, false, pendingImport.source); });
+  $("import-replace").addEventListener("click", () => { if (pendingImport) applyImport(pendingImport.entries, true, pendingImport.source); });
+  $("import-cancel").addEventListener("click", () => { pendingImport = null; show("import-ask", false); $("f-import").value = ""; });
+
+  $("btn-clear").addEventListener("click", () => { show("clear-ask", true); $("clear-yes").focus(); });
+  $("clear-no").addEventListener("click", () => show("clear-ask", false));
+  $("clear-yes").addEventListener("click", () => { courses = []; cancelEdit(); confirmIndex = -1; show("clear-ask", false); afterChange(); });
+
+  // ---------------------------------------------------------------- (5) rules tables
+  function fillRules() {
+    const rb = $("rules-table").querySelector("tbody");
+    for (const [a, b, c] of PDH.ruleLines(PDH.IL)) {
+      const tr = el("tr"); tr.appendChild(el("td", null, a)); tr.appendChild(el("td", null, b)); tr.appendChild(el("td", "cite", c)); rb.appendChild(tr);
+    }
+    const cb = $("credits-table").querySelector("tbody");
+    for (const [a, b, c] of PDH.IL.activity_credits) {
+      const tr = el("tr"); tr.appendChild(el("td", null, a)); tr.appendChild(el("td", null, b)); tr.appendChild(el("td", "cite", c)); cb.appendChild(tr);
+    }
+    text("verify-note", PDH.VERIFY_NOTE + " The page uses the official text of the rule; copies on third-party law sites were out of date when this was written.");
+    const rv = $("rule-version");
+    rv.textContent = "Rules: " + PDH.IL.rule_version + ". Official text: ";
+    const a = el("a", null, PDH.IL.source_url); a.href = PDH.IL.source_url; a.target = "_blank"; a.rel = "noopener"; rv.appendChild(a);
+    rv.appendChild(document.createTextNode(". Also: the IDFPR \"Professional Engineer License Renewal PDH Requirement\" sheet (April 2026), IDFPR carry-over form f2476, and IDFPR Design Professions newsletter 34 (Summer 2026)."));
+  }
+
+  // ---------------------------------------------------------------- start
+  probeStorage();
+  courses = load();
+  fillRules();
+  renderStatus();
+  renderList();
+})();
+</script>
+</body>
+</html>
