@@ -1,4 +1,4 @@
-"""Rewrite the leveraged-ETF JSON block inside wheel_calculator.html from leveraged_etfs.txt.
+"""Rewrite the leveraged-ETF JSON block inside wheel.html from leveraged_etfs.txt.
 
 Run after editing leveraged_etfs.txt:  python -m wheel_planner.embed_lists
 """
@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .candidates import LEVERAGED_FILE, load_leveraged
 
-HTML = Path(__file__).resolve().parent / "wheel_calculator.html"
+HTML = Path(__file__).resolve().parent / "wheel.html"
 BLOCK = re.compile(r'(<script id="leveraged-etfs" type="application/json">)(.*?)(</script>)', re.S)
 
 

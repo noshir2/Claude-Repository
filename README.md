@@ -30,21 +30,13 @@ buttons do nothing there), so use the online link on an iPhone.
 ## Getting your own copy
 
 GitHub is a website that stores the files of this project. Downloading them needs no sign-in and
-no install once you have the project's address, which looks like github.com, a slash, the owner's
-GitHub user name, a slash, and Claude-Repository. That address is not printed anywhere in these
-files (the project is public, so the owner's name is kept out of it), which is why step 1 is about
-finding it.
+no install. The project's address is public: https://github.com/noshir2/Claude-Repository
 
-1. Open the project page in your browser. Its address is the GitHub link that came with this
-   toolbox, the one that ends in Claude-Repository: tap it, or paste it into the address bar at the
-   top of the browser. If nobody sent you that link, the only other way to find the address is to
-   sign in at github.com (finding the address needs an account; the download itself does not): tap
-   your picture in the top right corner, choose **Your repositories**, and tap
-   **Claude-Repository**. If you have neither the link nor a GitHub account, ask the person who
-   gave you the toolbox for the address. Either way you arrive at the same page, and its full
-   address is now in the address bar, where you can copy it and keep it for next time.
+1. Open the project page in your browser: type that address into the address bar at the top of the
+   browser, or tap the link if someone sent it to you. The page is public, so you arrive without an
+   account.
 2. Near the top left of the project page, just under the project name, is a button that shows a
-   name beginning with claude/ (it may instead say main). If it already says
+   name beginning with claude/. If it already says
    **claude/lucid-dijkstra-gic3gd**, go to the next step. If it shows a different name, press it,
    type **lucid** in the box that appears, and choose **claude/lucid-dijkstra-gic3gd** from the
    short list. GitHub calls these names branches; a branch is one saved version of the files, and

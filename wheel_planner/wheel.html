@@ -1,0 +1,1427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Options wheel</title>
+<style>
+:root{--bg:#fbfaf7;--fg:#1f2328;--mute:#5d6671;--line:#d9d6cf;--panel:#f1efe9;--accent:#1b5e9e;--accent-fg:#ffffff;
+      --good:#1b7f3b;--warn:#9a6700;--bad:#b42318;--focus:#7fb3e6;
+      --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--font);margin:0}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+.page{max-width:760px;margin:0 auto;padding-block:16px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:1.7em;margin:.3em 0 .2em}
+h2{font-size:1.3em;margin:1.6em 0 .3em;padding-top:.4em;border-top:1px solid var(--line)}
+h3{font-size:1.05em;margin:1em 0 .3em}
+p{margin:.5em 0}
+a{color:var(--accent)}
+.back{display:inline-block;margin-bottom:8px}
+.lead{font-size:1.05em}
+.privacy{color:var(--mute);font-size:.95em;border-left:3px solid var(--line);padding-left:10px}
+.mute{color:var(--mute)}
+.meaning{display:block;color:var(--mute);font-size:.85em;line-height:1.35;margin:1px 0 4px}
+.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.jump{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;max-width:100%;gap:4px;padding:6px 0;margin:12px 0;border-bottom:1px solid var(--line)}
+.jump button{flex:1 1 auto;white-space:nowrap;min-height:40px;padding:4px 10px;font:inherit;font-size:.85em;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;cursor:pointer}
+@media (min-width:600px){.jump{flex-wrap:nowrap;gap:6px;padding:8px 0}.jump button{flex:1 1 auto;white-space:nowrap;min-height:40px;font-size:.92em;padding:6px 10px}}
+.jump button[aria-current="true"]{border-color:var(--accent);color:var(--accent);font-weight:600}
+button{font:inherit}
+.primary{display:block;width:100%;min-height:48px;padding:10px 16px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);border-radius:10px;cursor:pointer;font-weight:600;font-size:1.05em;margin:10px 0}
+.secondary{display:inline-block;min-height:44px;padding:8px 16px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:10px;cursor:pointer;font-weight:600;margin:8px 8px 8px 0}
+.quiet{display:inline-block;min-height:44px;padding:8px 14px;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:10px;cursor:pointer;margin:8px 0}
+.small{min-height:36px;padding:4px 10px;font-size:.9em}
+@media (min-width:600px){.primary{width:auto;display:inline-block;min-width:280px}}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0}
+.card h3{margin-top:.2em}
+label{display:block;font-weight:600;margin-top:8px}
+input,select,textarea{width:100%;min-height:44px;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);margin:2px 0 6px}
+textarea{min-height:72px;resize:vertical}
+input[type=file]{padding:9px 10px}
+.grid{display:grid;grid-template-columns:1fr;gap:0 14px}
+@media (min-width:600px){.grid{grid-template-columns:1fr 1fr}}
+.rows{display:grid;gap:6px}
+.rows .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:center}
+.rows .row.two{grid-template-columns:1fr 1fr}
+.rows input{margin:0}
+.rowhead{font-size:.85em;color:var(--mute)}
+ol.steps{padding-left:1.3em}
+ol.steps li{margin:.4em 0}
+.how{display:block;color:var(--mute);font-size:.92em}
+.out{margin-top:10px}
+.verdict{font-size:1.15em;font-weight:600;margin:.6em 0}
+.big{font-size:2em;font-weight:700;margin:.1em 0}
+.box{border:1px solid var(--line);border-left:4px solid var(--bad);background:var(--panel);border-radius:8px;padding:10px 12px;margin:10px 0}
+.note{border:1px solid var(--line);border-left:4px solid var(--warn);background:var(--panel);border-radius:8px;padding:10px 12px;margin:8px 0}
+.okbox{border:1px solid var(--line);border-left:4px solid var(--good);background:var(--panel);border-radius:8px;padding:10px 12px;margin:8px 0}
+.stat{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}
+.stat b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.wrap{overflow-x:auto;max-width:100%;margin:8px 0}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top;white-space:nowrap}
+th{font-weight:600;font-size:.92em}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+ul.meanings{color:var(--mute);font-size:.88em;padding-left:1.2em;margin:4px 0 10px}
+ul.meanings li{margin:2px 0}
+details{margin:8px 0}summary{cursor:pointer;font-weight:600;min-height:32px}
+.check{padding:8px 12px;margin:6px 0;border-radius:8px;border:1px solid var(--line)}
+.check.ok{border-left:4px solid var(--good)}.check.bad{border-left:4px solid var(--bad)}
+.foot{margin-top:2em;color:var(--mute);font-size:.9em;border-top:1px solid var(--line);padding-top:8px}
+.files{font-size:.92em;color:var(--mute);margin:4px 0}
+.stale{font-size:.92em;color:var(--warn);margin:4px 0}
+.assignbtn{min-height:36px;padding:4px 10px;font-size:.9em;margin:4px 6px 4px 0;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="page">
+<a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
+<h1>Options wheel</h1>
+<p class="lead">One page for the puts and covered calls you sell on Webull: how the trades you already made did, whether a new one is worth selling, whether a roll is worth it, what happens if you are assigned, and whether you can afford assignment this week.</p>
+<p class="privacy">Nothing you type or choose leaves your device. Close the page and it is gone, except the numbers you type in the boxes (never your trade file), which it remembers in this browser so you do not have to retype them.</p>
+
+<nav class="jump" aria-label="Sections of this page">
+  <button type="button" id="jump-results" data-jump="s-results">How did my trades do?</button>
+  <button type="button" id="jump-compare" data-jump="s-compare">Should I sell this one?</button>
+  <button type="button" id="jump-roll" data-jump="s-roll">Should I roll?</button>
+  <button type="button" id="jump-whatif" data-jump="s-whatif">If I get assigned</button>
+  <button type="button" id="jump-expiry" data-jump="s-expiry">Expiry week</button>
+</nav>
+
+<!-- ============================================================ 1 -->
+<section id="s-results">
+<h2>1. How did my trades do?</h2>
+<p>Reads the order history you download from Webull and tells you, in cash actually made, whether your puts and covered calls are working.</p>
+<button type="button" class="primary" id="try-results">Try it with example data</button>
+<ol class="steps">
+  <li>Get your order history file from Webull.
+    <span class="how">How: in the Webull app or website, open Orders, then History (the names change; look for a download or export that makes a .csv, which is a spreadsheet file). Save the file where you can find it, then choose it here.</span></li>
+  <li>Choose the file below. If you have several exports that overlap, choose them all: an order that appears in two files is counted once.</li>
+  <li>Optional: tell the page the three things Webull's file leaves out (contracts that were assigned, shares you owned before the export starts, today's prices).</li>
+  <li>Read what it says. The result appears as soon as the file is chosen; press "Read my results" after changing the optional boxes.</li>
+</ol>
+<div class="card">
+  <label for="results-files">Your Webull order history file (.csv)</label>
+  <span class="meaning">You can choose more than one file at a time.</span>
+  <input type="file" id="results-files" accept=".csv,text/csv,text/plain" multiple>
+  <div class="files" id="results-files-note">No file chosen yet.</div>
+
+  <label for="results-assigned">Contracts that were assigned (optional)</label>
+  <span class="meaning">Webull's file does not say when a put or call was assigned. If the page lists a contract under "Please check" that was really assigned, paste its contract symbol here, one per line, for example AAPL250117P00180000.</span>
+  <textarea id="results-assigned" rows="2" placeholder="one contract symbol per line"></textarea>
+
+  <label>Shares I owned before this export (optional)</label>
+  <span class="meaning">Shares you bought before the first order in your file. Without them the page cannot value a later sale of those shares.</span>
+  <div class="rows" id="results-opening"></div>
+  <button type="button" class="quiet small" data-addrow="results-opening">Add a row</button>
+
+  <label>Today's price (optional)</label>
+  <span class="meaning">Type a ticker and its share price now to see what the shares you still hold are worth.</span>
+  <div class="rows" id="results-prices"></div>
+  <button type="button" class="quiet small" data-addrow="results-prices">Add a row</button>
+
+  <label for="results-today">Pretend today is</label>
+  <span class="meaning">Contracts that expire after this date are counted as still open. Leave it as today unless you are checking an old file.</span>
+  <input type="date" id="results-today">
+</div>
+<div class="stale" id="results-stale" hidden>You changed one of the optional boxes: press "Read my results" to update the result.</div>
+<button type="button" class="secondary" id="run-results">Read my results</button>
+<button type="button" class="quiet" id="reset-results">Clear this section</button>
+<div id="results-error" hidden></div>
+<div class="out" id="results-out"></div>
+</section>
+
+<!-- ============================================================ 2 -->
+<section id="s-compare">
+<h2>2. Should I sell this one?</h2>
+<p>Type the numbers Webull shows on the option chain for up to four puts or covered calls, and see what each one pays for the cash it ties up, plus what your own rules say about it.</p>
+<button type="button" class="primary" id="try-compare">Try it with example data</button>
+<div class="note" id="compare-example" hidden>The boxes below hold made-up example numbers, not yours. They are not remembered. Type over them, or press "Clear this section" to start with empty boxes.</div>
+<ol class="steps">
+  <li>Open the option chain in Webull for the stock and expiry you are looking at.
+    <span class="how">How: tap the stock, then Options. Each row is one strike; the bid is roughly what you would be paid per share. The names change; the numbers you need are the share price, the strike, the premium (bid) and, if shown, the implied volatility (IV).</span></li>
+  <li>Type those numbers into a candidate box below. Fill one box or up to four to compare them side by side.</li>
+  <li>Set your rules once (they are remembered in this browser). Press "Compare" and read the sentence for each candidate first, then the table.</li>
+</ol>
+<details class="card" id="rules-details">
+  <summary>My rules and settings</summary>
+  <div class="grid" id="settings">
+    <div><label for="set-today">Pretend today is</label><span class="meaning">Used to count the days until expiry.</span><input type="date" id="set-today" name="today"></div>
+    <div><label for="set-rate">Interest rate % (risk-free rate)</label><span class="meaning">Used only in the rough odds. About the 4-week Treasury bill rate; 4 is fine.</span><input type="number" step="0.01" id="set-rate" name="rate" value="4"></div>
+    <div><label for="set-max-dte">Warn me if the expiry is more than this many days away</label><span class="meaning">Many wheel sellers stay under 45 days.</span><input type="number" step="1" id="set-max-dte" name="max_dte" value="45"></div>
+    <div><label for="set-max-odds">Warn me if the rough odds of assignment are above this %</label><span class="meaning">A rough chance the stock ends past the strike at expiry.</span><input type="number" step="1" id="set-max-odds" name="max_odds" value="35"></div>
+    <div><label for="set-bp">Money available for new trades $ (buying power)</label><span class="meaning">Leave blank to skip. Checked on puts only; a covered call uses shares you already own.</span><input type="number" step="1" id="set-bp" name="buying_power"></div>
+    <div><label for="set-account">Whole account value $</label><span class="meaning">Leave blank to skip the "too big a share of my account" check.</span><input type="number" step="1" id="set-account" name="account"></div>
+    <div><label for="set-max-pct">Warn me if one trade ties up more than this % of the account</label><span class="meaning">Your own limit; 25 is a placeholder.</span><input type="number" step="1" id="set-max-pct" name="max_pct" value="25"></div>
+    <div><label for="set-goal">Monthly income goal $</label><span class="meaning">Optional. Adds one sentence on how much cash would have to be working to reach it.</span><input type="number" step="1" id="set-goal" name="monthly_goal"></div>
+  </div>
+</details>
+<div id="cards"></div>
+<button type="button" class="secondary" id="run-compare">Compare</button>
+<button type="button" class="quiet" id="reset-compare">Clear this section</button>
+<div id="compare-error" hidden></div>
+<div class="out" id="compare-out"></div>
+</section>
+
+<!-- ============================================================ 3 -->
+<section id="s-roll">
+<h2>3. Should I roll?</h2>
+<p>Rolling means buying back the put you sold and selling a new one with a later expiry. This tells you whether the swap pays you or costs you, and where your break-even moves.</p>
+<button type="button" class="primary" id="try-roll">Try it with example data</button>
+<div class="note" id="roll-example" hidden>The boxes below hold made-up example numbers, not yours. They are not remembered. Type over them, or press "Clear this section" to start with empty boxes.</div>
+<ol class="steps">
+  <li>From your open position in Webull, note the put you have now: its strike, expiry, the premium you received, and the price to buy it back now (the ask).</li>
+  <li>From the option chain, note the new put you would sell: strike, expiry, and the premium you would receive (the bid).</li>
+  <li>Press "Check the roll" and read the first sentence.</li>
+</ol>
+<div class="card">
+  <h3>The put you have now</h3>
+  <div class="grid" id="roll-form">
+    <div><label for="roll-old-strike">Strike (the price you agreed to buy at)</label><input type="number" step="0.01" id="roll-old-strike" name="old_strike"></div>
+    <div><label for="roll-old-expiry">Expiry date</label><input type="date" id="roll-old-expiry" name="old_expiry"></div>
+    <div><label for="roll-old-premium">Premium per share you received when you sold it</label><input type="number" step="0.01" id="roll-old-premium" name="old_premium"></div>
+    <div><label for="roll-buyback">What it costs per share to buy it back now</label><span class="meaning">The ask price on the chain.</span><input type="number" step="0.01" id="roll-buyback" name="buyback"></div>
+    <div style="grid-column:1/-1"><h3>The new put you would sell</h3></div>
+    <div><label for="roll-new-strike">Strike (the price you agree to buy at)</label><input type="number" step="0.01" id="roll-new-strike" name="new_strike"></div>
+    <div><label for="roll-new-expiry">Expiry date</label><input type="date" id="roll-new-expiry" name="new_expiry"></div>
+    <div><label for="roll-new-credit">Premium per share you would receive (what you get paid)</label><input type="number" step="0.01" id="roll-new-credit" name="new_credit"></div>
+    <div><label for="roll-price">Price of the stock now (optional)</label><span class="meaning">Needed for the rough odds.</span><input type="number" step="0.01" id="roll-price" name="price"></div>
+    <div><label for="roll-iv">Implied volatility % of the new put (optional, from the option chain)</label><span class="meaning">How much the market expects the stock to swing, as a yearly percentage; Webull shows it as IV on the option chain. Leave blank and the page skips the rough odds.</span><input type="number" step="0.1" id="roll-iv" name="iv"></div>
+    <div><label for="roll-today">Pretend today is</label><input type="date" id="roll-today" name="today"></div>
+    <div><label for="roll-rate">Interest rate % (risk-free rate)</label><span class="meaning">Used only in the rough odds.</span><input type="number" step="0.01" id="roll-rate" name="rate" value="4"></div>
+  </div>
+</div>
+<button type="button" class="secondary" id="run-roll">Check the roll</button>
+<button type="button" class="quiet" id="reset-roll">Clear this section</button>
+<div id="roll-error" hidden></div>
+<div class="out" id="roll-out"></div>
+</section>
+
+<!-- ============================================================ 4 -->
+<section id="s-whatif">
+<h2>4. If I get assigned</h2>
+<p>If the put you sold is assigned, you buy the shares. This shows how many, what they really cost you after the premium, and what a first covered call on them would return.</p>
+<button type="button" class="primary" id="try-whatif">Try it with example data</button>
+<div class="note" id="whatif-example" hidden>The boxes below hold made-up example numbers, not yours. They are not remembered. Type over them, or press "Clear this section" to start with empty boxes.</div>
+<ol class="steps">
+  <li>Type the strike of the put and the premium per share you have kept on it so far (add up every credit if you rolled).</li>
+  <li>Optional: from the option chain, type the strike and premium of the first covered call you might sell on those shares.</li>
+  <li>Press "Show me" and read the sentences.</li>
+</ol>
+<div class="card">
+  <div class="grid" id="whatif-form">
+    <div><label for="wi-strike">Strike of the put (the price you agreed to buy at)</label><input type="number" step="0.01" id="wi-strike" name="strike"></div>
+    <div><label for="wi-credits">Premium per share you have kept on this put so far</label><span class="meaning">All of it, including rolls.</span><input type="number" step="0.01" id="wi-credits" name="put_credits"></div>
+    <div><label for="wi-contracts">Number of contracts</label><span class="meaning">Each contract is 100 shares.</span><input type="number" step="1" min="1" id="wi-contracts" name="contracts" value="1"></div>
+    <div><label for="wi-call-strike">First covered call: strike (optional)</label><span class="meaning">The price you would agree to sell the shares at.</span><input type="number" step="0.01" id="wi-call-strike" name="call_strike"></div>
+    <div><label for="wi-call-premium">First covered call: premium per share (optional)</label><span class="meaning">What you would get paid.</span><input type="number" step="0.01" id="wi-call-premium" name="call_premium"></div>
+  </div>
+</div>
+<button type="button" class="secondary" id="run-whatif">Show me</button>
+<button type="button" class="quiet" id="reset-whatif">Clear this section</button>
+<div id="whatif-error" hidden></div>
+<div class="out" id="whatif-out"></div>
+</section>
+
+<!-- ============================================================ 5 -->
+<section id="s-expiry">
+<h2>5. Expiry week: can I afford assignment?</h2>
+<p>Lists every put and call you still have open in your Webull file and adds up the cash you would need if every put were assigned, against the cash you have.</p>
+<button type="button" class="primary" id="try-expiry">Try it with example data</button>
+<div class="note" id="expiry-example" hidden>The boxes below hold made-up example numbers, not yours. They are not remembered. Type over them, or press "Clear this section" to start with empty boxes.</div>
+<ol class="steps">
+  <li>Get your order history file from Webull (same file as section 1; if you chose it there, it is reused here).
+    <span class="how">How: in the Webull app or website, open Orders, then History (names change; look for a download or export that makes a .csv). Save the file where you can find it, then choose it here.</span></li>
+  <li>Type the cash you have available and, if you like, today's price for each ticker.</li>
+  <li>Press "Check expiry week" and read the sentence.</li>
+</ol>
+<div class="card">
+  <label for="expiry-files">Your Webull order history file (.csv)</label>
+  <span class="meaning">Leave this empty to reuse the file from section 1.</span>
+  <input type="file" id="expiry-files" accept=".csv,text/csv,text/plain" multiple>
+  <div class="files" id="expiry-files-note">No file chosen yet.</div>
+  <label for="expiry-cash">Cash I have $</label>
+  <span class="meaning">Money in the account that could pay for shares if a put is assigned.</span>
+  <input type="number" step="1" id="expiry-cash">
+  <label>Today's price (optional)</label>
+  <span class="meaning">Type a ticker and its price now to see whether each contract is past its strike.</span>
+  <div class="rows" id="expiry-prices"></div>
+  <button type="button" class="quiet small" data-addrow="expiry-prices">Add a row</button>
+  <label for="expiry-today">Pretend today is</label>
+  <span class="meaning">Contracts that expired before this date are left out.</span>
+  <input type="date" id="expiry-today">
+</div>
+<button type="button" class="secondary" id="run-expiry">Check expiry week</button>
+<button type="button" class="quiet" id="reset-expiry">Clear this section</button>
+<div id="expiry-error" hidden></div>
+<div class="out" id="expiry-out"></div>
+</section>
+
+<!-- ============================================================ footer -->
+<h2>What this can and cannot tell you</h2>
+<ul>
+  <li>Section 1 counts cash only: money from contracts that are finished (bought back, expired, or assigned), minus the cost of buying contracts back. Fees and taxes are not included. Shares you still hold are shown separately because their value is not settled.</li>
+  <li>Webull's file does not say when you were assigned. The page guesses from a matching share purchase or sale within four days of expiry; otherwise it counts the contract as expired and lists it under "Please check" so you can correct it.</li>
+  <li>Shares bought before your file starts, options sold short before expiry (early assignment) and shorting stock are not handled.</li>
+  <li>Sections 2 to 5 use only the numbers you type: no live prices. The "rough odds" come from a textbook formula (Black-Scholes) that ignores earnings jumps and dividends. It is the chance of ending past the strike at expiry, not the chance of touching it on the way, which is roughly double.</li>
+  <li>The rules in section 2 are your thresholds, written down when calm. The page repeats them as sentences and never gives a verdict on whether to trade.</li>
+  <li>Estimates from numbers you typed; no live data; the odds are a rough model; this is not investment advice.</li>
+</ul>
+<h2>Where the numbers come from</h2>
+<ul class="mute">
+  <li>Webull holds the full strike x 100 as collateral for a cash-secured put (Webull help pages on assignment and the cash-secured put lesson).</li>
+  <li>Return on collateral = premium / collateral; annualized = that x 365 / calendar days to expiry: the convention of the common wheel calculators (TradesViz, QuantWheel, tastylive's return on capital).</li>
+  <li>Rough odds = N(-d2) for a put and N(d2) for a call from the Black-Scholes formula with no dividends; 1-sigma expected move = price x IV x sqrt(days / 365) (tastylive, Cboe, the Wikipedia article on Black-Scholes).</li>
+  <li>Roll math: net = new premium - buyback; new break-even = new strike - everything collected (tastylive and QuantWheel on rolling for a credit).</li>
+  <li>Covered-call break-even = what you paid - premium, and "a strike below what you paid locks in a loss" (Webull Learn on covered calls).</li>
+  <li>Leveraged funds reset daily and can lose value while the index ends flat (ProShares and Direxion fund documents). The built-in list goes stale; check the issuer.</li>
+  <li>Interest rate default 4%: the 4-week Treasury bill rate in October 2026. It changes daily.</li>
+</ul>
+<details>
+  <summary>Self-check: does this page's math agree with the tested Python?</summary>
+  <p class="mute">The worked examples from the README, recomputed by this page and compared with the numbers the Python tests pin.</p>
+  <div id="selfcheck-out"></div>
+</details>
+<p class="foot">Estimates from numbers you typed; no live data; the odds are a rough model; this is not investment advice.
+Formulas: collateral = strike x 100 (put) or what you paid x 100 (call); return = premium / collateral; annualized = return x 365 / days;
+rough odds = N(-d2) put / N(d2) call (Black-Scholes, no dividends); 1-sigma move = price x IV x sqrt(days / 365).</p>
+</div>
+
+<script type="text/plain" id="sample-orders">Name,Symbol,Side,Status,Filled,Total Qty,Price,Avg Price,Time-in-Force,Placed Time,Filled Time
+Sample,AAA250117P00050000,Sell,Filled,1,1,@1.0,1.0,DAY,01/06/2025 10:00:00 EST,01/06/2025 10:00:00 EST
+Sample,BBB250221P00100000,Sell,Filled,1,1,@2.0,2.0,DAY,02/03/2025 10:00:00 EST,02/03/2025 10:00:00 EST
+Sample,BBB,Buy,Filled,100,100,@100.0,100.0,DAY,02/24/2025 09:30:00 EST,02/24/2025 09:30:00 EST
+Sample,BBB250321C00105000,Sell,Filled,1,1,@1.5,1.5,DAY,02/25/2025 10:00:00 EST,02/25/2025 10:00:00 EST
+Sample,BBB,Sell,Filled,100,100,@105.0,105.0,DAY,03/24/2025 09:30:00 EST,03/24/2025 09:30:00 EST
+Sample,CCC250404P00020000,Sell,Filled,1,1,@0.5,0.5,DAY,04/01/2025 12:00:00 EST,04/01/2025 12:00:00 EST
+Sample,CCC250404P00020000,Buy,Filled,1,1,@0.2,0.2,DAY,04/10/2025 12:00:00 EST,04/10/2025 12:00:00 EST
+Sample,DDD250404P00030000,Sell,Filled,1,1,@1.0,1.0,DAY,03/01/2025 10:00:00 EST,03/01/2025 10:00:00 EST
+Sample,DDD250404P00030000,Buy,Filled,1,1,@2.5,2.5,DAY,04/02/2025 10:00:00 EST,04/02/2025 10:00:00 EST
+Sample,DDD250502P00028000,Sell,Filled,1,1,@2.0,2.0,DAY,04/02/2025 10:00:05 EST,04/02/2025 10:00:05 EST
+Sample,EEE271217P00040000,Sell,Filled,1,1,@3.0,3.0,DAY,05/01/2025 10:00:00 EST,05/01/2025 10:00:00 EST
+</script>
+<script type="text/plain" id="sample-expiry-orders">Name,Symbol,Side,Status,Filled,Total Qty,Price,Avg Price,Time-in-Force,Placed Time,Filled Time
+Sample,AAA271119P00045000,Sell,Filled,1,1,@1.0,1.0,DAY,10/19/2027 10:00:00 EST,10/19/2027 10:00:00 EST
+Sample,BBB271119P00030000,Sell,Filled,1,1,@0.9,0.9,DAY,10/19/2027 10:05:00 EST,10/19/2027 10:05:00 EST
+Sample,CCC271119C00055000,Sell,Filled,1,1,@0.7,0.7,DAY,10/19/2027 10:10:00 EST,10/19/2027 10:10:00 EST
+Sample,DDD270917P00020000,Sell,Filled,1,1,@0.5,0.5,DAY,08/20/2027 10:00:00 EST,08/20/2027 10:00:00 EST
+Sample,EEE271119P00040000,Sell,Filled,1,1,@1.2,1.2,DAY,10/19/2027 10:15:00 EST,10/19/2027 10:15:00 EST
+Sample,EEE271119P00040000,Buy,Filled,1,1,@0.4,0.4,DAY,11/02/2027 10:00:00 EST,11/02/2027 10:00:00 EST
+</script>
+<script id="leveraged-etfs" type="application/json">["AGQ", "BOIL", "CONL", "CURE", "DDM", "DPST", "DRN", "DRV", "DUST", "DXD", "ERX", "ERY", "FAS", "FAZ", "FNGD", "FNGU", "GLL", "JDST", "JNUG", "KOLD", "LABD", "LABU", "MSTU", "MSTZ", "NUGT", "NVDD", "NVDL", "NVDU", "QID", "QLD", "RETL", "SCO", "SDOW", "SDS", "SMDD", "SOXL", "SOXS", "SPXL", "SPXS", "SPXU", "SQQQ", "SRTY", "SSO", "TBT", "TECL", "TECS", "TMF", "TMV", "TNA", "TQQQ", "TSLL", "TWM", "TZA", "UBT", "UCO", "UDOW", "UGL", "UMDD", "UPRO", "URTY", "UWM", "WEBL", "WEBS", "YANG", "YINN", "ZSL"]</script>
+<script id="golden" type="application/json">{
+ "rate_pct": 4,
+ "examples": [
+  {"id": "A", "kind": "candidate",
+   "title": "Plain put: price 50, strike 45, premium 1.00, 30 days, IV 60%",
+   "input": {"ticker": "AAA", "type": "P", "strike": 45, "dte": 30, "premium": 1.0, "price": 50, "iv": 60},
+   "expected": {"collateral": 4500, "premium_dollars": 100, "return_pct": 2.22, "annualized_pct": 27.04, "per_day": 3.33,
+                "cushion_pct": 10.0, "break_even": 44.0, "sigma_move": 8.60, "odds_pct": 29.3}},
+  {"id": "B", "kind": "roll",
+   "title": "Roll: 45 put (got 1.00, buy back 2.50) to a 43 put 28 days later for 3.20, price 44.10, IV 60%",
+   "input": {"old_strike": 45, "old_expiry": "2026-10-16", "old_premium": 1.0, "buyback": 2.5,
+             "new_strike": 43, "new_expiry": "2026-11-13", "new_credit": 3.2, "today": "2026-10-14", "price": 44.1, "iv": 60},
+   "expected": {"net": 0.70, "net_contract": 70, "days_added": 28, "total_collected": 1.70, "old_break_even": 44.0,
+                "new_break_even": 41.30, "annualized_pct": 21.2, "new_odds_pct": 46.8, "verdict": "pays you for the extra time"}},
+  {"id": "C", "kind": "candidate",
+   "title": "Covered call below cost basis: price 50, strike 51, premium 0.80, cost basis 52, 10 days, IV 25%",
+   "input": {"ticker": "CCC", "type": "C", "strike": 51, "dte": 10, "premium": 0.8, "price": 50, "iv": 25, "cost_basis": 52},
+   "expected": {"collateral": 5200, "premium_dollars": 80, "return_pct": 1.54, "annualized_pct": 56.2, "per_day": 8.0,
+                "cushion_pct": 2.0, "break_even": 51.20, "sigma_move": 2.07, "odds_pct": 31.8, "locked_loss": 20}},
+  {"id": "facts", "kind": "bs",
+   "title": "Black-Scholes check: price 40, strike 37.5, IV 60%, 30 days, rate 4%",
+   "input": {"price": 40, "strike": 37.5, "iv": 60, "dte": 30},
+   "expected": {"put_odds_pct": 37.9, "put_delta": -0.316, "sigma_move": 6.88}},
+  {"id": "D", "kind": "whatif",
+   "title": "Assignment what-if: 45 put with 1.00 kept, 1 contract, then a 46 call for 0.90",
+   "input": {"strike": 45, "put_credits": 1.0, "contracts": 1, "call_strike": 46, "call_premium": 0.9},
+   "expected": {"shares": 100, "cost": 4500, "premium_kept": 100, "basis_per_share": 44.0, "call_premium": 90,
+                "call_return_pct": 2.05, "if_called": 290}}
+ ]
+}</script>
+
+<script id="logic">
+/* DOM-free logic: a JavaScript port of wheel_tracker (parse.py, analyze.py, the report numbers) and
+   wheel_planner (planner.py, expiry.py). Pure functions on plain data; nothing here touches the page.
+   tests/test_wheel_page.py runs this block in node and compares it with the Python on the same files. */
+var WHEEL = (function () {
+  "use strict";
+  var CONTRACT = 100;
+  var ASSIGNMENT_WINDOW_DAYS = 4;   // shares from an assignment can post a few days after expiry
+  var DAY = 86400000;
+
+  function FormatError(message) { this.name = "FormatError"; this.message = message; }
+  FormatError.prototype = Object.create(Error.prototype);
+  FormatError.prototype.constructor = FormatError;
+
+  // ---------------------------------------------------------------- dates
+  // A "day" is a whole number of days since 1970-01-01 (UTC, so no timezone drift); a "when" is
+  // milliseconds on the same scale. Both are plain numbers so they sort and subtract cleanly.
+  function validYmd(y, m, d) {
+    if (m < 1 || m > 12 || d < 1 || d > 31) return false;
+    var t = new Date(Date.UTC(y, m - 1, d));
+    return t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d;
+  }
+  function dayFromYmd(y, m, d) { return Math.round(Date.UTC(y, m - 1, d) / DAY); }
+  function parseIsoDay(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || "").trim());
+    if (!m || !validYmd(+m[1], +m[2], +m[3])) return null;
+    return dayFromYmd(+m[1], +m[2], +m[3]);
+  }
+  function dayToIso(day) { return new Date(day * DAY).toISOString().slice(0, 10); }
+  function dayOf(when) { return Math.floor(when / DAY); }
+  function monthKey(day) { return dayToIso(day).slice(0, 7); }
+  function dteOf(expiryIso, todayIso) {
+    var a = parseIsoDay(expiryIso), b = parseIsoDay(todayIso);
+    return (a === null || b === null) ? null : Math.max(1, a - b);
+  }
+
+  function parseWhen(text) {
+    // Mirrors parse._time: strip a trailing timezone word (EST, EDT, ...) but not AM/PM, then try each format.
+    var t = String(text).trim();
+    var m = /\s+([A-Za-z]{2,5})$/.exec(t);
+    if (m && m[1].toUpperCase() !== "AM" && m[1].toUpperCase() !== "PM") t = t.slice(0, m.index);
+    var r;
+    function make(y, mo, d, h, mi, s) {
+      if (!validYmd(y, mo, d) || h > 23 || mi > 59 || s > 61) return null;
+      return Date.UTC(y, mo - 1, d, h, mi, s);
+    }
+    var out = null;
+    if ((r = /^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/.exec(t))) out = make(+r[3], +r[1], +r[2], +r[4], +r[5], +r[6]);
+    else if ((r = /^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{1,2})$/.exec(t))) out = make(+r[3], +r[1], +r[2], +r[4], +r[5], 0);
+    else if ((r = /^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{1,2}):(\d{1,2}) ([AaPp][Mm])$/.exec(t))) {
+      var h12 = +r[4];
+      if (h12 >= 1 && h12 <= 12) { var pm = r[7].toUpperCase() === "PM"; out = make(+r[3], +r[1], +r[2], (h12 % 12) + (pm ? 12 : 0), +r[5], +r[6]); }
+    }
+    else if ((r = /^(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/.exec(t))) out = make(+r[1], +r[2], +r[3], +r[4], +r[5], +r[6]);
+    else if ((r = /^(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}):(\d{1,2})$/.exec(t))) out = make(+r[1], +r[2], +r[3], +r[4], +r[5], 0);
+    else if ((r = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(t))) out = make(+r[3], +r[1], +r[2], 0, 0, 0);
+    else if ((r = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t))) out = make(+r[1], +r[2], +r[3], 0, 0, 0);
+    else if ((r = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?$/.exec(t))) out = make(+r[1], +r[2], +r[3], +r[4], +r[5], r[6] ? +r[6] : 0);
+    if (out === null) throw new FormatError("Could not understand the date/time " + JSON.stringify(String(text)));
+    return out;
+  }
+
+  // ---------------------------------------------------------------- CSV reading (parse.py)
+  function parseCsv(text) {
+    // Plain RFC-4180 reading: quoted fields, doubled quotes, CRLF or LF line ends. Returns rows of strings.
+    var rows = [], row = [], field = "", inQ = false, i = 0, n = text.length, ch;
+    while (i < n) {
+      ch = text.charAt(i);
+      if (inQ) {
+        if (ch === "\"") { if (text.charAt(i + 1) === "\"") { field += "\""; i += 2; continue; } inQ = false; i++; continue; }
+        field += ch; i++; continue;
+      }
+      if (ch === "\"") { inQ = true; i++; continue; }
+      if (ch === ",") { row.push(field); field = ""; i++; continue; }
+      if (ch === "\r" || ch === "\n") {
+        row.push(field); rows.push(row); row = []; field = "";
+        if (ch === "\r" && text.charAt(i + 1) === "\n") i++;
+        i++; continue;
+      }
+      field += ch; i++;
+    }
+    if (field !== "" || row.length) { row.push(field); rows.push(row); }
+    // Python's csv module yields [] for an empty line and DictReader skips those rows.
+    return rows.filter(function (r) { return !(r.length === 1 && r[0] === ""); });
+  }
+
+  var OPTION_RE = /^([A-Z][A-Z.]{0,5}?)(\d{6})([CP])(\d{8})$/;
+  var STOCK_RE = /^[A-Z][A-Z.\-]{0,5}$/;
+
+  function parseOptionSymbol(symbol) {
+    var m = OPTION_RE.exec(symbol);
+    if (!m) return null;
+    var ymd = m[2], y = 2000 + +ymd.slice(0, 2), mo = +ymd.slice(2, 4), d = +ymd.slice(4, 6);
+    if (!validYmd(y, mo, d)) throw new FormatError("The contract symbol " + symbol + " has an impossible expiry date.");
+    return { underlying: m[1], expiry: dayFromYmd(y, mo, d), right: m[3], strike: parseInt(m[4], 10) / 1000 };
+  }
+
+  function numberCell(text) {
+    var cleaned = String(text === null || text === undefined ? "" : text).trim().replace(/^@+/, "").replace(/\$/g, "").replace(/,/g, "");
+    if (!cleaned) return null;
+    if (cleaned.indexOf("/") >= 0) cleaned = cleaned.split("/")[0];   // "1/1" style filled/total
+    if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(cleaned.trim())) throw new FormatError("Could not read the number " + JSON.stringify(String(text)));
+    return parseFloat(cleaned);
+  }
+
+  function column(headers, names) {
+    for (var i = 0; i < names.length; i++) if (Object.prototype.hasOwnProperty.call(headers, names[i])) return headers[names[i]];
+    return null;
+  }
+
+  function parseFile(text, name) {
+    // One Webull order-history export -> {trades, warnings}. Throws FormatError when the columns are wrong.
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    var rows = parseCsv(text);
+    var fieldnames = rows.length ? rows[0] : [];
+    var headers = {};
+    fieldnames.forEach(function (h) { headers[h.trim().toLowerCase()] = h; });
+    var cSymbol = column(headers, ["symbol"]), cSide = column(headers, ["side"]);
+    var cQty = column(headers, ["filled", "filled qty", "total qty"]), cPrice = column(headers, ["avg price", "price"]);
+    var cTime = column(headers, ["filled time", "placed time"]), cStatus = column(headers, ["status"]);
+    var missing = [["Symbol", cSymbol], ["Side", cSide], ["Filled", cQty], ["Avg Price", cPrice], ["Filled Time", cTime]]
+      .filter(function (p) { return p[1] === null; }).map(function (p) { return p[0]; });
+    if (missing.length) {
+      var err = new FormatError(name + ": missing column(s) " + missing.join(", ") + ". Columns found: " + fieldnames.join(", "));
+      err.missing = missing; err.found = fieldnames;
+      throw err;
+    }
+    var trades = [], warnings = [];
+    for (var r = 1; r < rows.length; r++) {
+      var lineNo = r + 1, row = {};
+      for (var j = 0; j < fieldnames.length; j++) row[fieldnames[j]] = j < rows[r].length ? rows[r][j] : null;
+      var get = function (c) { var v = c === null ? null : row[c]; return v === null || v === undefined ? "" : v; };
+      var status = cStatus ? get(cStatus).trim().toLowerCase() : "";
+      var qty = numberCell(get(cQty));
+      var whenText = get(cTime).trim();
+      if (status === "failed" || status === "rejected" || !qty || !whenText) continue;   // never filled
+      var symbol = get(cSymbol).trim().toUpperCase();
+      var sideText = get(cSide).trim().toLowerCase();
+      var side = sideText.indexOf("buy") === 0 ? "buy" : sideText.indexOf("sell") === 0 ? "sell" : null;
+      var price = numberCell(get(cPrice));
+      if (side === null || price === null) { warnings.push(name + " line " + lineNo + ": skipped (unreadable side or price)"); continue; }
+      var option = parseOptionSymbol(symbol);
+      if (option) trades.push({ when: parseWhen(whenText), symbol: symbol, underlying: option.underlying, side: side, qty: Math.round(qty), price: price, option: option, source: "export" });
+      else if (STOCK_RE.test(symbol)) trades.push({ when: parseWhen(whenText), symbol: symbol, underlying: symbol, side: side, qty: qty, price: price, option: null, source: "export" });
+      else warnings.push(name + " line " + lineNo + ": skipped unknown symbol " + JSON.stringify(symbol));
+    }
+    return { trades: trades, warnings: warnings };
+  }
+
+  function tradeKey(t) { return [t.when, t.symbol, t.side, t.qty, t.price].join("|"); }
+
+  function loadTrades(files) {
+    // files: [{name, text}]. Fills repeated in an earlier file are dropped (overlapping date ranges).
+    var all = [], warnings = [], seen = {};
+    files.forEach(function (f) {
+      var parsed = parseFile(f.text, f.name);
+      warnings = warnings.concat(parsed.warnings);
+      var fresh = parsed.trades.filter(function (t) { return !seen[tradeKey(t)]; });
+      parsed.trades.forEach(function (t) { seen[tradeKey(t)] = true; });
+      all = all.concat(fresh);
+    });
+    all.sort(function (a, b) { return a.when - b.when; });   // stable, like Python's sort
+    return { trades: all, warnings: warnings };
+  }
+
+  function parseAssignedList(text) {
+    // One contract symbol per line; # starts a comment (same as data/assigned.txt).
+    var out = {};
+    String(text || "").split(/\r?\n/).forEach(function (line) {
+      var s = line.split("#")[0].trim().toUpperCase();
+      if (s) out[s] = true;
+    });
+    return out;
+  }
+
+  // ---------------------------------------------------------------- analysis (analyze.py)
+  function makeLeg(contract, underlying, right, strike, expiry, direction, qty, opened, closed, openPrice, closePrice, outcome, pnl) {
+    return { contract: contract, underlying: underlying, right: right, strike: strike, expiry: expiry, direction: direction,
+             qty: qty, opened: opened, closed: closed, open_price: openPrice, close_price: closePrice, outcome: outcome, pnl: pnl };
+  }
+  function legCollateral(l) { return l.strike * CONTRACT * l.qty; }
+  function legDays(l) { return Math.max(1, l.closed - l.opened); }
+
+  function runContract(trades) {
+    // Walk one contract's trades in order, pairing buys with sells first-in-first-out.
+    var legs = [], lots = [];
+    trades.forEach(function (t) {
+      var remaining = t.qty;
+      var closingDirection = t.side === "sell" ? "long" : "short";
+      while (remaining > 0 && lots.length && lots[0].direction === closingDirection) {
+        var lot = lots[0], q = Math.min(remaining, lot.qty), pnl, outcome;
+        if (lot.direction === "short") { pnl = (lot.price - t.price) * CONTRACT * q; outcome = "bought back"; }
+        else { pnl = (t.price - lot.price) * CONTRACT * q; outcome = "sold"; }
+        legs.push(makeLeg(t.symbol, t.option.underlying, t.option.right, t.option.strike, t.option.expiry, lot.direction, q,
+                          lot.opened, dayOf(t.when), lot.price, t.price, outcome, pnl));
+        lot.qty -= q; remaining -= q;
+        if (lot.qty === 0) lots.shift();
+      }
+      if (remaining > 0) lots.push({ qty: remaining, price: t.price, opened: dayOf(t.when), direction: t.side === "sell" ? "short" : "long" });
+    });
+    return { legs: legs, lots: lots };
+  }
+
+  function findAssignmentShares(pool, claimed, option, shares) {
+    var side = option.right === "P" ? "buy" : "sell";
+    for (var i = 0; i < pool.length; i++) {
+      var s = pool[i];
+      if (claimed[i]) continue;
+      if (s.side === side && Math.abs(s.qty - shares) < 1e-6 && Math.abs(s.price - option.strike) < 0.011) {
+        var gap = dayOf(s.when) - option.expiry;
+        if (gap >= 0 && gap <= ASSIGNMENT_WINDOW_DAYS) return i;
+      }
+    }
+    return null;
+  }
+
+  function tickerRealized(s) { return s.put_pnl + s.call_pnl + s.long_pnl + s.stock_pnl; }
+  function tickerBreakeven(s) { return s.open_shares <= 0 ? null : (s.open_cost - tickerRealized(s)) / s.open_shares; }
+  function tickerUnrealized(s) { return (s.open_shares <= 0 || s.price === null) ? null : s.price * s.open_shares - s.open_cost; }
+
+  function analyze(trades, today, assigned, openingShares, prices) {
+    // trades from loadTrades; today = day number; assigned = {symbol: true}; openingShares = [[ticker, shares, cost]];
+    // prices = {ticker: price}. Returns the same facts as analyze.Analysis.
+    assigned = assigned || {}; openingShares = openingShares || []; prices = prices || {};
+    var result = { today: today, legs: [], open_options: [], stock_sales: [], tickers: {}, ticker_order: [], assumed_expired: [], warnings: [] };
+
+    var optionTrades = {}, contractOrder = [], wheelTickers = {};
+    trades.forEach(function (t) {
+      if (!t.option) return;
+      if (!optionTrades[t.symbol]) { optionTrades[t.symbol] = []; contractOrder.push(t.symbol); }
+      optionTrades[t.symbol].push(t);
+      wheelTickers[t.option.underlying] = true;
+    });
+    var stockTrades = trades.filter(function (t) { return !t.option && wheelTickers[t.underlying]; });
+    var stockPool = {};
+    stockTrades.forEach(function (t) { (stockPool[t.underlying] = stockPool[t.underlying] || []).push(t); });
+    var claimed = {}, synthetic = [];
+
+    contractOrder.forEach(function (contract) {
+      var ts = optionTrades[contract].slice().sort(function (a, b) { return a.when - b.when; });
+      var run = runContract(ts), legs = run.legs, opt = ts[0].option;
+      claimed[opt.underlying] = claimed[opt.underlying] || {};
+      run.lots.forEach(function (lot) {
+        if (opt.expiry >= today) {
+          result.open_options.push({ contract: contract, underlying: opt.underlying, right: opt.right, strike: opt.strike, expiry: opt.expiry,
+                                     direction: lot.direction, qty: lot.qty, opened: lot.opened, open_price: lot.price, premium: lot.price * CONTRACT * lot.qty });
+          return;
+        }
+        if (lot.direction === "long") {
+          legs.push(makeLeg(contract, opt.underlying, opt.right, opt.strike, opt.expiry, "long", lot.qty, lot.opened, opt.expiry, lot.price, 0.0, "expired", -lot.price * CONTRACT * lot.qty));
+          return;
+        }
+        var premium = lot.price * CONTRACT * lot.qty, shares = lot.qty * CONTRACT, outcome;
+        var idx = findAssignmentShares(stockPool[opt.underlying] || [], claimed[opt.underlying], opt, shares);
+        if (idx !== null) { claimed[opt.underlying][idx] = true; outcome = "assigned"; }
+        else if (assigned[contract]) {
+          outcome = "assigned";
+          synthetic.push({ when: opt.expiry * DAY + 16 * 3600000, symbol: opt.underlying, underlying: opt.underlying,
+                           side: opt.right === "P" ? "buy" : "sell", qty: shares, price: opt.strike, option: null, source: "assignment" });
+        } else outcome = "expired";
+        var leg = makeLeg(contract, opt.underlying, opt.right, opt.strike, opt.expiry, "short", lot.qty, lot.opened, opt.expiry, lot.price, 0.0, outcome, premium);
+        legs.push(leg);
+        if (outcome === "expired") result.assumed_expired.push(leg);
+      });
+      result.legs = result.legs.concat(legs);
+    });
+
+    function summary(name) {
+      if (!result.tickers[name]) {
+        result.tickers[name] = { underlying: name, put_pnl: 0, call_pnl: 0, long_pnl: 0, stock_pnl: 0, open_premium: 0, open_shares: 0, open_cost: 0,
+                                 price: Object.prototype.hasOwnProperty.call(prices, name) ? prices[name] : null };
+        result.ticker_order.push(name);
+      }
+      return result.tickers[name];
+    }
+    result.legs.forEach(function (leg) {
+      var s = summary(leg.underlying);
+      if (leg.direction === "long") s.long_pnl += leg.pnl;
+      else if (leg.right === "P") s.put_pnl += leg.pnl;
+      else s.call_pnl += leg.pnl;
+    });
+    result.open_options.forEach(function (o) { if (o.direction === "short") summary(o.underlying).open_premium += o.premium; });
+
+    // Shares: pair every sale with the oldest shares still held.
+    var lotsByTicker = {}, lotOrder = [];
+    var events = openingShares.map(function (o) { return { when: -Infinity, side: "buy", name: o[0], qty: o[1], price: o[2] }; });
+    stockTrades.concat(synthetic).forEach(function (t) { events.push({ when: t.when, side: t.side, name: t.underlying, qty: t.qty, price: t.price }); });
+    events.sort(function (a, b) { return a.when - b.when; });
+    events.forEach(function (e) {
+      if (!lotsByTicker[e.name]) { lotsByTicker[e.name] = []; lotOrder.push(e.name); }
+      var lots = lotsByTicker[e.name];
+      if (e.side === "buy") { lots.push({ qty: e.qty, price: e.price }); return; }
+      var remaining = e.qty;
+      while (remaining > 1e-9 && lots.length) {
+        var lot = lots[0], q = Math.min(remaining, lot.qty);
+        result.stock_sales.push({ underlying: e.name, date: dayOf(e.when), qty: q, sell_price: e.price, cost_price: lot.price, pnl: (e.price - lot.price) * q });
+        lot.qty -= q; remaining -= q;
+        if (lot.qty <= 1e-9) lots.shift();
+      }
+      if (remaining > 1e-9) {
+        result.warnings.push(e.name + ": sold " + fmtG(remaining) + " shares on " + dayToIso(dayOf(e.when)) +
+          " that I have no purchase record for (bought before your export starts?). Their profit/loss is NOT counted. " +
+          "Add them under 'Shares I owned before this export' to fix this.");
+      }
+    });
+    result.stock_sales.forEach(function (sale) { summary(sale.underlying).stock_pnl += sale.pnl; });
+    lotOrder.forEach(function (name) {
+      var s = summary(name), lots = lotsByTicker[name];
+      s.open_shares = lots.reduce(function (a, l) { return a + l.qty; }, 0);
+      s.open_cost = lots.reduce(function (a, l) { return a + l.qty * l.price; }, 0);
+    });
+    result.legs.sort(function (a, b) { return a.closed - b.closed || (a.contract < b.contract ? -1 : a.contract > b.contract ? 1 : 0); });
+    return result;
+  }
+
+  // ---------------------------------------------------------------- the report's numbers (report.py)
+  function tickerList(a) { return a.ticker_order.map(function (n) { return a.tickers[n]; }); }
+  function totalOf(a, attr) { return tickerList(a).reduce(function (s, t) { return s + t[attr]; }, 0); }
+  function realizedTotal(a) { return tickerList(a).reduce(function (s, t) { return s + tickerRealized(t); }, 0); }
+  function openPremiumTotal(a) { return totalOf(a, "open_premium"); }
+  function shortLegs(a, right) { return a.legs.filter(function (l) { return l.direction === "short" && (!right || l.right === right); }); }
+  function winRate(a) { var s = shortLegs(a); return [s.filter(function (l) { return l.pnl > 0; }).length, s.length]; }
+  function putReturnAnnualized(a) {
+    var puts = shortLegs(a, "P"), capitalDays = puts.reduce(function (s, l) { return s + legCollateral(l) * legDays(l); }, 0);
+    if (!capitalDays) return null;
+    return puts.reduce(function (s, l) { return s + l.pnl; }, 0) / capitalDays * 365;
+  }
+  function byMonth(a) {
+    var months = {};
+    a.legs.forEach(function (l) { months[monthKey(l.closed)] = (months[monthKey(l.closed)] || 0) + l.pnl; });
+    a.stock_sales.forEach(function (s) { months[monthKey(s.date)] = (months[monthKey(s.date)] || 0) + s.pnl; });
+    return Object.keys(months).sort().map(function (k) { return [k, months[k]]; });
+  }
+  function verdict(a) {
+    var total = realizedTotal(a);
+    if (!a.legs.length && !a.stock_sales.length) return "No finished trades found yet, so there is no result to report.";
+    var line = total >= 0 ? "Overall you are UP " + money(total) + " in cash actually made." : "Overall you are DOWN " + money(Math.abs(total)) + " in cash actually lost.";
+    var held = tickerList(a).filter(function (t) { return t.open_shares > 0; });
+    if (held.length && held.some(function (t) { return t.price === null; })) {
+      line += " This does not include the value of shares you still hold, which can be higher or lower than what you paid. Type today's price in the box above to include them.";
+    }
+    return line;
+  }
+  function rankedTickers(a) { return tickerList(a).slice().sort(function (x, y) { return tickerRealized(y) - tickerRealized(x); }); }
+
+  // ---------------------------------------------------------------- expiry-week check (expiry.py)
+  function openContracts(trades, today, prices) {
+    var net = {}, info = {}, order = [], out = [], warnings = [];
+    trades.forEach(function (t) {
+      if (!t.option) return;
+      if (!(t.symbol in net)) { net[t.symbol] = 0; order.push(t.symbol); }
+      net[t.symbol] += t.side === "sell" ? t.qty : -t.qty;
+      info[t.symbol] = t.option;
+    });
+    order.forEach(function (symbol) {
+      var qty = net[symbol], o = info[symbol];
+      if (o.expiry < today) return;
+      if (qty < 0) { warnings.push(symbol + ": you are long " + (-qty) + " contract(s); long options are not part of this check."); return; }
+      if (qty === 0) return;
+      var price = Object.prototype.hasOwnProperty.call(prices, o.underlying) ? prices[o.underlying] : null;
+      var itm = price === null ? null : (o.right === "P" ? price < o.strike : price > o.strike);
+      out.push({ ticker: o.underlying, right: o.right, kind: o.right === "P" ? "put" : "call", strike: o.strike, expiry: o.expiry, qty: qty, price: price,
+                 days_left: o.expiry - today, collateral: o.right === "P" ? o.strike * CONTRACT * qty : 0,
+                 moneyness: price === null ? "no price typed" : itm ? "in the money" : "out of the money" });
+    });
+    out.sort(function (a, b) { return a.expiry - b.expiry || (a.ticker < b.ticker ? -1 : a.ticker > b.ticker ? 1 : 0) || (a.right < b.right ? -1 : a.right > b.right ? 1 : 0); });
+    return { contracts: out, warnings: warnings };
+  }
+  function checkExpiry(files, today, prices, cash) {
+    var loaded = loadTrades(files), oc = openContracts(loaded.trades, today, prices || {});
+    var x = { today: today, contracts: oc.contracts, cash: cash, warnings: loaded.warnings.concat(oc.warnings) };
+    x.cash_needed = oc.contracts.reduce(function (s, c) { return s + c.collateral; }, 0);
+    x.shortfall = cash === null || cash === undefined ? null : x.cash_needed - cash;
+    var need = money(x.cash_needed);
+    if (x.shortfall === null) x.sentence = "If every open put is assigned you need " + need + "; type the cash you have to compare.";
+    else if (x.shortfall > 0) x.sentence = "If every open put is assigned you need " + need + "; you have " + money(cash) + "; SHORT BY " + money(x.shortfall) + ".";
+    else x.sentence = "If every open put is assigned you need " + need + "; you have " + money(cash) + "; that covers it with " + money(-x.shortfall) + " to spare.";
+    return x;
+  }
+
+  // ---------------------------------------------------------------- planner math (planner.py)
+  function erf(x) {
+    // Abramowitz and Stegun 7.1.26, max error 1.5e-7: plenty for odds shown to 0.1%
+    var sign = x < 0 ? -1 : 1; x = Math.abs(x);
+    var t = 1 / (1 + 0.3275911 * x);
+    var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+    return sign * y;
+  }
+  function normCdf(x) { return (1 + erf(x / Math.SQRT2)) / 2; }
+  function d1d2(price, strike, iv, dte, rate) {
+    var t = dte / 365, s = iv * Math.sqrt(t);
+    var d1 = (Math.log(price / strike) + (rate + iv * iv / 2) * t) / s;
+    return [d1, d1 - s];
+  }
+  function probItm(price, strike, iv, dte, rate, right) { var d2 = d1d2(price, strike, iv, dte, rate)[1]; return right === "P" ? normCdf(-d2) : normCdf(d2); }
+  function deltaOf(price, strike, iv, dte, rate, right) { var d1 = d1d2(price, strike, iv, dte, rate)[0]; return right === "C" ? normCdf(d1) : normCdf(d1) - 1; }
+  function expectedMove(price, iv, dte) { return price * iv * Math.sqrt(dte / 365); }
+
+  // c = {ticker, type ("P"/"C"), strike, premium, price, iv (percent or null), cost_basis (or null)}
+  function evaluate(c, dte, ratePct) {
+    var e = { c: c, dte: dte, note: "" };
+    if (c.type === "P") {
+      e.collateral = c.strike * CONTRACT; e.cushion = (c.price - c.strike) / c.price; e.breakEven = c.strike - c.premium;
+    } else {
+      var basis = (c.cost_basis && c.cost_basis > 0) ? c.cost_basis : c.price;
+      if (!(c.cost_basis && c.cost_basis > 0)) e.note = (c.cost_basis === null || c.cost_basis === undefined ? "no purchase price typed" : "purchase price " + c.cost_basis + " typed") + ", so today's price stands in for it";
+      e.collateral = basis * CONTRACT; e.cushion = (c.strike - c.price) / c.price; e.breakEven = basis - c.premium;
+    }
+    e.premiumDollars = c.premium * CONTRACT;
+    e.ret = e.premiumDollars / e.collateral;
+    e.annualized = e.ret * 365 / dte;
+    e.perDay = e.premiumDollars / dte;
+    e.sigma = null; e.odds = null;
+    if (c.iv && c.iv > 0) {
+      e.sigma = expectedMove(c.price, c.iv / 100, dte);
+      e.odds = probItm(c.price, c.strike, c.iv / 100, dte, ratePct / 100, c.type);
+    }
+    return e;
+  }
+
+  function belowBasisClause(locked, gap, premium) {
+    if (locked > 0) return "if called you lock in a loss of " + money(locked) + " after keeping the " + money(premium) + " premium.";
+    return "the " + money(premium) + " premium covers the " + money(gap) + " gap, so being called away still nets +" + money(-locked) + ", not a loss.";
+  }
+
+  // rules = {maxDte, maxOdds, buyingPower (or null), account (or null), maxPct, leveraged: {TICKER: true}}
+  function flagsFor(e, rules) {
+    var c = e.c, out = [], lev = rules.leveraged || {};
+    if (lev[c.ticker]) out.push(c.ticker + " is on the built-in list of leveraged funds (2x and 3x funds that reset daily): they can lose value while the index ends flat, so owning it after assignment is not the plain wheel.");
+    if (e.dte > rules.maxDte) out.push(c.ticker + " expires in " + e.dte + " days, more than your " + rules.maxDte + "-day limit (your rule: warn above " + rules.maxDte + " days).");
+    if (c.type === "C" && c.cost_basis && c.strike < c.cost_basis) {
+      var gap = (c.cost_basis - c.strike) * CONTRACT, locked = gap - e.premiumDollars;
+      out.push(c.ticker + " call strike " + money(c.strike) + " is below what you paid, " + money(c.cost_basis) + " a share: " + belowBasisClause(locked, gap, e.premiumDollars));
+    }
+    // buying power is checked on puts only: a covered call is written against shares you already own
+    if (c.type === "P" && rules.buyingPower !== null && rules.buyingPower !== undefined && e.collateral > rules.buyingPower) out.push(c.ticker + " needs " + money(e.collateral) + " set aside, more than the " + money(rules.buyingPower) + " you have available (your rule: buying power " + rules.buyingPower + ").");
+    if (rules.account !== null && rules.account !== undefined && rules.account > 0) {
+      var pctOf = e.collateral / rules.account * 100;
+      if (pctOf > rules.maxPct) out.push(c.ticker + " ties up " + money(e.collateral) + ", which is " + fixed(pctOf, 1) + "% of your " + money(rules.account) + " account, above your " + rules.maxPct + "% limit (your rule: account " + rules.account + ", max " + rules.maxPct + "%).");
+    }
+    if (e.odds !== null && e.odds * 100 > rules.maxOdds) out.push(c.ticker + " rough odds of finishing in the money are " + fixed(e.odds * 100, 1) + "%, above your " + rules.maxOdds + "% limit (your rule: warn above " + rules.maxOdds + "%).");
+    return out;
+  }
+
+  function incomeGoalSentence(goal, evals) {
+    var best = evals.reduce(function (m, e) { return Math.max(m, e.annualized); }, 0);
+    if (best <= 0) return "To make " + money(goal) + " a month you need a candidate with a positive yearly rate; none in this table has one.";
+    return "To make " + money(goal) + " a month at the best yearly rate in this table (" + pct(best) + ") you would need about $" + Math.round(goal * 12 / best).toLocaleString("en-US") + " set aside and working all month.";
+  }
+
+  var VERDICT_CREDIT = "This roll pays you for the extra time (net credit > 0 and break-even not worse).";
+  var VERDICT_WORSE = "Net credit but break-even got worse: only if you want to keep the shares.";
+  var VERDICT_DEBIT = "You are paying to delay, not to improve (net debit).";
+  var VERDICT_EVEN = "This roll is even (no net credit and no debit): it only moves the date.";
+
+  // i = {old_strike, old_expiry (iso), old_premium, buyback, new_strike, new_expiry (iso), new_credit, price, iv}
+  function rollCalc(i, todayIso, ratePct) {
+    // Same refusals as planner.roll: strikes above zero, no negative premiums, new expiry after the old one.
+    if (!(i.old_strike > 0) || !(i.new_strike > 0)) throw new FormatError("Both strikes must be above zero.");
+    if (Math.min(i.old_premium, i.buyback, i.new_credit) < 0) throw new FormatError("Premiums and the buyback cost cannot be negative.");
+    // planner.roll hands a negative price or IV to Black-Scholes, which refuses them; a blank (or 0) skips the odds.
+    if ((i.price !== null && i.price !== undefined && i.price < 0) || (i.iv !== null && i.iv !== undefined && i.iv < 0)) {
+      throw new FormatError("The stock price and the implied volatility cannot be negative. Leave them blank to skip the rough odds.");
+    }
+    var r = {};
+    r.net = i.new_credit - i.buyback;
+    r.netContract = r.net * CONTRACT;
+    r.total = i.old_premium + i.new_credit - i.buyback;
+    r.oldBe = i.old_strike - i.old_premium;
+    r.newBe = i.new_strike - r.total;
+    r.daysAdded = parseIsoDay(i.new_expiry) - parseIsoDay(i.old_expiry);
+    r.newDte = dteOf(i.new_expiry, todayIso);
+    r.newCollateral = i.new_strike * CONTRACT;
+    r.annualized = r.daysAdded > 0 ? r.net / i.new_strike * 365 / r.daysAdded : null;
+    r.odds = null; r.sigma = null;
+    if (i.price && i.iv && r.newDte) { r.odds = probItm(i.price, i.new_strike, i.iv / 100, r.newDte, ratePct / 100, "P"); r.sigma = expectedMove(i.price, i.iv / 100, r.newDte); }
+    if (r.net > 0 && r.newBe <= r.oldBe + 1e-9) r.verdict = VERDICT_CREDIT;
+    else if (r.net > 0) r.verdict = VERDICT_WORSE;
+    else if (r.net < 0) r.verdict = VERDICT_DEBIT;
+    else r.verdict = VERDICT_EVEN;
+    return r;
+  }
+
+  // i = {strike, put_credits, contracts, call_strike (or null), call_premium (or null)}
+  function whatIf(i) {
+    var w = {}, shares = i.contracts * CONTRACT;
+    w.shares = shares; w.cost = i.strike * shares; w.premiumKept = i.put_credits * shares; w.basis = i.strike - i.put_credits;
+    w.callPremium = null; w.callReturn = null; w.ifCalled = null; w.lockedLoss = null;
+    if (i.call_strike && i.call_premium !== null && i.call_premium !== undefined && !isNaN(i.call_premium)) {
+      w.callPremium = i.call_premium * shares;
+      w.callReturn = w.basis > 0 ? i.call_premium / w.basis : null;
+      w.ifCalled = (i.call_strike - w.basis + i.call_premium) * shares;
+      if (i.call_strike < w.basis) w.lockedLoss = (w.basis - i.call_strike) * shares - w.callPremium;
+    }
+    return w;
+  }
+
+  // ---------------------------------------------------------------- formatting (report.py money())
+  function fixed(x, places) {
+    // Like Python's f"{x:.{places}f}": toFixed rounds an exact tie (91.25 -> "91.3") up, Python rounds it to the
+    // even digit ("91.2"). Only exact binary ties differ, so detect those and round them half-even by hand.
+    // Both read the exact binary value, so a tie can only be a number whose shortest decimal form has exactly
+    // places+1 decimals, ends in 5, and IS that decimal exactly (its digits over 10^(places+1) reduce to a
+    // power of two, i.e. the digits are divisible by 5^(places+1)). 91.25 is such a tie; 91.35 is not.
+    var neg = x < 0, v = Math.abs(x), s = v.toFixed(places), str = String(v), dot = str.indexOf(".");
+    if (dot >= 0 && str.indexOf("e") < 0 && str.length - dot - 1 === places + 1 && str.charAt(str.length - 1) === "5") {
+      var digits = str.replace(".", ""), mod = 0, m = Math.pow(5, places + 1);
+      for (var k = 0; k < digits.length; k++) mod = (mod * 10 + (digits.charCodeAt(k) - 48)) % m;
+      if (mod === 0) {
+        var lower = str.slice(0, -1);                       // the candidate below the tie, as exact digits
+        if (lower.charAt(lower.length - 1) === ".") lower = lower.slice(0, -1);
+        if ((lower.charCodeAt(lower.length - 1) - 48) % 2 === 0) s = lower;   // even digit: Python keeps the lower one
+      }
+    }
+    return (neg ? "-" : "") + s;
+  }
+  function money(x, sign) {
+    var p = x < 0 ? "-" : (sign ? "+" : ""), s = fixed(Math.abs(x), 2), parts = s.split(".");
+    return p + "$" + parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "." + parts[1];
+  }
+  function pct(x, places) { return x === null || x === undefined || isNaN(x) ? "n/a" : fixed(x * 100, places === undefined ? 1 : places) + "%"; }
+  function fmtG(x) { return String(Number(Number(x).toPrecision(6))); }
+  function days(n) { return n === 1 ? "1 day" : n + " days"; }
+
+  return {
+    FormatError: FormatError, CONTRACT: CONTRACT,
+    parseIsoDay: parseIsoDay, dayToIso: dayToIso, dteOf: dteOf, parseWhen: parseWhen,
+    parseCsv: parseCsv, parseOptionSymbol: parseOptionSymbol, parseFile: parseFile, loadTrades: loadTrades, parseAssignedList: parseAssignedList,
+    analyze: analyze, tickerRealized: tickerRealized, tickerBreakeven: tickerBreakeven, tickerUnrealized: tickerUnrealized,
+    tickerList: tickerList, rankedTickers: rankedTickers, totalOf: totalOf, realizedTotal: realizedTotal, openPremiumTotal: openPremiumTotal,
+    winRate: winRate, putReturnAnnualized: putReturnAnnualized, byMonth: byMonth, verdict: verdict, legCollateral: legCollateral, legDays: legDays,
+    openContracts: openContracts, checkExpiry: checkExpiry,
+    normCdf: normCdf, probItm: probItm, deltaOf: deltaOf, expectedMove: expectedMove, evaluate: evaluate, flagsFor: flagsFor,
+    belowBasisClause: belowBasisClause, incomeGoalSentence: incomeGoalSentence, rollCalc: rollCalc, whatIf: whatIf,
+    money: money, pct: pct, fixed: fixed, fmtG: fmtG, days: days
+  };
+})();
+if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var W = WHEEL;
+  var KEY = "wheel_planner.";
+  var LEVERAGED = {};
+  try { JSON.parse(document.getElementById("leveraged-etfs").textContent).forEach(function (t) { LEVERAGED[t] = true; }); } catch (e) {}
+
+  // ---------- storage (per browser; wrapped so blocked storage never breaks the page)
+  function load(name, fallback) { try { var v = localStorage.getItem(KEY + name); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+  function save(name, value) { try { localStorage.setItem(KEY + name, JSON.stringify(value)); } catch (e) {} }
+  function forget(name) { try { localStorage.removeItem(KEY + name); } catch (e) {} }
+
+  // ---------- small helpers
+  function $(id) { return document.getElementById(id); }
+  function scrollTo(el) {   // scroll so the element sits below the sticky row of section buttons
+    if (!el) return;
+    var nav = document.querySelector(".jump"), top = el.getBoundingClientRect().top + (window.pageYOffset || 0) - (nav ? nav.offsetHeight : 0) - 8;
+    var smooth = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    try { window.scrollTo({ top: Math.max(0, top), behavior: smooth ? "smooth" : "auto" }); } catch (e) { window.scrollTo(0, Math.max(0, top)); }
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch]; }); }
+  function num(v) { if (v === "" || v === null || v === undefined) return null; var n = parseFloat(String(v).replace(/[$,%]/g, "")); return isNaN(n) ? null : n; }
+  function todayIso() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  var money = W.money, pct = W.pct, days = W.days;
+  function signed(x) { return "<b class='" + (x >= 0 ? "good" : "bad") + "'>" + money(x, true) + "</b>"; }
+  function cell(x) { return "<td class='num " + (x >= 0 ? "good" : "bad") + "'>" + money(x, true) + "</td>"; }
+  function showError(id, html) { var el = $(id); el.className = "box"; el.innerHTML = html; el.hidden = false; }
+  function clearError(id) { var el = $(id); el.hidden = true; el.innerHTML = ""; }
+  function meanings(items) { return "<ul class='meanings'>" + items.map(function (i) { return "<li><b>" + esc(i[0]) + "</b>: " + esc(i[1]) + "</li>"; }).join("") + "</ul>"; }
+  function readForm(root) { var o = {}; root.querySelectorAll("input,select,textarea").forEach(function (el) { if (el.type !== "file") o[el.name || el.id] = el.value; }); return o; }
+  function fillForm(root, values) { root.querySelectorAll("input,select,textarea").forEach(function (el) { var k = el.name || el.id; if (values && values[k] !== undefined && el.type !== "file") el.value = values[k]; }); }
+  function withoutToday(o) { var c = {}; Object.keys(o).forEach(function (k) { if (k !== "today") c[k] = o[k]; }); return c; }
+  function exampleNote(section, on) { var el = $(section + "-example"); if (el) el.hidden = !on; }
+  function resetForm(root) { root.querySelectorAll("input,select,textarea").forEach(function (el) { if (el.type === "file") { el.value = ""; return; } el.value = el.getAttribute("value") || (el.tagName === "SELECT" ? "P" : ""); }); }
+
+  // ---------- ticker/number row widgets (shares owned before; today's prices)
+  function makeRows(id, kind, values) {
+    var box = $(id); box.innerHTML = "";
+    var head = document.createElement("div"); head.className = "row rowhead" + (kind === "price" ? " two" : "");
+    head.innerHTML = kind === "price" ? "<span>Ticker</span><span>Price now</span>" : "<span>Ticker</span><span>Shares</span><span>Paid per share</span>";
+    box.appendChild(head);
+    var rows = (values && values.length) ? values : [[], []];
+    rows.forEach(function (v) { addRow(id, kind, v); });
+  }
+  function addRow(id, kind, v) {
+    v = v || [];
+    var box = $(id), n = box.querySelectorAll(".row").length;
+    var row = document.createElement("div"); row.className = "row" + (kind === "price" ? " two" : "");
+    var t = "<input aria-label='Ticker' autocapitalize='characters' placeholder='AAA' data-k='ticker' id='" + id + "-t" + n + "' value='" + esc(v[0] || "") + "'>";
+    if (kind === "price") t += "<input type='number' step='0.01' aria-label='Price now' placeholder='0.00' data-k='price' id='" + id + "-p" + n + "' value='" + esc(v[1] === undefined ? "" : v[1]) + "'>";
+    else t += "<input type='number' step='1' aria-label='Shares' placeholder='100' data-k='shares' id='" + id + "-s" + n + "' value='" + esc(v[1] === undefined ? "" : v[1]) + "'>" +
+              "<input type='number' step='0.01' aria-label='Paid per share' placeholder='0.00' data-k='cost' id='" + id + "-c" + n + "' value='" + esc(v[2] === undefined ? "" : v[2]) + "'>";
+    row.innerHTML = t;
+    box.appendChild(row);
+  }
+  function readRows(id) {
+    var out = [];
+    $(id).querySelectorAll(".row:not(.rowhead)").forEach(function (row) {
+      var vals = Array.prototype.map.call(row.querySelectorAll("input"), function (i) { return i.value; });
+      if (vals.some(function (x) { return String(x).trim() !== ""; })) out.push(vals);
+    });
+    return out;
+  }
+  function pricesFromRows(id, problems) {
+    var p = {};
+    readRows(id).forEach(function (r) {
+      var t = String(r[0]).trim().toUpperCase(), v = num(r[1]);
+      if (!t || v === null) { problems.push("A price row is incomplete (ticker " + (t || "blank") + ", price " + (r[1] || "blank") + "): type both or clear the row."); return; }
+      if (v < 0) { problems.push("The price for " + t + " is negative (" + r[1] + "): a share price cannot be below zero."); return; }
+      p[t] = v;
+    });
+    return p;
+  }
+  document.querySelectorAll("[data-addrow]").forEach(function (b) {
+    b.addEventListener("click", function () { var id = b.getAttribute("data-addrow"); addRow(id, id.indexOf("prices") >= 0 ? "price" : "opening"); });
+  });
+
+  // ---------- file loading (FileReader; nothing leaves the device)
+  var filesLoaded = { results: [], expiry: [] };   // [{name, text}]
+  function readFiles(inputEl, which, note, after) {
+    var list = Array.prototype.slice.call(inputEl.files || []);
+    if (!list.length) return;
+    var out = [], pending = list.length;
+    list.forEach(function (f, idx) {
+      var reader = new FileReader();
+      reader.onload = function () { out[idx] = { name: f.name, text: String(reader.result || "") }; if (--pending === 0) { filesLoaded[which] = out; $(note).textContent = "Using: " + out.map(function (o) { return o.name; }).join(", "); after(); } };
+      reader.onerror = function () { out[idx] = { name: f.name, text: "" }; if (--pending === 0) { filesLoaded[which] = out; $(note).textContent = "Could not read " + f.name + "."; after(); } };
+      reader.readAsText(f);
+    });
+  }
+  function formatErrorBox(err) {
+    if (err && err.missing) {
+      return "<b>This does not look like the file Webull makes.</b> The first line should contain Symbol, Side, Filled, Avg Price and Filled Time. " +
+        "This file is missing: " + esc(err.missing.join(", ")) + ". Its first line has: " + esc((err.found || []).join(", ") || "(nothing)") +
+        ". Open the file in Excel and check the headings, or download the order history again.";
+    }
+    return "<b>Could not read the file.</b> " + esc(err && err.message ? err.message : String(err)) + " Open the file in Excel and check that row.";
+  }
+
+  // ================================================================ 1. results
+  var resultsForm = $("s-results");
+  function readTrackerInputs(problems) {
+    var assigned = W.parseAssignedList($("results-assigned").value);
+    var opening = [];
+    readRows("results-opening").forEach(function (r) {
+      var t = String(r[0]).trim().toUpperCase(), s = num(r[1]), c = num(r[2]);
+      if (!t || s === null || c === null) { problems.push("A 'shares I owned before' row is incomplete (ticker " + (t || "blank") + "): type ticker, shares and what you paid, or clear the row."); return; }
+      if (s <= 0) { problems.push("The 'shares I owned before' row for " + t + " has " + r[1] + " shares: type how many shares you held, a number above zero."); return; }
+      if (c < 0) { problems.push("The 'shares I owned before' row for " + t + " says you paid " + r[2] + " a share: what you paid cannot be below zero."); return; }
+      opening.push([t, s, c]);
+    });
+    var prices = pricesFromRows("results-prices", problems);
+    var todayStr = $("results-today").value || todayIso(), today = W.parseIsoDay(todayStr);
+    if (today === null) problems.push("The 'pretend today is' date is not a full date.");
+    return { assigned: assigned, opening: opening, prices: prices, today: today, todayStr: todayStr };
+  }
+  function persistTracker() {
+    save("tracker", { assigned: $("results-assigned").value, opening: readRows("results-opening"), prices: readRows("results-prices") });
+  }
+  var showAllLegs = false, LEG_CAP = 500;
+  function runResults() {
+    clearError("results-error");
+    $("results-stale").hidden = true;
+    var out = $("results-out");
+    if (!filesLoaded.results.length) { out.innerHTML = "<p class='mute'>Choose your Webull file above, or press \"Try it with example data\".</p>"; return; }
+    var problems = [], inputs = readTrackerInputs(problems);
+    if (problems.length) { showError("results-error", problems.map(esc).join("<br>")); return; }
+    var loaded, a;
+    try {
+      loaded = W.loadTrades(filesLoaded.results);
+      a = W.analyze(loaded.trades, inputs.today, inputs.assigned, inputs.opening, inputs.prices);
+    } catch (err) { showError("results-error", formatErrorBox(err)); out.innerHTML = ""; return; }
+    var notes = loaded.warnings.concat(a.warnings);
+    var realized = W.realizedTotal(a), openPrem = W.openPremiumTotal(a), wr = W.winRate(a), ann = W.putReturnAnnualized(a);
+    var h = "<p class='mute'>As of " + esc(inputs.todayStr) + ", from " + loaded.trades.length + " filled orders in " + filesLoaded.results.map(function (f) { return esc(f.name); }).join(", ") + ".</p>";
+    h += "<p class='verdict'>" + esc(W.verdict(a)) + "</p>";
+    h += "<p class='big " + (realized >= 0 ? "good" : "bad") + "'>" + money(realized, true) + "</p><p class='mute'>Total made so far, counting only trades that are finished.</p>";
+    h += "<div class='stat'><span>Puts: premium kept, minus buybacks<span class='meaning'>Money from cash-secured puts that are finished (expired, assigned, or bought back), after subtracting what buybacks cost.</span></span>" + signed(W.totalOf(a, "put_pnl")) + "</div>";
+    h += "<div class='stat'><span>Covered calls: premium kept, minus buybacks<span class='meaning'>The same, for calls sold on shares you held.</span></span>" + signed(W.totalOf(a, "call_pnl")) + "</div>";
+    h += "<div class='stat'><span>Gain or loss selling shares you were assigned<span class='meaning'>Sale price minus what you paid, for shares sold or called away. Shares still held are not here.</span></span>" + signed(W.totalOf(a, "stock_pnl")) + "</div>";
+    h += "<div class='stat'><span>Other options you bought<span class='meaning'>Contracts you bought to open, which are not wheel trades: what you sold or let expire minus what you paid.</span></span>" + signed(W.totalOf(a, "long_pnl")) + "</div>";
+    h += "<div class='stat'><span>Premium on contracts still open<span class='meaning'>Not counted above: it is not yours until the contract ends. If you buy the contract back for more than you got, it turns into a loss.</span></span><b>" + money(openPrem) + "</b></div>";
+    if (wr[1]) h += "<div class='stat'><span>Contracts you sold that made money<span class='meaning'>Finished contracts you sold, counted as a win when they ended with cash in your pocket.</span></span><b>" + wr[0] + " of " + wr[1] + " (" + Math.round(wr[0] / wr[1] * 100) + "%)</b></div>";
+    if (ann !== null) h += "<div class='stat'><span>Puts only: yearly rate on the cash set aside<span class='meaning'>Put premium kept per dollar of cash held for the trade per day, scaled to a year. Ignores any gain or loss on shares.</span></span><b>" + pct(ann) + "</b></div>";
+
+    h += "<h3>By ticker</h3><div class='wrap'><table><tr><th>Ticker</th><th class='num'>Puts</th><th class='num'>Calls</th><th class='num'>Options bought</th><th class='num'>Shares</th><th class='num'>Total</th></tr>";
+    W.rankedTickers(a).forEach(function (t) {
+      h += "<tr><td>" + esc(t.underlying) + "</td>" + cell(t.put_pnl) + cell(t.call_pnl) + cell(t.long_pnl) + cell(t.stock_pnl) + cell(W.tickerRealized(t)) + "</tr>";
+    });
+    h += "</table></div>" + meanings([["Puts", "cash made on puts you sold, after buybacks"], ["Calls", "cash made on covered calls you sold, after buybacks"], ["Options bought", "contracts you bought rather than sold"], ["Shares", "gain or loss on shares sold"], ["Total", "all of those added up"]]);
+
+    var held = W.tickerList(a).filter(function (t) { return t.open_shares > 0; });
+    if (!held.length && a.assumed_expired.length) {
+      h += "<p class='mute'>No shares held, so there is no break-even to show. If a put was assigned, see \"Please check\" at the bottom to tell the page; it will then list the shares and their break-even here.</p>";
+    }
+    if (held.length) {
+      h += "<h3>Shares you still hold</h3><div class='wrap'><table><tr><th>Ticker</th><th class='num'>Shares</th><th class='num'>Paid each</th><th class='num'>Break-even</th><th class='num'>Worth now</th></tr>";
+      held.forEach(function (t) {
+        var u = W.tickerUnrealized(t);
+        h += "<tr><td>" + esc(t.underlying) + "</td><td class='num'>" + W.fmtG(t.open_shares) + "</td><td class='num'>" + money(t.open_cost / t.open_shares) + "</td><td class='num'>" + money(W.tickerBreakeven(t)) + "</td>" + (u === null ? "<td class='num mute'>type a price</td>" : cell(u)) + "</tr>";
+      });
+      h += "</table></div>" + meanings([["Paid each", "average purchase price of the shares you still have"], ["Break-even", "the share price where everything on this ticker, premiums included, nets to zero; sell above it and the whole wheel on this ticker made money"], ["Worth now", "gain or loss on the shares at the price you typed, before premiums"]]);
+    }
+
+    var months = W.byMonth(a);
+    if (months.length) {
+      h += "<h3>By month</h3><p class='meaning'>Each trade counts in the month it finished.</p><div class='wrap'><table style='min-width:260px'><tr><th>Month</th><th class='num'>Made</th></tr>";
+      months.forEach(function (m) { h += "<tr><td>" + esc(m[0]) + "</td>" + cell(m[1]) + "</tr>"; });
+      h += "</table></div>";
+    }
+
+    h += "<h3>Contracts still open</h3>";
+    if (a.open_options.length) {
+      h += "<ul>";
+      a.open_options.slice().sort(function (x, y) { return x.expiry - y.expiry; }).forEach(function (o) {
+        h += "<li>" + esc(o.underlying) + " $" + W.fmtG(o.strike) + " " + (o.right === "P" ? "put" : "call") + ", " + (o.direction === "short" ? "you sold" : "you bought") + " " + o.qty + ", expires " + W.dayToIso(o.expiry) + ": " + money(o.premium) + " premium so far</li>";
+      });
+      h += "</ul>";
+    } else h += "<p>None.</p>";
+
+    if (a.legs.length) {
+      var legsNewestFirst = a.legs.slice().reverse(), shown = showAllLegs ? legsNewestFirst : legsNewestFirst.slice(0, LEG_CAP);
+      h += "<h3>Every finished trade</h3>";
+      if (shown.length < legsNewestFirst.length) h += "<p class='mute'>Showing the most recent " + shown.length + " of " + legsNewestFirst.length + " finished trades. <button type='button' class='quiet small' id='results-show-all'>Show all " + legsNewestFirst.length + "</button></p>";
+      h += "<div class='wrap'><table><tr><th>Finished</th><th>Ticker</th><th>Contract</th><th>How it ended</th><th class='num'>Result</th></tr>";
+      shown.forEach(function (l) {
+        h += "<tr><td>" + W.dayToIso(l.closed) + "</td><td>" + esc(l.underlying) + "</td><td>$" + W.fmtG(l.strike) + " " + (l.right === "P" ? "put" : "call") + " (" + (l.direction === "short" ? "you sold" : "you bought") + " " + l.qty + ")</td><td>" + esc(l.outcome) + "</td>" + cell(l.pnl) + "</tr>";
+      });
+      h += "</table></div>" + meanings([["expired", "ran past its expiry with no buyback: you kept the whole premium"], ["assigned", "the shares changed hands at the strike"], ["bought back", "you paid to close it; the result is what you received minus what you paid"], ["sold", "an option you had bought, sold again"]]);
+    }
+
+    var noteHtml = notes.map(function (n) { return "<div class='note'>" + esc(n) + "</div>"; });
+    var inFile = {}; loaded.trades.forEach(function (t) { if (t.option) inFile[t.symbol] = true; });
+    var unknown = Object.keys(inputs.assigned).filter(function (s) { return !inFile[s]; });
+    if (unknown.length) {
+      noteHtml.push("<div class='note'>" + esc("In \"Contracts that were assigned\" you typed " + unknown.join(", ") + ", which " + (unknown.length === 1 ? "is" : "are") +
+                    " not in your file, so the line did nothing. Check the spelling against the contract symbols in \"Every finished trade\" or press one of the buttons below instead.") + "</div>");
+    }
+    if (a.assumed_expired.length) {
+      var names = {}; a.assumed_expired.forEach(function (l) { names[l.contract] = true; });
+      var list = Object.keys(names).sort();
+      noteHtml.push("<div class='note'>" + esc("I counted " + list.length + " contract" + (list.length === 1 ? "" : "s") + " as expired worthless (you kept the full premium) because the file has no buyback and no matching share purchase or sale. " +
+                    "Webull's file does not list assignments. If one of these was really assigned, press its button and the page will count the shares as bought (put) or sold (call) at the strike:") +
+                    "<div>" + list.map(function (c, k) { return "<button type='button' class='assignbtn' data-assign='" + esc(c) + "' id='results-assign-" + k + "'>" + esc(c) + ": this one was assigned</button>"; }).join("") + "</div>" +
+                    "<span class='meaning'>Pressing a button adds the contract to the \"Contracts that were assigned\" box above, so you can undo it there.</span></div>");
+    }
+    if (noteHtml.length) h += "<h3>Please check</h3>" + noteHtml.join("");
+    out.innerHTML = h;
+  }
+  $("results-out").addEventListener("click", function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest("button") : null;
+    if (!b) return;
+    if (b.id === "results-show-all") { showAllLegs = true; runResults(); return; }
+    var c = b.getAttribute("data-assign");
+    if (c) {
+      var box = $("results-assigned"), lines = box.value.split(/\r?\n/).map(function (x) { return x.trim().toUpperCase(); });
+      if (lines.indexOf(c) < 0) box.value = (box.value.trim() ? box.value.replace(/\s+$/, "") + "\n" : "") + c;
+      persistTracker(); runResults(); scrollTo($("results-out"));
+    }
+  });
+  $("results-files").addEventListener("change", function () { readFiles(this, "results", "results-files-note", function () { runResults(); runExpiryIfUsingResults(); }); });
+  $("run-results").addEventListener("click", function () { persistTracker(); runResults(); });
+  $("try-results").addEventListener("click", function () {
+    filesLoaded.results = [{ name: "sample_webull_orders.csv (example)", text: document.getElementById("sample-orders").textContent }];
+    $("results-files-note").textContent = "Using: the built-in example file sample_webull_orders.csv (made-up trades on tickers AAA to EEE).";
+    $("results-files").value = "";
+    runResults();
+    scrollTo($("results-out"));
+  });
+  $("reset-results").addEventListener("click", function () {
+    filesLoaded.results = []; $("results-files").value = ""; $("results-files-note").textContent = "No file chosen yet.";
+    $("results-assigned").value = ""; makeRows("results-opening", "opening"); makeRows("results-prices", "price"); $("results-today").value = todayIso();
+    forget("tracker"); clearError("results-error"); $("results-stale").hidden = true; $("results-out").innerHTML = ""; showAllLegs = false;
+    if (!filesLoaded.expiry.length) { $("expiry-out").innerHTML = ""; $("expiry-files-note").textContent = "No file chosen yet."; clearError("expiry-error"); }   // section 5 was reusing this file
+  });
+  resultsForm.addEventListener("input", function (ev) {
+    if (!ev.target || ev.target.type === "file") return;
+    persistTracker();
+    if (filesLoaded.results.length && $("results-out").innerHTML) $("results-stale").hidden = false;
+  });
+
+  // ================================================================ 2. compare
+  var cardsEl = $("cards"), settingsEl = $("settings");
+  for (var n = 1; n <= 4; n++) {
+    var div = document.createElement("div"); div.className = "card"; div.setAttribute("data-card", n);
+    div.innerHTML = "<h3>Candidate " + n + (n === 1 ? "" : " (optional)") + "</h3><div class='grid'>" +
+      "<div><label for='c" + n + "-ticker'>Ticker</label><span class='meaning'>The stock's symbol, for example AAA.</span><input id='c" + n + "-ticker' name='ticker' autocapitalize='characters' placeholder='AAA'></div>" +
+      "<div><label for='c" + n + "-type'>What you would sell</label><span class='meaning'>A put means you agree to buy; a covered call means you agree to sell shares you own.</span><select id='c" + n + "-type' name='type'><option value='P'>A put (cash-secured put)</option><option value='C'>A call on shares I own (covered call)</option></select></div>" +
+      "<div><label for='c" + n + "-price'>Price of the stock now</label><input type='number' step='0.01' id='c" + n + "-price' name='price'></div>" +
+      "<div><label for='c" + n + "-strike'>Strike (the price you agree to buy at, or sell at for a call)</label><input type='number' step='0.01' id='c" + n + "-strike' name='strike'></div>" +
+      "<div><label for='c" + n + "-premium'>Premium per share (what you get paid)</label><span class='meaning'>Times 100 for one contract.</span><input type='number' step='0.01' id='c" + n + "-premium' name='premium'></div>" +
+      "<div><label for='c" + n + "-expiry'>Expiry date</label><input type='date' id='c" + n + "-expiry' name='expiry'></div>" +
+      "<div><label for='c" + n + "-iv'>Implied volatility % (optional, from the option chain)</label><span class='meaning'>How much the market expects the stock to swing, as a yearly percentage; Webull shows it as IV on the option chain. Leave blank and the page skips the rough odds.</span><input type='number' step='0.1' id='c" + n + "-iv' name='iv'></div>" +
+      "<div><label for='c" + n + "-basis'>What you paid per share (covered calls only)</label><span class='meaning'>Your cost basis. Leave blank for a put.</span><input type='number' step='0.01' id='c" + n + "-basis' name='cost_basis'></div>" +
+      "</div>";
+    cardsEl.appendChild(div);
+  }
+  function persistCompare() { save("settings", withoutToday(readForm(settingsEl))); save("compare", Array.prototype.map.call(cardsEl.querySelectorAll(".card"), readForm)); }
+  function runCompare() {
+    clearError("compare-error");
+    var s = readForm(settingsEl), out = $("compare-out");
+    var today = s.today || todayIso();
+    var evals = [], echo = [], problems = [], warnings = [];
+    // A negative rule makes no sense ("warn above -1 days"): it is treated as blank and the default is used, and the box says so.
+    function rule(key, label, fallback) {
+      var v = num(s[key]);
+      if (v !== null && v < 0) { problems.push("\"" + label + "\" is " + s[key] + ", which cannot be below zero: " + (fallback === null ? "it is ignored" : "the usual " + fallback + " is used instead") + ". Clear the box or type a number above zero."); return fallback; }
+      return v === null ? fallback : v;
+    }
+    var ratePct = rule("rate", "Interest rate %", 4);
+    var rules = { maxDte: rule("max_dte", "Warn me if the expiry is more than this many days away", 45), maxOdds: rule("max_odds", "Warn me if the rough odds of assignment are above this %", 35),
+                  buyingPower: rule("buying_power", "Money available for new trades $", null), account: rule("account", "Whole account value $", null),
+                  maxPct: rule("max_pct", "Warn me if one trade ties up more than this % of the account", 25), leveraged: LEVERAGED };
+    cardsEl.querySelectorAll(".card").forEach(function (card, idx) {
+      var f = readForm(card);
+      var ticker = (f.ticker || "").trim().toUpperCase();
+      if (!ticker && !f.strike && !f.premium && !f.price) return;   // empty card
+      var c = { ticker: ticker || ("#" + (idx + 1)), type: f.type === "C" ? "C" : "P", strike: num(f.strike), premium: num(f.premium), price: num(f.price), iv: num(f.iv), cost_basis: num(f.cost_basis) };
+      var dte = W.dteOf(f.expiry, today);
+      var blank = [];
+      if (c.price === null) blank.push("the price of the stock now"); if (c.strike === null) blank.push("the strike"); if (c.premium === null) blank.push("the premium"); if (dte === null) blank.push("the expiry date");
+      if (blank.length) { problems.push("Candidate " + (idx + 1) + " (" + c.ticker + "): still needs " + blank.join(", ") + "."); return; }
+      if (c.strike <= 0 || c.price <= 0) { problems.push("Candidate " + (idx + 1) + " (" + c.ticker + "): the strike and the stock price must be above zero."); return; }
+      if (c.premium < 0) { problems.push("Candidate " + (idx + 1) + " (" + c.ticker + "): the premium cannot be negative."); return; }
+      if (c.iv !== null && c.iv < 0) { problems.push("Candidate " + (idx + 1) + " (" + c.ticker + "): implied volatility cannot be negative."); return; }
+      if (W.parseIsoDay(f.expiry) <= W.parseIsoDay(today)) warnings.push(c.ticker + ": the expiry " + f.expiry + " is on or before today (" + today + "); treated as 1 day left.");
+      echo.push(c.ticker + ": " + (c.type === "P" ? "put" : "covered call") + ", stock price " + money(c.price) + ", strike " + money(c.strike) + ", premium " + money(c.premium) + " a share, expiry " + f.expiry + ", IV " + (c.iv === null ? "blank" : c.iv + "%") + (c.type === "C" ? ", paid " + (c.cost_basis === null ? "blank" : money(c.cost_basis)) : ""));
+      var e = W.evaluate(c, dte, ratePct); e.flags = W.flagsFor(e, rules); evals.push(e);
+    });
+    evals.sort(function (a, b) { return b.annualized - a.annualized; });
+    if (problems.length) showError("compare-error", problems.map(esc).join("<br>"));
+    if (!evals.length) { out.innerHTML = problems.length ? "" : "<p class='mute'>Fill in at least one candidate, or press \"Try it with example data\".</p>"; return; }
+    var h = "<h3>In one sentence each</h3>";
+    evals.forEach(function (e) {
+      var c = e.c, kind = c.type === "P" ? "put" : "call", odds = e.odds === null ? "" : (" Rough odds " + (c.type === "P" ? "you end up buying the shares" : "the shares get called away") + ": " + pct(e.odds) + ".");
+      if (c.type === "P") h += "<p><b>" + esc(c.ticker) + " " + kind + " at " + money(c.strike) + ", " + days(e.dte) + " to expiry:</b> ties up " + money(e.collateral) + " and pays " + money(e.premiumDollars) + " now, which is " + pct(e.ret, 2) + " of that cash (" + pct(e.annualized) + " a year if you could repeat it). The stock can fall " + pct(e.cushion) + " before it reaches the strike; if assigned, the shares cost you " + money(e.breakEven) + " each after the premium." + odds + "</p>";
+      else h += "<p><b>" + esc(c.ticker) + " " + kind + " at " + money(c.strike) + ", " + days(e.dte) + " to expiry:</b> pays " + money(e.premiumDollars) + " now, which is " + pct(e.ret, 2) + " of what the shares cost you (" + pct(e.annualized) + " a year if you could repeat it). The stock can rise " + pct(e.cushion) + " before it reaches the strike; your break-even on the shares drops to " + money(e.breakEven) + "." + odds + "</p>";
+    });
+    h += "<h3>What your rules say</h3>";
+    var fired = []; evals.forEach(function (e) { fired = fired.concat(e.flags); });
+    h += fired.length ? fired.map(function (f) { return "<div class='note'>" + esc(f) + "</div>"; }).join("") : "<div class='okbox'>None of your rules fired.</div>";
+    h += "<h3>The numbers, best yearly rate first</h3><div class='wrap'><table><tr><th>Ticker</th><th>Kind</th><th class='num'>Strike</th><th class='num'>Cash tied up</th><th class='num'>Premium</th><th class='num'>Return</th><th class='num'>Yearly rate</th><th class='num'>Days</th><th class='num'>$ per day</th><th class='num'>Cushion</th><th class='num'>Break-even</th><th class='num'>Likely move</th><th class='num'>Rough odds</th></tr>";
+    evals.forEach(function (e) {
+      h += "<tr><td>" + esc(e.c.ticker) + "</td><td>" + (e.c.type === "P" ? "put" : "call") + "</td><td class='num'>" + money(e.c.strike) + "</td><td class='num'>" + money(e.collateral) + "</td><td class='num'>" + money(e.premiumDollars) + "</td><td class='num'>" + pct(e.ret, 2) + "</td><td class='num'>" + pct(e.annualized) + "</td><td class='num'>" + e.dte + "</td><td class='num'>" + money(e.perDay) + "</td><td class='num'>" + pct(e.cushion) + (e.c.type === "C" ? " up" : "") + "</td><td class='num'>" + money(e.breakEven) + "</td><td class='num'>" + (e.sigma === null ? "n/a" : money(e.sigma)) + "</td><td class='num'>" + (e.odds === null ? "n/a" : pct(e.odds)) + "</td></tr>";
+    });
+    h += "</table></div>" + meanings([
+      ["Cash tied up", "money set aside for the trade (collateral): strike x 100 for a put; what you paid x 100 for a covered call"],
+      ["Premium", "what you are paid for one contract: premium per share x 100"],
+      ["Return", "premium divided by the cash tied up"],
+      ["Yearly rate", "that return scaled to a year (annualized): what you would make if you could repeat the trade all year; not a promise"],
+      ["Days", "calendar days until it expires"], ["$ per day", "premium divided by days"],
+      ["Cushion", "how far the stock can fall (put) or rise (call) before it reaches the strike"],
+      ["Break-even", "put: strike minus premium, what the shares would cost you; call: what you paid minus premium"],
+      ["Likely move", "the one-standard-deviation move (1-sigma): the stock finishes inside this about two times in three, if the IV is right"],
+      ["Rough odds", "chance of finishing past the strike at expiry from the Black-Scholes formula; the chance of touching it on the way is about double"]]);
+    evals.forEach(function (e) { if (e.note) h += "<p class='mute'>" + esc(e.c.ticker) + ": " + esc(e.note) + ".</p>"; });
+    h += "<details><summary>What you typed (check it: one wrong number changes everything above)</summary><ul>" + echo.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" +
+         "<p class='mute'>Settings: today " + esc(today) + "; rate " + ratePct + "%; warn above " + rules.maxDte + " days; warn above " + rules.maxOdds + "% odds" + (rules.buyingPower !== null ? "; buying power " + money(rules.buyingPower) + " (puts only)" : "") + (rules.account !== null ? "; account " + money(rules.account) + " with max " + rules.maxPct + "% per trade" : "") + "</p></details>";
+    var goal = num(s.monthly_goal);
+    if (goal !== null && goal > 0) h += "<h3>Your income goal</h3><p>" + esc(W.incomeGoalSentence(goal, evals)) + "</p>";
+    if (warnings.length) h += "<h3>Please check</h3>" + warnings.map(function (w) { return "<div class='note'>" + esc(w) + "</div>"; }).join("");
+    out.innerHTML = h;
+  }
+  $("run-compare").addEventListener("click", function () { persistCompare(); runCompare(); });
+  [settingsEl, cardsEl].forEach(function (el) { el.addEventListener("input", function (ev) {
+    // First edit after the example: put the real date back, so the user's own numbers never use the example's "today".
+    var wasExample = $("compare-example") && !$("compare-example").hidden;
+    exampleNote("compare", false);
+    if (wasExample && !(ev.target && ev.target.name === "today")) settingsEl.querySelector("[name=today]").value = todayIso();
+    persistCompare(); runCompare(); }); });
+  $("try-compare").addEventListener("click", function () {
+    // Example numbers are shown, not remembered: the stored inputs for this section are cleared.
+    var cards = cardsEl.querySelectorAll(".card");
+    cards.forEach(resetForm);
+    settingsEl.querySelector("[name=today]").value = "2026-10-21";
+    fillForm(cards[0], { ticker: "AAA", type: "P", strike: "45", expiry: "2026-11-20", premium: "1.00", price: "50", iv: "60", cost_basis: "" });
+    fillForm(cards[1], { ticker: "CCC", type: "C", strike: "51", expiry: "2026-10-31", premium: "0.80", price: "50", iv: "25", cost_basis: "52" });
+    $("rules-details").open = true;
+    forget("compare"); exampleNote("compare", true); runCompare();
+    scrollTo($("compare-out"));
+  });
+  $("reset-compare").addEventListener("click", function () {
+    resetForm(settingsEl); cardsEl.querySelectorAll(".card").forEach(resetForm); settingsEl.querySelector("[name=today]").value = todayIso();
+    forget("settings"); forget("compare"); exampleNote("compare", false); clearError("compare-error"); $("compare-out").innerHTML = "";
+  });
+
+  // ================================================================ 3. roll
+  var rollForm = $("roll-form");
+  function runRoll() {
+    clearError("roll-error");
+    var f = readForm(rollForm), out = $("roll-out");
+    var i = { old_strike: num(f.old_strike), old_expiry: f.old_expiry, old_premium: num(f.old_premium), buyback: num(f.buyback), new_strike: num(f.new_strike), new_expiry: f.new_expiry, new_credit: num(f.new_credit), price: num(f.price), iv: num(f.iv) };
+    if ([i.old_strike, i.old_premium, i.buyback, i.new_strike, i.new_credit].some(function (v) { return v === null; }) || W.parseIsoDay(i.old_expiry) === null || W.parseIsoDay(i.new_expiry) === null) {
+      out.innerHTML = "<p class='mute'>Fill in both puts (strike, expiry date, premium received, buyback cost, new premium), or press \"Try it with example data\".</p>"; return;
+    }
+    var todayStr = f.today || todayIso(), ratePct = num(f.rate) === null ? 4 : num(f.rate);
+    if (i.old_strike <= 0 || i.new_strike <= 0) { showError("roll-error", "Both strikes must be above zero."); out.innerHTML = ""; return; }
+    if (Math.min(i.old_premium, i.buyback, i.new_credit) < 0) { showError("roll-error", "Premiums and the buyback cost cannot be negative."); out.innerHTML = ""; return; }
+    var r;
+    try { r = W.rollCalc(i, todayStr, ratePct); } catch (err) { showError("roll-error", esc(err.message)); out.innerHTML = ""; return; }
+    if (r.daysAdded <= 0) { showError("roll-error", "The new expiry date must be after the old one (this roll adds " + r.daysAdded + " days)."); out.innerHTML = ""; return; }
+    var h = "<p class='verdict'>" + esc(r.verdict) + "</p>";
+    h += "<div class='stat'><span>Net " + (r.net >= 0 ? "credit" : "debit") + " per share<span class='meaning'>New premium minus the buyback cost. Credit means cash comes in; debit means you pay.</span></span>" + signed(r.net) + "</div>";
+    h += "<div class='stat'><span>Per contract<span class='meaning'>The same, times 100.</span></span>" + signed(r.netContract) + "</div>";
+    h += "<div class='stat'><span>Days added<span class='meaning'>New expiry minus old expiry. The new put has " + days(r.newDte) + " left from today.</span></span><b>" + r.daysAdded + "</b></div>";
+    h += "<div class='stat'><span>Collected on this position so far<span class='meaning'>Everything received minus everything paid, per share (" + money(r.total * W.CONTRACT) + " per contract).</span></span><b>" + money(r.total) + "</b></div>";
+    h += "<div class='stat'><span>Break-even<span class='meaning'>The share price at which you would come out even if assigned: old put " + money(r.oldBe) + ", new put " + money(r.newBe) + ".</span></span><b>" + money(r.oldBe) + " &rarr; " + money(r.newBe) + "</b></div>";
+    h += "<div class='stat'><span>Cash tied up by the new put<span class='meaning'>New strike x 100 (collateral).</span></span><b>" + money(r.newCollateral) + "</b></div>";
+    h += "<div class='stat'><span>Yearly rate on the extra days<span class='meaning'>Net credit divided by the new strike, scaled to a year over the " + r.daysAdded + " added days: what the extra time pays.</span></span><b>" + (r.annualized === null ? "n/a" : pct(r.annualized)) + "</b></div>";
+    h += "<div class='stat'><span>Rough odds the new put ends in the money<span class='meaning'>" + (r.odds === null ? "Type the stock price and implied volatility to see this." : "Chance the stock ends below the new strike at expiry; the likely move (1-sigma) is " + money(r.sigma) + " over " + days(r.newDte) + ".") + "</span></span><b>" + (r.odds === null ? "n/a" : pct(r.odds)) + "</b></div>";
+    h += "<details><summary>What you typed</summary><p class='mute'>Old put: strike " + money(i.old_strike) + ", expiry " + esc(i.old_expiry) + ", received " + money(i.old_premium) + " a share, buyback " + money(i.buyback) + " a share. New put: strike " + money(i.new_strike) + ", expiry " + esc(i.new_expiry) + ", premium " + money(i.new_credit) + " a share" + (i.price !== null ? "; stock price " + money(i.price) : "") + (i.iv !== null ? "; IV " + i.iv + "%" : "") + "; today " + esc(todayStr) + "; rate " + ratePct + "%.</p></details>";
+    if (W.parseIsoDay(i.new_expiry) <= W.parseIsoDay(todayStr)) h += "<div class='note'>Please check: the new expiry " + esc(i.new_expiry) + " is on or before today (" + esc(todayStr) + "); treated as 1 day left for the odds and the likely move.</div>";
+    out.innerHTML = h;
+  }
+  function persistRoll() { save("roll", withoutToday(readForm(rollForm))); }
+  $("run-roll").addEventListener("click", function () { persistRoll(); runRoll(); });
+  rollForm.addEventListener("input", function (ev) {
+    var wasExample = $("roll-example") && !$("roll-example").hidden;
+    exampleNote("roll", false);
+    if (wasExample && !(ev.target && ev.target.name === "today")) rollForm.querySelector("[name=today]").value = todayIso();
+    persistRoll(); runRoll(); });
+  $("try-roll").addEventListener("click", function () {
+    // Example numbers are shown, not remembered: the stored inputs for this section are cleared.
+    fillForm(rollForm, { old_strike: "45", old_expiry: "2026-10-16", old_premium: "1.00", buyback: "2.50", new_strike: "43", new_expiry: "2026-11-13", new_credit: "3.20", price: "44.10", iv: "60", today: "2026-10-14", rate: "4" });
+    forget("roll"); exampleNote("roll", true); runRoll();
+    scrollTo($("roll-out"));
+  });
+  $("reset-roll").addEventListener("click", function () { resetForm(rollForm); rollForm.querySelector("[name=today]").value = todayIso(); forget("roll"); exampleNote("roll", false); clearError("roll-error"); $("roll-out").innerHTML = ""; });
+
+  // ================================================================ 4. what-if
+  var whatifForm = $("whatif-form");
+  function runWhatIf() {
+    clearError("whatif-error");
+    var f = readForm(whatifForm), out = $("whatif-out");
+    var i = { strike: num(f.strike), put_credits: num(f.put_credits) === null ? 0 : num(f.put_credits), contracts: num(f.contracts) === null ? 1 : Math.round(num(f.contracts)), call_strike: num(f.call_strike), call_premium: num(f.call_premium) };
+    if (i.strike === null || i.strike <= 0) { out.innerHTML = "<p class='mute'>Type the strike of the put, or press \"Try it with example data\".</p>"; return; }
+    if (i.contracts < 1) { showError("whatif-error", "Number of contracts must be 1 or more (each contract is 100 shares)."); out.innerHTML = ""; return; }
+    if (i.put_credits < 0 || (i.call_premium !== null && i.call_premium < 0)) { showError("whatif-error", "Premiums cannot be negative."); out.innerHTML = ""; return; }
+    if (i.call_strike !== null && i.call_strike <= 0) { showError("whatif-error", "The covered call strike must be above zero (it is the price you would agree to sell the shares at). Clear the box to skip the covered call."); out.innerHTML = ""; return; }
+    var w = W.whatIf(i);
+    var h = "<p class='verdict'>If assigned you own " + w.shares + " shares, bought at the strike for " + money(w.cost) + " in total.</p>";
+    h += "<p>You kept " + money(w.premiumKept) + " of premium, so the shares really cost you <b>" + money(w.basis) + " each</b> (the strike minus the premium kept). That is your break-even before any covered call.</p>";
+    if (w.callPremium !== null) {
+      h += "<p>A first covered call at " + money(i.call_strike) + " for " + money(i.call_premium) + " a share pays <b>" + money(w.callPremium) + "</b>, which is " + pct(w.callReturn, 2) + " of what the shares cost you.</p>";
+      h += "<p>If the shares are called away at " + money(i.call_strike) + " you end up " + signed(w.ifCalled) + " on them, counting that call premium.</p>";
+      if (w.lockedLoss !== null) h += "<div class='note'>The call strike " + money(i.call_strike) + " is below what the shares cost you, " + money(w.basis) + ": " + esc(W.belowBasisClause(w.lockedLoss, (w.basis - i.call_strike) * w.shares, w.callPremium)) + "</div>";
+    } else h += "<p class='mute'>Type a call strike and premium to see what a first covered call would return.</p>";
+    out.innerHTML = h;
+  }
+  $("run-whatif").addEventListener("click", function () { save("whatif", readForm(whatifForm)); runWhatIf(); });
+  whatifForm.addEventListener("input", function () { exampleNote("whatif", false); save("whatif", readForm(whatifForm)); runWhatIf(); });
+  $("try-whatif").addEventListener("click", function () {
+    // Example numbers are shown, not remembered: the stored inputs for this section are cleared.
+    fillForm(whatifForm, { strike: "45", put_credits: "1.00", contracts: "1", call_strike: "46", call_premium: "0.90" });
+    forget("whatif"); exampleNote("whatif", true); runWhatIf();
+    scrollTo($("whatif-out"));
+  });
+  $("reset-whatif").addEventListener("click", function () { resetForm(whatifForm); forget("whatif"); exampleNote("whatif", false); clearError("whatif-error"); $("whatif-out").innerHTML = ""; });
+
+  // ================================================================ 5. expiry week
+  function expiryFiles() { return filesLoaded.expiry.length ? filesLoaded.expiry : filesLoaded.results; }
+  function persistExpiry() { save("expiry", { cash: $("expiry-cash").value, prices: readRows("expiry-prices") }); }
+  function runExpiry() {
+    clearError("expiry-error");
+    var out = $("expiry-out"), files = expiryFiles();
+    if (!files.length) { out.innerHTML = "<p class='mute'>Choose your Webull file (here or in section 1), or press \"Try it with example data\".</p>"; return; }
+    if (!filesLoaded.expiry.length) $("expiry-files-note").textContent = "Using the file from section 1: " + files.map(function (f) { return f.name; }).join(", ");
+    var problems = [], prices = pricesFromRows("expiry-prices", problems);
+    var todayStr = $("expiry-today").value || todayIso(), today = W.parseIsoDay(todayStr);
+    if (today === null) problems.push("The 'pretend today is' date is not a full date.");
+    var cash = num($("expiry-cash").value);
+    if (cash !== null && cash < 0) problems.push("Cash cannot be negative.");
+    if (problems.length) { showError("expiry-error", problems.map(esc).join("<br>")); return; }
+    var x;
+    try { x = W.checkExpiry(files, today, prices, cash); } catch (err) { showError("expiry-error", formatErrorBox(err)); out.innerHTML = ""; return; }
+    var h = "<p class='verdict " + (x.shortfall !== null && x.shortfall > 0 ? "bad" : "good") + "'>" + esc(x.sentence) + "</p>";
+    h += "<p class='mute'>As of " + esc(todayStr) + ". Cash needed if every open put is assigned: " + money(x.cash_needed) + ". Cash you typed: " + (cash === null ? "not typed" : money(cash)) + ".</p>";
+    if (x.contracts.length) {
+      h += "<h3>Contracts still open</h3><div class='wrap'><table><tr><th>Ticker</th><th>Kind</th><th class='num'>Strike</th><th>Expires</th><th class='num'>Days left</th><th class='num'>Contracts</th><th class='num'>Cash if assigned</th><th>Against your price</th></tr>";
+      x.contracts.forEach(function (c) {
+        h += "<tr><td>" + esc(c.ticker) + "</td><td>" + c.kind + "</td><td class='num'>" + money(c.strike) + "</td><td>" + W.dayToIso(c.expiry) + "</td><td class='num'>" + c.days_left + "</td><td class='num'>" + c.qty + "</td><td class='num'>" + (c.right === "P" ? money(c.collateral) : "-") + "</td><td>" + esc(c.moneyness) + (c.price !== null ? " (price " + money(c.price) + ")" : "") + "</td></tr>";
+      });
+      h += "</table></div>" + meanings([["Cash if assigned", "strike x 100 x contracts: what buying the shares would cost if the put is assigned; a call needs no cash because you already own the shares"], ["In the money", "the stock is past the strike now, so assignment is likely if it stays there"], ["Out of the money", "the stock is on the safe side of the strike now"]]);
+    } else h += "<p>No open puts or calls found in the file (contracts past their expiry are left out).</p>";
+    if (x.warnings.length) h += "<h3>Please check</h3>" + x.warnings.map(function (w) { return "<div class='note'>" + esc(w) + "</div>"; }).join("");
+    out.innerHTML = h;
+  }
+  function runExpiryIfUsingResults() { if (!filesLoaded.expiry.length && $("expiry-out").innerHTML) runExpiry(); }
+  $("expiry-files").addEventListener("change", function () { readFiles(this, "expiry", "expiry-files-note", runExpiry); });
+  $("run-expiry").addEventListener("click", function () { persistExpiry(); runExpiry(); });
+  $("s-expiry").addEventListener("input", function (ev) { if (ev.target && ev.target.type !== "file") { exampleNote("expiry", false); persistExpiry(); } });
+  $("try-expiry").addEventListener("click", function () {
+    filesLoaded.expiry = [{ name: "wheel_planner_orders.csv (example)", text: document.getElementById("sample-expiry-orders").textContent }];
+    $("expiry-files-note").textContent = "Using: the built-in example file wheel_planner_orders.csv (made-up open contracts expiring in November 2027).";
+    $("expiry-files").value = "";
+    $("expiry-cash").value = "2000"; $("expiry-today").value = "2027-11-10";
+    makeRows("expiry-prices", "price", [["AAA", "44.10"]]);
+    forget("expiry"); exampleNote("expiry", true); runExpiry();   // example numbers are shown, not remembered
+    scrollTo($("expiry-out"));
+  });
+  $("reset-expiry").addEventListener("click", function () {
+    filesLoaded.expiry = []; $("expiry-files").value = ""; $("expiry-files-note").textContent = "No file chosen yet.";
+    $("expiry-cash").value = ""; makeRows("expiry-prices", "price"); $("expiry-today").value = todayIso();
+    forget("expiry"); exampleNote("expiry", false); clearError("expiry-error"); $("expiry-out").innerHTML = "";
+  });
+
+  // ================================================================ self-check against the golden block
+  function selfCheck() {
+    var box = $("selfcheck-out"), g;
+    try { g = JSON.parse(document.getElementById("golden").textContent); } catch (e) { box.innerHTML = "<div class='check bad'>golden block unreadable</div>"; return; }
+    var MONEY = 0.01, RATE = 0.1, html = "";
+    g.examples.forEach(function (ex) {
+      var i = ex.input, w = ex.expected, diffs = [];
+      function chk(name, got, want, tol) { if (typeof got !== "number" || !isFinite(got) || Math.abs(got - want) > tol) diffs.push(name + ": page " + (typeof got === "number" && isFinite(got) ? got.toFixed(3) : String(got)) + " vs tested " + want); }
+      if (ex.kind === "candidate") {
+        var e = W.evaluate({ ticker: i.ticker, type: i.type, strike: i.strike, premium: i.premium, price: i.price, iv: i.iv, cost_basis: i.cost_basis || null }, i.dte, g.rate_pct);
+        chk("collateral", e.collateral, w.collateral, MONEY); chk("premium", e.premiumDollars, w.premium_dollars, MONEY);
+        chk("return %", e.ret * 100, w.return_pct, RATE); chk("annualized %", e.annualized * 100, w.annualized_pct, RATE);
+        chk("$/day", e.perDay, w.per_day, MONEY); chk("cushion %", e.cushion * 100, w.cushion_pct, RATE);
+        chk("break-even", e.breakEven, w.break_even, MONEY); chk("1-sigma", e.sigma, w.sigma_move, MONEY); chk("odds %", e.odds * 100, w.odds_pct, RATE);
+        if (w.locked_loss !== undefined) {
+          var fl = W.flagsFor(e, { maxDte: 45, maxOdds: 100, buyingPower: null, account: null, maxPct: 25, leveraged: {} });
+          if (!fl.some(function (f) { return f.indexOf("lock in a loss of " + money(w.locked_loss)) >= 0; })) diffs.push("locked-in loss flag missing");
+        }
+      } else if (ex.kind === "roll") {
+        var r = W.rollCalc(i, i.today, g.rate_pct);
+        chk("net", r.net, w.net, MONEY); chk("net per contract", r.netContract, w.net_contract, MONEY); chk("days added", r.daysAdded, w.days_added, 0);
+        chk("total collected", r.total, w.total_collected, MONEY); chk("old break-even", r.oldBe, w.old_break_even, MONEY); chk("new break-even", r.newBe, w.new_break_even, MONEY);
+        chk("annualized %", r.annualized * 100, w.annualized_pct, RATE); chk("new odds %", r.odds * 100, w.new_odds_pct, RATE);
+        if (r.verdict.indexOf(w.verdict) < 0) diffs.push("verdict: " + r.verdict);
+      } else if (ex.kind === "bs") {
+        chk("put odds %", W.probItm(i.price, i.strike, i.iv / 100, i.dte, g.rate_pct / 100, "P") * 100, w.put_odds_pct, RATE);
+        chk("put delta", W.deltaOf(i.price, i.strike, i.iv / 100, i.dte, g.rate_pct / 100, "P"), w.put_delta, 0.001);
+        chk("1-sigma", W.expectedMove(i.price, i.iv / 100, i.dte), w.sigma_move, MONEY);
+      } else if (ex.kind === "whatif") {
+        var wi = W.whatIf(i);
+        chk("shares", wi.shares, w.shares, 0); chk("cost", wi.cost, w.cost, MONEY); chk("premium kept", wi.premiumKept, w.premium_kept, MONEY);
+        chk("basis", wi.basis, w.basis_per_share, MONEY); chk("call premium", wi.callPremium, w.call_premium, MONEY);
+        chk("call return %", wi.callReturn * 100, w.call_return_pct, RATE); chk("if called", wi.ifCalled, w.if_called, MONEY);
+      }
+      html += "<div class='check " + (diffs.length ? "bad" : "ok") + "'><b class='" + (diffs.length ? "bad" : "good") + "'>" + (diffs.length ? "does not match the tested Python" : "matches") + "</b> &mdash; Example " + esc(ex.id) + ": " + esc(ex.title) + (diffs.length ? "<br>" + esc(diffs.join("; ")) : "") + "</div>";
+    });
+    box.innerHTML = html;
+  }
+
+  // ================================================================ navigation and start-up
+  document.querySelectorAll("[data-jump]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("[data-jump]").forEach(function (x) { x.setAttribute("aria-current", x === b ? "true" : "false"); });
+      scrollTo($(b.getAttribute("data-jump")));
+    });
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter" && ev.target && ev.target.tagName === "INPUT" && ev.target.type !== "file") {
+      var sec = ev.target.closest("section"); if (sec) { var btn = sec.querySelector("button.secondary"); if (btn) btn.click(); }
+    }
+  });
+  function restore() {
+    var tr = load("tracker", null);
+    $("results-assigned").value = tr && tr.assigned ? tr.assigned : "";
+    makeRows("results-opening", "opening", tr && tr.opening); makeRows("results-prices", "price", tr && tr.prices);
+    $("results-today").value = todayIso();
+    var s = load("settings", null); if (s) fillForm(settingsEl, withoutToday(s));
+    settingsEl.querySelector("[name=today]").value = todayIso();   // never remembered: a stale date would silently change every result
+    var cards = load("compare", null);
+    cardsEl.querySelectorAll(".card").forEach(function (card, idx) { if (cards && cards[idx]) fillForm(card, cards[idx]); });
+    var r = load("roll", null); if (r) fillForm(rollForm, withoutToday(r));
+    rollForm.querySelector("[name=today]").value = todayIso();
+    var w = load("whatif", null); if (w) fillForm(whatifForm, w);
+    var ex = load("expiry", null);
+    $("expiry-cash").value = ex && ex.cash ? ex.cash : "";
+    makeRows("expiry-prices", "price", ex && ex.prices);
+    $("expiry-today").value = todayIso();
+  }
+  restore();
+  selfCheck();
+  runResults(); runCompare(); runRoll(); runWhatIf(); runExpiry();
+})();
+</script>
+</body>
+</html>

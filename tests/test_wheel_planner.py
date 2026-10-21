@@ -22,7 +22,7 @@ from wheel_planner.report import html_compare, money, odds_text, text_compare, t
 
 REPO = Path(__file__).resolve().parent.parent
 SAMPLES = REPO / "samples"
-HTML = REPO / "wheel_planner" / "wheel_calculator.html"
+HTML = REPO / "wheel_planner" / "wheel.html"
 TODAY = date(2026, 10, 21)
 RATE = 4.0
 
@@ -310,7 +310,7 @@ def test_expiry_polite_error_without_wheel_tracker(monkeypatch, capsys):
 def _golden():
     m = re.search(r'<script id="golden" type="application/json">(.*?)</script>', HTML.read_text(encoding="utf-8"),
                   re.S)
-    assert m, "wheel_calculator.html has no golden block"
+    assert m, "wheel.html has no golden block"
     return json.loads(m.group(1))
 
 

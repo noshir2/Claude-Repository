@@ -309,8 +309,8 @@ def test_getting_your_own_copy_is_followable_without_an_account():
     copy = section(read(ROOT_README), "## Getting your own copy")
     assert "the link you were given opens it directly" not in copy
     assert "YOUR-USER-NAME" not in copy, "a placeholder the reader cannot fill in"
-    assert "ends in Claude-Repository" in copy, "say which link opens the project page"
-    assert "Your repositories" in copy and "address bar" in copy, "give the signed-in route to the address too"
+    assert "github.com/noshir2/Claude-Repository" in copy, "print the public project address"
+    assert "address bar" in copy
     assert "no sign-in" in copy
     assert "one more folder" in copy, "missing the nested-folder step after Extract All"
     steps = re.findall(r"^(\d+)\. ", copy, re.M)
