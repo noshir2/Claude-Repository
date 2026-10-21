@@ -6,26 +6,32 @@ you can recite them from memory (padhant). For keeping taal while singing and fo
 claps and waves before a practical exam. One file, works offline, nothing leaves the device: it remembers your
 last taal, tempo, practice minutes per date and the game's best score in the browser, and that is all.
 
-## How to use it
+Words used in this guide: a **taal** is a rhythm cycle; a **matra** is one beat of it; the
+**theka** is the spoken pattern of the cycle and each spoken syllable is a **bol**; the **sam** is
+the first beat (a clap), a **taali** is another clapped beat, and the **khali** is the waved,
+"empty" beat; a **vibhag** is a section of the cycle; **laya** is the tempo.
 
-1. Double-click `taal_trainer.html`. It opens in your browser (Chrome, Edge, Safari, Firefox). No
-   install, no Wi-Fi, no account.
-2. Pick a taal, set the tempo (slider, `-`/`+`, or hit **Tap tempo** in time), tap **Start**.
-3. The first tap turns the sound on. On a phone, if you hear nothing, check the silent switch and the
-   volume. The beat keeps moving on screen even with no sound, so it still works as a silent drill.
-4. Tap **Stop** (or press Space on a keyboard) to stop.
+## The easy way
 
-Nothing to run for normal use. The only command is the checker for people who edit the taal table
-(see "Changing or adding a taal"). On Windows type `python` or `py` where this README says `python3`.
+Open `taal_trainer/taal_trainer.html` from the Start here page (`index.html`) or double-click the
+file. It opens in your browser (Chrome, Edge, Safari, Firefox). No install, no Wi-Fi, no account.
+
+1. Press the big green **Start** button. It sits below the list of taals and the beat grid, so on
+   a phone scroll down past the grid to find it. There is no "Try it with example data" button on
+   this page because it needs nothing from you: Teentaal (16 beats) and a medium tempo are already
+   chosen, so the beat starts, the highlight moves across the grid and you hear the three sounds
+   at once. (Sound starts on your first tap; that is how browsers work.)
+2. Pick your own taal from the list and set the tempo (slider, `-`/`+`, or hit **Tap tempo** in
+   time). On a phone, if you hear nothing, check the silent switch and the volume. The beat keeps
+   moving on screen even with no sound, so it still works as a silent drill.
+3. Tap **Stop** (the same button; or press Space on a keyboard) to stop. To practise reciting,
+   tick **Hide bols** (see "Practising for the exam" below).
 
 ### Opening it on a phone
 
-- **Android (Chrome):** copy the file to the phone (email it to yourself, or use a USB cable or Google
-  Drive) and open it; Chrome runs it from the Files app.
-- **iPhone/iPad:** the Files app only *previews* an .html file, with no sound and no moving beat. Open
-  it in Safari instead: AirDrop or save the file, then in Files use Share > **Open in Safari** (or
-  long-press > Share). If that is not offered, put the file on any web space you have and open the link
-  in Safari. Add it to the home screen afterwards and it behaves like an app.
+- **Android (Chrome):** use the online link you were given, or copy the file to the phone (email
+  it to yourself, or use a USB cable or Google Drive) and open it; Chrome runs it from the Files app.
+- **iPhone:** the easiest route is the online link you were given, opened in Safari. The Files app only previews a page: the buttons, sound and moving parts do nothing there. If you have the file on the phone, try Share > **Open in Safari**; if that is not offered, use the online link. Add it to the home screen afterwards and it behaves like an app.
 - iPhones do not play web audio while the silent switch is on. Flip it, or just use the visual beat.
 
 ## What you see and hear
@@ -53,9 +59,10 @@ Nothing to run for normal use. The only command is the checker for people who ed
   the last 7 days. It counts only while the beat is running and the page is on screen; time with the
   phone locked or another app in front is not counted. **Reset minutes** wipes the strip.
 - **Find the sam** (game): after the count-in the sound goes off; keep the cycle in your head and tap
-  the big button on the sam. The result is how many milliseconds early or late you were, measured
-  against the nearest sam; "On the sam!" means within 60 ms. The best (lowest) number is kept on
-  the device. Count-in is locked on while the game is ticked: that one audible cycle is your reference.
+  the big button on the sam. The result is how many milliseconds (thousandths of a second) early or
+  late you were, measured against the nearest sam; "On the sam!" means within 60 ms. The best (lowest)
+  number is kept on the device. Count-in is locked on while the game is ticked: that one audible
+  cycle is your reference.
 
 ## Practising for the exam
 
@@ -89,21 +96,13 @@ The whole taal table is one clearly marked block at the top of `taal_trainer.htm
 - `vibhags`, `taali`, `khali` and `bols` are lists in square brackets; sizes and positions are plain
   whole numbers (write `[4, 4, 4, 4]`, not `"4,4,4,4"`).
 - Edit it in any text editor (Notepad is fine; "UTF-8" or "UTF-8 with BOM" both work), save, and
-  check the counts add up:
-
-```
-python3 -m taal_trainer.check
-```
-
-It prints `taal data OK: 10 taals` or `Problem: ...` saying exactly what is wrong (Windows: `python`
-or `py` instead of `python3`; run it from the folder that contains `taal_trainer`). If a comma or
-quote goes missing, the page itself opens with "The taal table at the top of this file has a mistake"
-and a greyed-out Start button until you fix it.
+  check the counts add up with the checker command in the Advanced section. If a comma or quote goes
+  missing, the page itself opens with "The taal table at the top of this file has a mistake" and a
+  greyed-out Start button until you fix it.
 
 The same table is also kept as `taal_trainer/taals.json`. If you prefer to edit that file, copy it
-into the HTML afterwards with `python3 -m taal_trainer.check --embed`; it refuses to touch the HTML
-while the JSON has a problem. The tests
-(`python3 -m pytest tests/test_taal_trainer.py -q`) check that the two stay identical.
+into the HTML afterwards with the embed command in the Advanced section; it refuses to touch the
+page while the JSON (the bracketed text format of that file) has a problem.
 
 Thekas vary by teacher and gharana; confirm with your teacher before relying on any row.
 
@@ -152,3 +151,19 @@ Thekas vary by teacher and gharana; confirm with your teacher before relying on 
   musical rules.
 
 Check anything that matters for an exam against your teacher and the exam body's current syllabus.
+
+## Advanced: the command-line version
+
+Nothing to run for normal use. The only command is the checker for people who edit the taal table.
+It needs Python 3.11 or newer (nothing to install). Open a terminal (the text window where you type commands: on Windows search the Start menu for Command Prompt or PowerShell; on a Mac open Terminal) in the project folder (the folder that contains
+`taal_trainer`) and run it from there; on Windows type `python` or `py` where these lines say
+`python3`.
+
+```
+python3 -m taal_trainer.check
+```
+
+It prints `taal data OK: 10 taals` or `Problem: ...` saying exactly what is wrong.
+
+To copy `taal_trainer/taals.json` into the page: `python3 -m taal_trainer.check --embed`.
+The tests (`python3 -m pytest tests/test_taal_trainer.py -q`) check that the two stay identical.

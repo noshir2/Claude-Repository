@@ -1,40 +1,165 @@
-# Toolbox
+# Start here
 
-Small, plain-English tools built for one person's actual week: options income on Webull, mentoring
-an FRC robotics electrical subteam, fantasy football, kids' music practice, and keeping a PE license
-current. Each tool lives in its own folder with its own README, made-up sample data, and tests.
+This folder holds a few small tools built for one person's week: options income on Webull,
+mentoring a robotics electrical team, fantasy football, kids' music practice, keeping an engineering
+license current, and making a passport photo. Each tool is a page you open in your web browser
+(Chrome, Edge, Safari or Firefox), on a PC or on a phone. You type or choose a file, press a button,
+and read the answer in plain words. There is nothing to install and no account to make.
 
-Everything runs on your own computer. Nothing logs in anywhere, nothing is uploaded, and your real
-files stay in the `data/` folder, which git ignores.
+## The easiest way
 
-| Tool | The question it answers | Try it |
-|---|---|---|
-| [Wheel Tracker](wheel_tracker/README.md) | Are my cash-secured puts and covered calls actually making money? | `python -m wheel_tracker samples/sample_webull_orders.csv` |
-| [Wheel Planner](wheel_planner/README.md) | Is this put or call worth the cash it ties up, is this roll worth it, and what do my own rules say? | `python -m wheel_planner compare --candidate AAA,P,45,2026-11-20,1.00,50,60` or open `wheel_planner/wheel_calculator.html` |
-| [FRC Electrical Shop Card](frc_shop_card/README.md) | What are the wiring rules, reference numbers, and calculators an FRC electrical mentor needs on a Wednesday night, plus flashcards and printable quizzes for students? | open `frc_shop_card/frc_shop_card.html`; `python -m frc_shop_card vdrop --awg 6 --amps 120 --feet 10` |
-| [Fantasy Lineup and Trade Helper](fantasy_helper/README.md) | Who do I start, is this trade good for my starters, and which pickup helps most? | `python -m fantasy_helper lineup --league fantasy_helper/samples/league1 --proj fantasy_helper/samples/week8` |
-| [Taal Trainer](taal_trainer/README.md) | A metronome that counts like a tabla player, for practising Hindustani taals and reciting thekas from memory. | open `taal_trainer/taal_trainer.html` |
-| [PDH Log](pdh_log/README.md) | Do I have the continuing-education hours my Illinois PE renewal needs, and what is still missing? | `python -m pdh_log status --log samples/pdh_log_sample.csv` |
-| [Photo Sheet](photo_sheet/README.md) | Crop a photo to a passport or form size and save it under a file-size cap, without uploading it anywhere. | open `photo_sheet/photo_sheet.html` |
+Open the link you were given, or double-click the file `index.html` in this folder. That is the
+"Start here" page: it lists every tool with one sentence each and a button that opens it. Every tool
+page that works from your own numbers or files has a big button near the top that fills the page
+with made-up data, so you can see what a result looks like before you use your own. On the Options,
+Fantasy football and PE continuing education pages it reads **Try it with example data**; on the
+Robotics electrical card it reads **Show me an example**; on the Passport photo page it reads
+**Try it with a drawn face**. The Taal trainer needs nothing from you: tap the big green **Start**
+button (it sits below the list of taals and the beat grid, so on a phone scroll down to it). The
+online copy cannot save files or print; every result is still shown on the page, so
+copy it, or press and hold (phone) or right-click (PC) a picture and choose Save. To save and
+print, use your own copy of the files (next section).
 
-## Running things
+If you have the folder on your computer, the file `OPEN-ME-FIRST.txt` says the same thing in ten
+lines.
 
-- Open a terminal in this folder (the one that holds this README) and run the commands from here.
-- Python 3.11 or newer, standard library only; nothing to install. On Windows type `python` or `py`
-  where a README says `python3`.
-- The HTML tools are single files: double-click them. They work offline and remember settings only in
-  that browser. See each README's "Opening it on a phone" note (Android opens them directly; an
-  iPhone needs Safari rather than the Files preview).
-- To run every check: `pip install pytest` once, then `python -m pytest -q`.
+On a phone, the online link you were given is the easiest route. The same pages also work in
+Chrome on Android if you copy the files over; on an iPhone the Files app only previews a page (the
+buttons do nothing there), so use the online link on an iPhone.
 
-## Where your real data goes
+## Getting your own copy
 
-Put exports, rosters, logs and candidate lists in `data/` (create it next to this README). It is
-listed in `.gitignore`, so nothing in it can be committed by accident. The samples in `samples/` and
-in each tool's `samples/` folder are invented.
+GitHub is a website that stores the files of this project. Downloading them needs no sign-in and
+no install once you have the project's address, which looks like github.com, a slash, the owner's
+GitHub user name, a slash, and Claude-Repository. That address is not printed anywhere in these
+files (the project is public, so the owner's name is kept out of it), which is why step 1 is about
+finding it.
 
-## Accuracy
+1. Open the project page in your browser. Its address is the GitHub link that came with this
+   toolbox, the one that ends in Claude-Repository: tap it, or paste it into the address bar at the
+   top of the browser. If nobody sent you that link, the only other way to find the address is to
+   sign in at github.com (finding the address needs an account; the download itself does not): tap
+   your picture in the top right corner, choose **Your repositories**, and tap
+   **Claude-Repository**. If you have neither the link nor a GitHub account, ask the person who
+   gave you the toolbox for the address. Either way you arrive at the same page, and its full
+   address is now in the address bar, where you can copy it and keep it for next time.
+2. Near the top left of the project page, just under the project name, is a button that shows a
+   name beginning with claude/ (it may instead say main). If it already says
+   **claude/lucid-dijkstra-gic3gd**, go to the next step. If it shows a different name, press it,
+   type **lucid** in the box that appears, and choose **claude/lucid-dijkstra-gic3gd** from the
+   short list. GitHub calls these names branches; a branch is one saved version of the files, and
+   that one is the version these instructions describe.
+3. Click the green **Code** button (top right of the file list).
+4. Click **Download ZIP**. A file ending in `.zip` lands in your Downloads folder. A ZIP is one file
+   that holds a whole folder, squeezed smaller.
+5. On Windows, right-click the ZIP file and choose **Extract All...**, then **Extract**. You get an
+   ordinary folder with the same name. (On a Mac, double-click the ZIP; the folder appears next to it.)
+6. Open that folder. Inside it is one more folder, whose name starts with `Claude-Repository`.
+   Open that one too; this is where the files are.
+7. Double-click `index.html` there. If your computer asks which program to use, choose your web
+   browser.
 
-Every tool's README has a "What the numbers mean" section and a "Where the rules/figures come from"
-section with sources. Rule tables (FRC game manual, Illinois PE rules, league scoring) change; each
-tool says so and tells you what to verify. None of this is investment, legal or safety advice.
+To get an updated copy later, do the same steps again and use the new folder. Nothing you typed is
+stored in the old folder (the pages remember a few settings inside the browser itself, not in the
+files), so the old folder can go in the bin.
+
+## The tools, one at a time
+
+**Options: Wheel Planner and Wheel Tracker.** One page, `wheel_planner/wheel.html`, for selling
+cash-secured puts and covered calls on Webull. The *tracker* part reads the order-history file you
+export from Webull and tells you how much money the finished trades actually made, by stock and by
+month, and what you would need to sell shares for to break even. The *planner* part is for before you
+click Sell: you type the numbers Webull shows for a put or call and it tells you the return on the
+cash tied up, how far the stock can fall before you are in trouble, a rough chance of being assigned
+the shares, whether a roll is worth it, and which of your own written rules the trade breaks. You
+need: the Webull export (a spreadsheet file ending in .csv) for the tracker; for the planner, only
+the numbers on your screen. How to get the export: in the Webull app or website open Orders, then
+History, and look for an export or download button; the words move between versions. Details:
+[wheel_tracker/README.md](wheel_tracker/README.md) and
+[wheel_planner/README.md](wheel_planner/README.md).
+
+**FRC Electrical Shop Card.** The page `frc_shop_card/frc_shop_card.html` is a one-page reference
+for a robotics electrical mentor: safety reminders, the rule table that says which wire size goes
+with which breaker, reference numbers for connectors and batteries, calculators (voltage drop,
+brown-out, battery health, short circuit), flashcards for students, and a printable one-page cheat
+sheet and weekly quiz. You need nothing but the page. Details:
+[frc_shop_card/README.md](frc_shop_card/README.md).
+
+**Fantasy Lineup and Trade Helper.** The page `fantasy_helper/fantasy.html` answers who to start
+this week, whether a trade helps your starting lineup, and which free-agent pickup adds the most. You
+need the six weekly projection files you download from FantasyPros (one per position), your roster
+typed into a box, and your league's scoring (a sample is filled in; check it against your league
+settings page). Details: [fantasy_helper/README.md](fantasy_helper/README.md).
+
+**Taal Trainer.** The page `taal_trainer/taal_trainer.html` is a metronome for Hindustani
+classical music that counts like a tabla player: it shows the beats of a taal cycle, sounds the
+clap and wave beats differently, and can hide the words so you recite them from memory. You need
+nothing but the page and, for sound, the first tap on the Start button, which sits below the beat
+grid (scroll down to it on a phone). Details:
+[taal_trainer/README.md](taal_trainer/README.md).
+
+**PDH Log.** The page `pdh_log/pdh.html` keeps track of the continuing-education hours an Illinois
+Professional Engineer needs to renew the license: which renewal period each course falls in, the
+three required core hours, the carry-over and daily-cap rules, and which courses still have no
+certificate on file. You need your list of courses (type them on the page or choose a spreadsheet
+file ending in .csv). Details: [pdh_log/README.md](pdh_log/README.md).
+
+**Photo Sheet.** The page `photo_sheet/photo_sheet.html` crops a photo to passport or form size,
+saves it under the file-size limit an online form states, and makes a 4 x 6 inch print sheet with
+six copies. You need a photo on your computer or phone. The photo never leaves your device.
+Details: [photo_sheet/README.md](photo_sheet/README.md).
+
+## Words you will see
+
+The same short list is on the Start here page.
+
+- **.csv file**: a spreadsheet saved as plain text; Excel opens it, and it is the kind of file
+  Webull and FantasyPros give you when you download your data.
+- **Export, download**: two words for the same thing: asking an app to give you a file of your own
+  data so you can use it elsewhere.
+- **Option**: a contract about buying or selling 100 shares at a set price before a set date;
+  selling one is how the puts and covered calls here earn money.
+- **Put**: a contract you sell that promises to buy 100 shares at the strike price if the buyer
+  wants you to, in return for the premium.
+- **Covered call**: a contract you sell on shares you already own that promises to hand them over
+  at the strike price if the buyer wants them.
+- **Premium**: the money you receive when you sell an option; it is yours to keep whatever happens
+  next.
+- **Strike and expiry**: the strike is the share price the contract is tied to, and the expiry is
+  the date the contract ends.
+- **Assigned**: what happens when the buyer uses the contract: a put makes you buy the shares, a
+  covered call makes you sell them.
+- **Roll**: buying back a contract you sold and selling a new one with a later date or a different
+  strike, usually to avoid being assigned.
+- **Projection**: someone's estimate of how many fantasy points a player will score this week;
+  FantasyPros publishes them as files.
+- **Roster**: the list of players on your fantasy team, starters and bench together.
+- **PDH**: professional development hour: one hour of approved continuing education, the unit your
+  PE renewal counts.
+- **Browser tab**: one open page in Chrome or Safari. The tools open in the same tab as the Start
+  here page; use the Back to the toolbox link at the top of a tool, or the browser's Back arrow, to
+  return there.
+- **Pop-up, blocked download**: a message from the browser saying it stopped a page from opening a
+  window or saving a file; the online copy of these tools is not allowed to save files, so this is
+  expected there.
+
+Words about getting the files (GitHub, ZIP, branch) are explained where they come up in "Getting
+your own copy" above.
+
+## Nothing is uploaded
+
+Everything happens inside your browser, on your own device. Nothing you type or choose leaves it,
+no page logs in anywhere, and no file is sent to any website. Close the page and your data is
+gone, except the few settings each page says it remembers in the browser. The made-up sample files
+are the only data in the project.
+
+## For the technically minded: the command-line versions
+
+Every tool also runs as Python 3.11+ (standard library only) from a terminal (the text window where
+you type commands) opened in this project folder: `python -m <folder> ...`, where `<folder>` is the
+tool's folder name (`wheel_tracker`, `wheel_planner`, `frc_shop_card`, `fantasy_helper`, `pdh_log`,
+`photo_sheet`; the Taal Trainer has only a data checker, `taal_trainer.check`). On Windows type
+`python` or `py`; on a Mac, `python3`. Each folder's README ends with an "Advanced: the command-line
+version" section listing its commands. Put real exports in a folder named data next to this file; it
+is listed in the ignore file, so it never goes into the project on GitHub (what GitHub calls the
+repo). To run every check: `pip install pytest` once, then `python -m pytest -q`.

@@ -178,3 +178,129 @@ def test_cli(tmp_path, capsys):
     copy.write_text(HTML, encoding="utf-8", newline="\n")
     assert main(["embed", "--html", str(copy)]) == 0
     assert copy.read_text(encoding="utf-8") == HTML
+
+
+# --- first-time-user contract: no browser pop-ups, back link, privacy line, theme blocks --------
+def test_page_meets_first_time_user_contract():
+    assert not re.search(r"\b(alert|confirm|prompt)\(", HTML)           # messages live on the page
+    assert 'href="../index.html"' in HTML and "Back to the toolbox" in HTML
+    assert "Nothing you type or choose leaves your device." in HTML
+    assert re.search(r":root\s*\{[^}]*--bg:", HTML)
+    assert re.search(r'@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\(\[data-theme="light"\]\)\s*\{[^}]*color-scheme:\s*dark', HTML)
+    assert re.search(r':root\[data-theme="dark"\]\s*\{[^}]*color-scheme:\s*dark', HTML)
+    assert re.search(r"body\s*\{[^}]*background:\s*var\(--bg\)", HTML)
+    assert re.search(r"\[hidden\]\s*\{\s*display:\s*none\s*!important", HTML)
+    assert "env(safe-area-inset-left, 0px)" in HTML and "env(safe-area-inset-right, 0px)" in HTML
+    assert "Try it with a drawn face" in HTML and 'id="testface" class="primary"' in HTML
+    assert 'id="jpegimg"' in HTML and 'id="sheetimg"' in HTML           # results shown on the page, not only downloaded
+    assert "Press and hold (phone) or right-click (PC) the picture and choose Save" in HTML
+    assert "if nothing happens, you are using the online copy" in HTML.lower()
+    assert "dpi [" in HTML and "EXIF tag [" in HTML
+    # round-3 review: every control has an id, the load error says what to do about phone photo formats,
+    # and the file-size error uses the label's own words
+    for cid in ("chk-background", "chk-expression", "chk-head", "chk-glasses", "chk-recent", "chk-edits"):
+        assert f'id="{cid}"' in HTML, cid
+    assert "HEIC" in HTML and "The picture already in the crop box is unchanged." in HTML
+    assert "Largest file size must be at least 5 KB." in HTML and "Max KB must be" not in HTML
+    assert 'id="sec-crop"' in HTML and "function showCropBox" in HTML
+
+
+# --- review fixes: the example ends in a green result, the quality number has a meaning, the drawn face is the sample ---
+def test_review_fixes_in_the_page_text():
+    assert "1.00 is best; the page lowers it only until the file fits under your KB limit" in HTML
+    assert "small on purpose" in HTML and "state.drawn" in HTML
+    assert "function drawTestFacePixels" in HTML and "window.drawTestFacePixels" in HTML
+
+
+@pytest.fixture(scope="module")
+def photo_page():
+    pw = pytest.importorskip("playwright.sync_api")
+    with pw.sync_playwright() as p:
+        try:
+            browser = p.chromium.launch()
+        except Exception:
+            try:
+                browser = p.chromium.launch(executable_path="/opt/pw-browsers/chromium")
+            except Exception as e:
+                pytest.skip(f"no headless Chromium: {e}")
+
+        def make(width=375):
+            ctx = browser.new_context(viewport={"width": width, "height": 800})
+            page = ctx.new_page()
+            errors = []
+            page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+            page.on("pageerror", lambda e: errors.append(str(e)))
+            page.goto((ROOT / "photo_sheet" / "photo_sheet.html").as_uri())
+            page.wait_for_timeout(200)
+            return page, errors
+
+        yield make
+        browser.close()
+
+
+def test_drawn_face_is_the_sample_png_pixel_for_pixel(photo_page):
+    import base64
+    page, errors = photo_page(375)
+    b64 = base64.b64encode((ROOT / "samples" / "photo_sheet_test_face.png").read_bytes()).decode()
+    same = page.evaluate("""async (b64) => {
+      const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
+      const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+      c.getContext('2d').drawImage(img, 0, 0);
+      const a = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+      const d = window.drawTestFacePixels(img.width, img.height);
+      const b = d.getContext('2d').getImageData(0, 0, d.width, d.height).data;
+      if (a.length !== b.length) return 'size differs';
+      let diff = 0; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) diff++;
+      return diff === 0 ? 'same' : diff + ' bytes differ';
+    }""", b64)
+    assert same == "same"
+    assert errors == []
+
+
+def test_first_click_brings_the_crop_box_on_screen_and_a_bad_file_is_explained(photo_page, tmp_path):
+    """Round-3 review: on a phone the drawn face used to load two screens below the button."""
+    page, errors = photo_page(375)
+    assert page.evaluate("document.getElementById('view').getBoundingClientRect().top") > 800   # starts below the fold
+    page.click("#testface")
+    page.wait_for_timeout(1200)                                          # smooth scroll settles
+    r = page.evaluate("document.getElementById('view').getBoundingClientRect()")
+    assert r["top"] >= 0 and r["bottom"] <= 800, r                       # the face is on screen after the first click
+    assert page.evaluate("[...document.querySelectorAll('input,select,textarea,button')].filter(e => !e.id).length") == 0
+    empty = tmp_path / "empty.jpg"
+    empty.write_bytes(b"")
+    page.set_input_files("#file", str(empty))
+    page.wait_for_function("document.getElementById('loadinfo').textContent.startsWith('Could not read')")
+    msg = page.text_content("#loadinfo")
+    assert "HEIC" in msg and msg.endswith("The picture already in the crop box is unchanged.")
+    assert page.is_enabled("#savejpeg")                                  # the drawn face is still there to save
+    page.fill("#maxkb", "-1")
+    page.click("#savejpeg")
+    assert page.text_content("#jpegstatus") == "Largest file size must be at least 5 KB."
+    # PC width: the crop box sits beside the controls in the top row, and is wholly on screen after the click
+    page, errors2 = photo_page(1100)
+    page.click("#testface")
+    page.wait_for_timeout(1200)
+    r = page.evaluate("document.getElementById('view').getBoundingClientRect()")
+    assert r["top"] >= 0 and r["bottom"] <= 800 and r["left"] > 500, r
+    assert errors == [] and errors2 == []
+
+
+def test_example_click_ends_in_a_green_result_and_a_real_small_file_still_warns(photo_page):
+    page, errors = photo_page(375)
+    page.click("#testface")
+    assert "480 x 640" in page.text_content("#loadinfo")
+    page.click("#savejpeg")
+    page.wait_for_function("document.getElementById('jpegstatus').textContent.startsWith('Made')")
+    status = page.text_content("#jpegstatus")
+    assert page.get_attribute("#jpegstatus", "class") == "status ok"
+    assert "small on purpose" in status and "being enlarged" not in status
+    assert page.evaluate("document.getElementById('jpegimg').src.startsWith('data:image/jpeg')")
+    # the same picture chosen as a file is a real photo as far as the page knows: the enlarging note comes back
+    page.set_input_files("#file", str(ROOT / "samples" / "photo_sheet_test_face.png"))
+    page.wait_for_function("document.getElementById('loadinfo').textContent.includes('480 x 640')")
+    page.click("#savejpeg")
+    page.wait_for_function("document.getElementById('jpegstatus').textContent.startsWith('Made 600')")
+    assert "being enlarged" in page.text_content("#jpegstatus")
+    assert page.get_attribute("#jpegstatus", "class") == "status warn"
+    assert page.evaluate("document.documentElement.scrollWidth") <= 375
+    assert errors == []

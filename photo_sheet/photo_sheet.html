@@ -5,54 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Passport Photo Sheet</title>
 <style>
-  :root {
-    --bg: #f7f7f5; --panel: #ffffff; --ink: #1c1c1c; --muted: #5a5a5a; --line: #d6d6d2;
-    --accent: #1f5f8b; --accent-ink: #ffffff; --warn: #8a4b00; --ok: #1f6b3a; --guide: rgba(0, 160, 255, 0.9);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #171717; --panel: #222222; --ink: #ececec; --muted: #a8a8a8; --line: #3a3a3a;
-      --accent: #6fb3e0; --accent-ink: #101010; --warn: #e3a35a; --ok: #7fcf9a; --guide: rgba(90, 200, 255, 0.95);
-    }
-  }
+:root{--bg:#fbfaf7;--fg:#1f2328;--mute:#5d6671;--line:#d9d6cf;--panel:#f1efe9;--accent:#1b5e9e;--accent-fg:#ffffff;
+      --good:#1b7f3b;--warn:#9a6700;--bad:#b42318;--focus:#7fb3e6;
+      --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--card:#ffffff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;--card:#1e2329;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;--card:#1e2329;color-scheme:dark}
   * { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  html, body { margin: 0; background: var(--bg); color: var(--ink);
-    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  [hidden]{display:none!important}
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--font); }
+  body { background: var(--bg); color: var(--fg); }
+  main { max-width: 980px; margin: 0 auto; padding-block: 12px 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  .back { display: inline-block; margin: 0 0 8px; color: var(--accent); font-size: 0.95rem; }
+  .steps { padding-left: 1.3em; margin: 4px 0; font-size: 0.95rem; } .steps li { margin: 2px 0; }
+  .gloss { display: block; font-size: 0.84rem; color: var(--mute); margin: 0 0 2px; }
+  .out { margin-top: 10px; }
+  .out img { display: block; max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 4px; background: #ffffff; }
   h1 { font-size: 1.5rem; margin: 0 0 4px; }
   h2 { font-size: 1.05rem; margin: 0 0 8px; }
   p { margin: 6px 0; }
-  .muted { color: var(--muted); font-size: 0.92rem; }
-  .privacy { font-weight: 600; }
-  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 12px; }
-  @media (min-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
-  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
-  label { display: block; margin: 8px 0 2px; font-size: 0.92rem; color: var(--muted); }
-  select, input[type=number], input[type=text] { width: 100%; max-width: 100%; padding: 8px; font: inherit;
-    color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
+  .muted { color: var(--mute); font-size: 0.92rem; }
+  .privacy { font-size: 0.95rem; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 8px; }
+  @media (min-width: 760px) { .grid { grid-template-columns: 1fr 1fr; }
+    #sec-photo { grid-area: 1 / 1; } #sec-size { grid-area: 2 / 1; } #sec-crop { grid-area: 1 / 2 / span 2; } }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  label { display: block; margin: 8px 0 2px; font-size: 0.92rem; color: var(--mute); }
+  select, input[type=number], input[type=text] { width: 100%; max-width: 100%; padding: 8px; font: inherit; min-height: 44px;
+    color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
   input[type=range] { width: 100%; }
   .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
   .row > div { flex: 1 1 110px; min-width: 0; }
-  button { font: inherit; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line);
-    background: var(--panel); color: var(--ink); cursor: pointer; touch-action: manipulation; }
-  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button { font: inherit; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); min-height: 44px;
+    background: var(--panel); color: var(--fg); cursor: pointer; touch-action: manipulation; }
+  button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
   button:disabled { opacity: 0.5; cursor: default; }
   .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-  .file { position: relative; display: inline-block; padding: 10px 14px; border-radius: 8px; background: var(--accent);
-    color: var(--accent-ink); cursor: pointer; }
+  .file { position: relative; display: inline-flex; align-items: center; padding: 10px 14px; min-height: 44px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--fg); cursor: pointer; }
+  .file.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
   .file input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
-  .file:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .file:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+  @media (max-width: 600px) { button.primary, .file.primary { width: 100%; justify-content: center; } }
   .stage { position: relative; width: 100%; max-width: 420px; margin: 8px auto 0; }
   canvas#view { display: block; width: 100%; height: auto; border: 1px solid var(--line);
     background: #888; touch-action: none; cursor: grab; border-radius: 4px; }
   .status { margin-top: 8px; font-size: 0.95rem; min-height: 1.4em; }
-  .status.ok { color: var(--ok); } .status.warn { color: var(--warn); }
+  .status.ok { color: var(--good); } .status.warn { color: var(--warn); }
   ul { margin: 6px 0 0; padding-left: 20px; }
   li { margin: 3px 0; }
   code { font-size: 0.9em; }
   .check input { margin-right: 6px; }
-  .inline { display: inline-flex; align-items: center; gap: 6px; margin: 6px 12px 0 0; font-size: 0.95rem; color: var(--ink); }
+  .inline { display: inline-flex; align-items: center; gap: 6px; margin: 6px 12px 0 0; font-size: 0.95rem; color: var(--fg); }
   .inline input { width: auto; }
   details { margin-top: 8px; }
   summary { cursor: pointer; color: var(--accent); }
@@ -62,21 +67,40 @@
 </head>
 <body>
 <main>
+  <a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
   <h1>Passport Photo Sheet</h1>
-  <p class="privacy">Your photo never leaves this browser. Nothing is uploaded, nothing is saved except the preset you last picked.</p>
-  <p class="muted">Crop a phone or camera photo to a passport or form size, save a JPEG under a file-size cap, or make a 4 x 6 in print sheet for a store kiosk.</p>
+  <p>Turns an ordinary photo into a passport picture: a file at the size an online form asks for, or a 4 x 6 inch sheet of six copies to print.</p>
+  <p class="privacy">Nothing you type or choose leaves your device. Close the page and it is gone, except the size you last picked, which it remembers in this browser. <b>Your photo never leaves this browser: nothing is uploaded.</b></p>
+  <ol class="steps">
+    <li>Press <b>Try it with a drawn face</b> to see how it works, or <b>Choose photo</b> for your own (how: a phone opens its camera or pictures; a PC asks for a JPEG or PNG file).</li>
+    <li>Drag the picture in the crop box until the head sits inside the guide; pick the size the form asks for.</li>
+    <li>Press <b>Save one picture</b> or <b>Make print sheet</b>. The result appears on the page; save it from there.</li>
+  </ol>
 
   <div class="grid">
-    <section>
+    <section id="sec-photo">
       <h2>1. Photo</h2>
       <div class="btns">
-        <label class="file">Choose photo<input id="file" type="file" accept="image/*"></label>
-        <button id="testface" type="button">Load a test face (drawn, not a person)</button>
+        <button id="testface" class="primary" type="button">Try it with a drawn face</button>
+        <label class="file" id="filelabel">Choose photo<input id="file" type="file" accept="image/*"></label>
       </div>
-      <p id="loadinfo" class="muted">No photo yet. On a phone this opens the camera or gallery.</p>
+      <p id="loadinfo" class="muted">No photo yet. The drawn face is an oval, not a person. On a phone, Choose photo opens the camera or your pictures; sideways phone photos are turned upright automatically using the EXIF tag [a note the camera stores inside the picture file saying which way up it was taken].</p>
+    </section>
 
-      <h2 style="margin-top:14px">2. Size preset</h2>
-      <select id="preset" aria-label="Preset"></select>
+    <section id="sec-crop">
+      <h2>Crop box</h2>
+      <p class="muted">Drag to move. Pinch or mouse-wheel to zoom. Arrow keys nudge, + and - zoom.</p>
+      <div class="stage">
+        <canvas id="view" width="600" height="600" tabindex="0" aria-label="Photo crop preview"></canvas>
+      </div>
+      <p id="guideinfo" class="muted"></p>
+      <p class="muted">The guides help; the issuing body decides.</p>
+    </section>
+
+    <section id="sec-size">
+      <h2>2. Size</h2>
+      <p class="muted">Sizes are in mm (millimetres) and px (pixels, the dots that make up a digital picture). The link between them is dpi [dots per inch: how many pixels fit in one printed inch; 300 is normal for photos].</p>
+      <select id="preset" aria-label="Preset size"></select>
       <div id="custom" class="row" hidden>
         <div><label for="cw">Width</label><input id="cw" type="number" min="1" step="any" value="35"></div>
         <div><label for="ch">Height</label><input id="ch" type="number" min="1" step="any" value="45"></div>
@@ -98,45 +122,43 @@
     </section>
 
     <section>
-      <h2>Crop box</h2>
-      <p class="muted">Drag to move. Pinch or mouse-wheel to zoom. Arrow keys nudge, + and - zoom.</p>
-      <div class="stage">
-        <canvas id="view" width="600" height="600" tabindex="0" aria-label="Photo crop preview"></canvas>
-      </div>
-      <p id="guideinfo" class="muted"></p>
-      <p class="muted">The guides help; the issuing body decides.</p>
-    </section>
-
-    <section>
-      <h2>4a. Save one JPEG (for an online form)</h2>
+      <h2>4a. Save one picture (a JPEG file, for an online form)</h2>
+      <p class="muted">Type what the form states. The page starts from the size you picked above.</p>
       <div class="row">
-        <div><label for="outw">Width px</label><input id="outw" type="number" min="50" step="1" value="600"></div>
-        <div><label for="outh">Height px</label><input id="outh" type="number" min="50" step="1" value="600"></div>
-        <div><label for="maxkb">Max KB</label><input id="maxkb" type="number" min="5" step="1" value="200"></div>
+        <div><label for="outw">Width, px<span class="gloss">as the form states it</span></label><input id="outw" type="number" min="50" step="1" value="600"></div>
+        <div><label for="outh">Height, px<span class="gloss">as the form states it</span></label><input id="outh" type="number" min="50" step="1" value="600"></div>
+        <div><label for="maxkb">Largest file size, KB<span class="gloss">the form's limit; 1 KB = 1024 bytes</span></label><input id="maxkb" type="number" min="5" step="1" value="200"></div>
       </div>
-      <div class="btns"><button id="savejpeg" class="primary" type="button" disabled>Save JPEG</button></div>
+      <div class="btns"><button id="savejpeg" class="primary" type="button" disabled>Save one picture</button></div>
       <p id="jpegstatus" class="status"></p>
-      <p class="muted">On iPhone the file may open in a new tab: tap Share, then Save Image.</p>
+      <div id="jpegout" class="out" hidden>
+        <img id="jpegimg" alt="Your finished passport picture">
+        <p class="muted">Press and hold (phone) or right-click (PC) the picture and choose Save. A copy also downloads to your Downloads folder; if nothing happens, you are using the online copy: save the picture above instead. On iPhone the file may open in a new tab: tap Share, then Save Image.</p>
+      </div>
     </section>
 
     <section>
       <h2>4b. Make a print sheet (4 x 6 in, 300 dpi)</h2>
-      <p class="muted">A 1200 x 1800 px PNG with copies of the crop and thin cut lines. Order it as a plain 4 x 6 print and cut on the lines.</p>
+      <p class="muted">A 1200 x 1800 px PNG [a picture file type that loses no detail] with copies of the crop and thin cut lines. Order it as a plain 4 x 6 print at a store kiosk and cut on the lines.</p>
       <label for="copies">Layout</label>
       <select id="copies"><option value="6">6 per sheet (passport size)</option><option value="2">2 per sheet (larger sizes)</option></select>
       <div class="btns"><button id="savesheet" class="primary" type="button" disabled>Make print sheet</button></div>
       <p id="sheetstatus" class="status"></p>
+      <div id="sheetout" class="out" hidden>
+        <img id="sheetimg" alt="Your finished 4 x 6 print sheet">
+        <p class="muted">Press and hold (phone) or right-click (PC) the picture and choose Save. A copy also downloads to your Downloads folder; if nothing happens, you are using the online copy: save the picture above instead.</p>
+      </div>
     </section>
 
     <section>
       <h2>Before you submit</h2>
       <ul class="check">
-        <li><label><input type="checkbox"> Plain, light, even background with no shadows</label></li>
-        <li><label><input type="checkbox"> Neutral expression, mouth closed, eyes open and looking at the camera</label></li>
-        <li><label><input type="checkbox"> Head size inside the guide; whole head and top of shoulders visible</label></li>
-        <li><label><input type="checkbox"> No glasses glare (many offices ask for no glasses at all), no hat unless religious</label></li>
-        <li><label><input type="checkbox"> Taken recently, in colour unless the form says otherwise</label></li>
-        <li><label><input type="checkbox"> Not edited beyond brightness and cropping; no filters</label></li>
+        <li><label><input type="checkbox" id="chk-background"> Plain, light, even background with no shadows</label></li>
+        <li><label><input type="checkbox" id="chk-expression"> Neutral expression, mouth closed, eyes open and looking at the camera</label></li>
+        <li><label><input type="checkbox" id="chk-head"> Head size inside the guide; whole head and top of shoulders visible</label></li>
+        <li><label><input type="checkbox" id="chk-glasses"> No glasses glare (many offices ask for no glasses at all), no hat unless religious</label></li>
+        <li><label><input type="checkbox" id="chk-recent"> Taken recently, in colour unless the form says otherwise</label></li>
+        <li><label><input type="checkbox" id="chk-edits"> Not edited beyond brightness and cropping; no filters</label></li>
         <li>The issuing body decides; check its own rules.</li>
       </ul>
     </section>
@@ -145,6 +167,13 @@
       <h2>Preset sizes</h2>
       <table id="presettable"><thead><tr><th>Preset</th><th>mm</th><th>px @ dpi</th><th>Head guide</th></tr></thead><tbody></tbody></table>
       <p class="muted">All figures are general published guidance, not the rules of any office: verify with the issuing body. 300 dpi is the usual print resolution; 25.4 mm = 1 inch.</p>
+    </section>
+
+    <section>
+      <h2>What this can and cannot tell you</h2>
+      <p class="muted">It can crop, brighten, resize and lay out your photo at the exact size you type, and tell you the file size it made. It cannot remove a background, check your face, or promise an office will accept the photo: the guides are general guidance, and the issuing body decides.</p>
+      <h2 style="margin-top:12px">Where the numbers come from</h2>
+      <p class="muted">The 2 x 2 in size, with the head 1 to 1 3/8 in tall and the eyes 1 1/8 to 1 3/8 in from the bottom, follows the US Department of State's published guidance. 35 x 45 mm is a common international size with no single head rule, so none is drawn. 300 dpi and the 4 x 6 in sheet are print-lab conventions; 25.4 mm = 1 inch exactly. All are marked "verify with the issuing body" in the preset table.</p>
     </section>
   </div>
 </main>
@@ -206,7 +235,7 @@
 
   const view = $("view");
   const ctx = view.getContext("2d");
-  const state = { img: null, iw: 0, ih: 0, scale: 1, x: 0, y: 0, cover: 1 };
+  const state = { img: null, iw: 0, ih: 0, scale: 1, x: 0, y: 0, cover: 1, drawn: false };   // drawn: the test face is loaded
   let current = null;              // {name, width_mm, height_mm, dpi, width_px, height_px, head_min_mm, ...}
 
   // ---------- presets ----------
@@ -283,10 +312,30 @@
 
   // ---------- loading ----------
   function setImage(img, w, h, note) {
-    state.img = img; state.iw = w; state.ih = h;
-    $("loadinfo").textContent = note + " (" + w + " x " + h + " px).";
+    state.img = img; state.iw = w; state.ih = h; state.drawn = false;
+    $("loadinfo").textContent = note + " (" + w + " x " + h + " px). Drag it in the crop box; then press Save one picture or Make print sheet.";
     $("savejpeg").disabled = $("savesheet").disabled = false;
+    // Once any picture is in, "Choose photo" becomes the main button and the drawn face steps back.
+    $("testface").classList.remove("primary"); $("filelabel").classList.add("primary");
+    $("jpegout").hidden = $("sheetout").hidden = true;
     fitImage();
+    showCropBox();
+  }
+
+  // On a phone the crop box is below the fold: after a picture loads, bring it on screen so the first click shows the face.
+  function showCropBox() {
+    try {
+      const r = view.getBoundingClientRect();
+      if (r.top >= 0 && r.bottom <= window.innerHeight) return;
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      $("sec-crop").scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+    } catch (e) { /* an old browser without scrollIntoView options: the picture is still there, lower down */ }
+  }
+
+  function loadErrorText() {
+    return "Could not read that file. Try a JPEG or PNG. A photo from an iPhone is often HEIC, which this browser may not open: "
+      + "on the phone, Share the photo to yourself as a JPEG (or set Camera > Formats > Most Compatible), or open this page in Safari on the phone."
+      + (state.img ? " The picture already in the crop box is unchanged." : "");
   }
 
   async function loadFile(file) {
@@ -302,21 +351,35 @@
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => { setImage(img, img.naturalWidth, img.naturalHeight, "Loaded " + file.name); URL.revokeObjectURL(url); };
-    img.onerror = () => { $("loadinfo").textContent = "Could not read that file. Try a JPEG or PNG."; URL.revokeObjectURL(url); };
+    img.onerror = () => { $("loadinfo").textContent = loadErrorText(); URL.revokeObjectURL(url); };
     img.src = url;
   }
 
+  // Same picture as samples/photo_sheet_test_face.png and photo_sheet/presets.py test_face_png(): a skin-toned
+  // oval with two dark eye patches on light grey, drawn pixel by pixel with the same test, so the example on the
+  // page and the sample file never drift. Exposed as window.drawTestFacePixels for the automated check.
+  function drawTestFacePixels(width, height) {
+    const c = document.createElement("canvas"); c.width = width; c.height = height;
+    const g = c.getContext("2d"), d = g.createImageData(width, height), a = d.data;
+    const cx = width / 2, cy = height * 0.45, rx = width * 0.22, ry = height * 0.22;
+    let i = 0;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++, i += 4) {
+        const dx = (x - cx) / rx, dy = (y - cy) / ry;
+        const inside = dx * dx + dy * dy <= 1;
+        const eye = inside && Math.abs(dy + 0.15) < 0.08 && Math.abs(Math.abs(dx) - 0.4) < 0.1;
+        const col = eye ? [0x30, 0x28, 0x20] : inside ? [0xd9, 0xa6, 0x82] : [0xe4, 0xe4, 0xe4];
+        a[i] = col[0]; a[i + 1] = col[1]; a[i + 2] = col[2]; a[i + 3] = 255;
+      }
+    }
+    g.putImageData(d, 0, 0);
+    return c;
+  }
+  window.drawTestFacePixels = drawTestFacePixels;
   function makeTestFace() {
-    const c = document.createElement("canvas"); c.width = 480; c.height = 640;
-    const g = c.getContext("2d");
-    g.fillStyle = "#e4e4e4"; g.fillRect(0, 0, c.width, c.height);
-    g.fillStyle = "#d9a682";
-    g.beginPath(); g.ellipse(240, 288, 106, 141, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "#302820";
-    g.beginPath(); g.ellipse(198, 268, 10, 8, 0, 0, Math.PI * 2); g.fill();
-    g.beginPath(); g.ellipse(282, 268, 10, 8, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "#b07a5a"; g.fillRect(160, 430, 160, 210);
+    const c = drawTestFacePixels(480, 640);
     setImage(c, c.width, c.height, "Loaded a drawn test face");
+    state.drawn = true;
   }
 
   // ---------- view maths ----------
@@ -490,11 +553,22 @@
 
   function kb(n) { return (n / 1024).toFixed(0) + " KB"; }
 
+  // The finished picture is always shown on the page too, so it can be saved by press-and-hold or
+  // right-click where downloads are blocked (the hosted viewer). A data URL keeps it saveable anywhere.
+  function showResult(boxId, imgId, blob) {
+    return new Promise((resolve) => {
+      const rd = new FileReader();
+      rd.onload = () => { $(imgId).src = rd.result; $(boxId).hidden = false; resolve(true); };
+      rd.onerror = () => { $(imgId).src = URL.createObjectURL(blob); $(boxId).hidden = false; resolve(false); };
+      rd.readAsDataURL(blob);
+    });
+  }
+
   async function saveJpeg() {
     const w = Math.round(+$("outw").value), h = Math.round(+$("outh").value), cap = +$("maxkb").value;
     const st = $("jpegstatus"); st.className = "status";
     if (!(w >= 50 && h >= 50 && w <= 6000 && h <= 6000)) { st.textContent = "Width and height must be 50 to 6000 px."; st.className = "status warn"; return; }
-    if (!(cap >= 5)) { st.textContent = "Max KB must be at least 5."; st.className = "status warn"; return; }
+    if (!(cap >= 5)) { st.textContent = "Largest file size must be at least 5 KB."; st.className = "status warn"; return; }
     const ratioPreset = view.width / view.height, ratioOut = w / h;
     const c = document.createElement("canvas"); c.width = w; c.height = h;
     let shapeNote = "";
@@ -514,16 +588,20 @@
     }
     // The part of the original inside the crop box, in the original's own pixels; smaller than the output means enlarging.
     const srcW = Math.round(view.width / state.scale), srcH = Math.round(view.height / state.scale);
-    const sizeNote = (srcW < w || srcH < h)
+    const enlarging = srcW < w || srcH < h;
+    const sizeNote = enlarging && !state.drawn
       ? " Note: the crop covers only " + srcW + " x " + srcH + " px of the original, so the photo is being enlarged and may look soft; use a larger original if the form allows."
       : "";
+    const drawnNote = enlarging && state.drawn ? " This drawn face is small on purpose (480 x 640 px); a photo from your phone or camera is much larger and will come out sharp." : "";
     st.textContent = "Compressing...";
     const r = await fitUnderCap(c, cap * 1024);
     if (!r) { st.textContent = "This browser could not make a JPEG."; st.className = "status warn"; return; }
+    await showResult("jpegout", "jpegimg", r.blob);
     download(r.blob, "photo_" + w + "x" + h + ".jpg");
-    st.textContent = "Saved " + w + " x " + h + " px, " + kb(r.blob.size) + " at quality " + r.quality.toFixed(2)
-      + (r.fits ? " (under the " + cap + " KB cap)." : ". Still over the " + cap + " KB cap even at the lowest quality; try a smaller pixel size.")
-      + shapeNote + sizeNote;
+    st.textContent = "Made " + w + " x " + h + " px, " + kb(r.blob.size) + " at JPEG quality " + r.quality.toFixed(2)
+      + " (1.00 is best; the page lowers it only until the file fits under your KB limit)"
+      + (r.fits ? ", under the " + cap + " KB cap." : ". Still over the " + cap + " KB cap even at the lowest quality; try a smaller pixel size.")
+      + shapeNote + sizeNote + drawnNote;
     st.className = r.fits && !shapeNote && !sizeNote ? "status ok" : "status warn";
   }
 
@@ -558,8 +636,9 @@
     ys.forEach((y) => { const py = Math.min(SHEET_H - 0.5, Math.max(0.5, y + 0.5)); g.beginPath(); g.moveTo(0, py); g.lineTo(SHEET_W, py); g.stroke(); });
     const blob = await toBlob(s, "image/png");
     if (!blob) { st.textContent = "This browser could not make a PNG."; st.className = "status warn"; return; }
+    await showResult("sheetout", "sheetimg", blob);
     download(blob, "photo_sheet_4x6.png");
-    st.textContent = "Saved a 1200 x 1800 px sheet with " + lay.copies + " copies of " + cw + " x " + ch + " px ("
+    st.textContent = "Made a 1200 x 1800 px sheet with " + lay.copies + " copies of " + cw + " x " + ch + " px ("
       + current.width_mm.toFixed(1) + " x " + current.height_mm.toFixed(1) + " mm each), " + kb(blob.size) + ".";
     st.className = "status ok";
   }

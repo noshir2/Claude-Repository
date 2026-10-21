@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FRC Electrical Shop Card</title>
+<title>Robotics electrical card</title>
 <!--
   EDIT NUMBERS HERE. Everything the page shows comes from the JSON block right below.
   One table row per line. Keep the quotes and commas. After editing, run from the repo folder:
@@ -262,22 +262,37 @@
 }
 </script>
 <style>
-:root{--bg:#fff;--fg:#1a1a1a;--mute:#5f6670;--line:#d9dde3;--panel:#f4f6f8;--accent:#0b5fa5;--accent-fg:#fff;
-  --warn-bg:#fff4d6;--warn-fg:#5a3d00;--warn-line:#e4b94f;--danger:#b3261e;--ok:#0a7d33;--tag-physics:#2a6f97;--tag-rule:#8a3b12;--tag-vendor:#4a6a2a;--tag-example:#6b4b8a}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e8e8e8;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#5aa9e6;--accent-fg:#0d1117;
-  --warn-bg:#3a2e10;--warn-fg:#ffd98a;--warn-line:#8a6d1f;--danger:#ff7b72;--ok:#4cc77a;--tag-physics:#7fb7dd;--tag-rule:#e8a07a;--tag-vendor:#a7cf7a;--tag-example:#c3a3e0}}
+:root{--bg:#fbfaf7;--fg:#1f2328;--mute:#5d6671;--line:#d9d6cf;--panel:#f1efe9;--accent:#1b5e9e;--accent-fg:#ffffff;
+  --good:#1b7f3b;--warn:#9a6700;--bad:#b42318;--focus:#7fb3e6;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --warn-bg:#fff4d6;--warn-fg:#5a3d00;--warn-line:#e4b94f;--danger:var(--bad);--ok:var(--good);--tag-physics:#2a6f97;--tag-rule:#8a3b12;--tag-vendor:#4a6a2a;--tag-example:#6b4b8a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;
+  --warn-bg:#3a2e10;--warn-fg:#ffd98a;--warn-line:#8a6d1f;--tag-physics:#7fb7dd;--tag-rule:#e8a07a;--tag-vendor:#a7cf7a;--tag-example:#c3a3e0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;
+  --warn-bg:#3a2e10;--warn-fg:#ffd98a;--warn-line:#8a6d1f;--tag-physics:#7fb7dd;--tag-rule:#e8a07a;--tag-vendor:#a7cf7a;--tag-example:#c3a3e0;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg)}
-body{font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 16px 48px;max-width:1040px;margin:0 auto}
+body{font:16px/1.55 var(--font);padding-block:0 48px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));max-width:1040px;margin:0 auto}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+.back{display:inline-block;margin:12px 0 0;color:var(--accent);font-size:.95em}
+.steps{padding-left:1.3em;margin:.5em 0}.steps li{margin:.3em 0}
+.gloss{display:block;font-size:.84em;color:var(--mute);font-weight:400;margin:.1em 0 .4em}
+.msg{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--panel);padding:8px 12px;border-radius:8px;margin:8px 0;font-size:.95em}
+.msg.err{border-left-color:var(--bad)}.msg.ok{border-left-color:var(--good)}
+.msg button{margin-left:6px}
+footer{border-top:1px solid var(--line);margin-top:28px;padding-top:4px}
 h1{font-size:1.5em;margin:.6em 0 .2em}h2{font-size:1.2em;margin:1.4em 0 .4em;border-bottom:1px solid var(--line);padding-bottom:.2em}
 h3{font-size:1.02em;margin:1.1em 0 .3em}
 p{margin:.4em 0}.mute{color:var(--mute)}.small{font-size:.86em}
 .banner{background:var(--warn-bg);color:var(--warn-fg);border:1px solid var(--warn-line);border-radius:8px;padding:10px 12px;margin:10px 0;font-size:.93em}
 nav.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 6px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:2;border-bottom:1px solid var(--line)}
-nav.tabs button{font:inherit;font-size:.95em;padding:8px 14px;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;cursor:pointer;min-height:40px}
+nav.tabs button{font:inherit;font-size:.95em;padding:8px 14px;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;cursor:pointer;min-height:44px}
 nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 section.tab{display:none}section.tab.active{display:block}
 .wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.swipe{display:none;margin:4px 0 2px}
+@media screen and (max-width:600px){.swipe{display:block}}
 table{width:100%;border-collapse:collapse;font-size:.92em}th,td{text-align:left;vertical-align:top;padding:6px 8px;border-bottom:1px solid var(--line)}
 th{background:var(--panel);font-weight:600}td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tag{display:inline-block;font-size:.72em;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-left:4px;white-space:nowrap;vertical-align:middle}
@@ -288,9 +303,10 @@ th{background:var(--panel);font-weight:600}td.n{text-align:right;font-variant-nu
 .safety li{margin:.5em 0}.safety b{display:block}
 .calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 12px;align-items:end}
 .calc label{display:flex;flex-direction:column;font-size:.86em;color:var(--mute)}
-.calc input,.calc select,.controls input,.controls select{font:inherit;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);min-height:40px;width:100%}
+.calc label .gloss,.controls label .gloss{font-size:.92em;margin:0 0 2px}
+.calc input,.calc select,.controls input,.controls select{font:inherit;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);min-height:44px;width:100%;margin-top:auto}
 .readout{margin-top:8px;font-size:1.02em}.readout.err{color:var(--danger)}
-button.btn{font:inherit;padding:9px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);cursor:pointer;min-height:42px}
+button.btn{font:inherit;padding:9px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);cursor:pointer;min-height:44px}
 button.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 button.btn.rate{flex:1;min-width:90px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
@@ -308,11 +324,13 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 .sheet .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 .sheet ol li{margin:.35em 0}.sheet .blank{border-bottom:1px solid #777;height:1.4em;margin:4px 0}
 .sheet .page-break{break-before:page;page-break-before:always;margin-top:24px;border-top:2px dashed #999;padding-top:12px}
-@media(max-width:600px){.sheet .cols{grid-template-columns:1fr}body{font-size:15px}}
-@media screen and (max-width:600px){.wrap table{min-width:600px}}
+@media(max-width:600px){.sheet .cols{grid-template-columns:1fr}body{font-size:15px}button.btn.primary{width:100%}}
+@media screen and (max-width:600px){nav.tabs{gap:4px;padding:6px 0}nav.tabs button{padding:8px 10px;font-size:.9em}}
+@media screen and (max-height:700px){nav.tabs{position:static}}   /* a short phone screen: the bar scrolls away instead of covering a fifth of it */
+@media screen and (max-width:600px){.wrap table{min-width:600px}#rule-table{min-width:560px}#rule-table th:first-child,#rule-table td:first-child{min-width:170px}#rule-table th:nth-child(2),#rule-table td:nth-child(2){min-width:95px}}
 @media print{
   body{background:#fff;color:#000;padding:0;max-width:none;font-size:10.5pt}
-  header,nav.tabs,section.tab,.screen-only{display:none !important}
+  header,nav.tabs,section.tab,footer,.screen-only{display:none !important}
   #tab-print{display:block !important}
   #tab-print .controls,#tab-print .screen-only{display:none !important}
   .sheet{border:0;padding:0;margin:0;background:#fff;color:#000;font-size:8.2pt;line-height:1.25}
@@ -329,19 +347,27 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 </head>
 <body>
 <header>
-  <h1>FRC Electrical Shop Card</h1>
-  <p class="mute small">Offline. Nothing is sent anywhere; flashcard progress stays in this browser only.</p>
+  <a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
+  <h1>Robotics electrical card</h1>
+  <p>The wiring rules, battery math, reference tables and flashcards a FIRST Robotics (FRC) electrical mentor gets asked about, on one page that works without the internet.</p>
+  <p class="mute small">Nothing you type or choose leaves your device. Close the page and it is gone, except the few settings it remembers in this browser (flashcard progress, the tab you were on, the print week and seed).</p>
+  <ol class="steps small">
+    <li>New here? Press <b>Show me an example</b>: the Calculators tab opens with every calculator filled in and its answer written as a sentence.</li>
+    <li>Change any number and the sentence updates as you type. The other tabs are the safety list, the rule table, reference tables, flashcards and a printable cheat sheet.</li>
+    <li>Everything here is a starting point to check against the current season's rules, not a ruling.</li>
+  </ol>
+  <p><button class="btn primary" id="hdr-example" type="button">Show me an example</button></p>
   <div class="banner" id="banner"></div>
   <div id="load-error" class="card-box danger" hidden></div>
 </header>
 
 <nav class="tabs" role="tablist">
-  <button role="tab" data-tab="safety">Safety</button>
-  <button role="tab" data-tab="rules">Rules</button>
-  <button role="tab" data-tab="reference">Reference</button>
-  <button role="tab" data-tab="calc">Calculators</button>
-  <button role="tab" data-tab="cards">Flashcards</button>
-  <button role="tab" data-tab="print">Print</button>
+  <button role="tab" id="tab-btn-safety" data-tab="safety">Safety</button>
+  <button role="tab" id="tab-btn-rules" data-tab="rules">Rules</button>
+  <button role="tab" id="tab-btn-reference" data-tab="reference">Reference</button>
+  <button role="tab" id="tab-btn-calc" data-tab="calc">Calculators</button>
+  <button role="tab" id="tab-btn-cards" data-tab="cards">Flashcards</button>
+  <button role="tab" id="tab-btn-print" data-tab="print">Print</button>
 </nav>
 
 <main>
@@ -353,15 +379,17 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 
 <section class="tab" id="tab-rules">
   <h2>Breaker or fuse rating to minimum wire gauge</h2>
+  <p class="small mute">Breaker [the small automatic switch that cuts the power when too much current flows; a fuse does the same job once and is then replaced]. AWG [American Wire Gauge, the wire-thickness number: a smaller number means a thicker wire, so 6 AWG is thick battery cable and 22 AWG is thin signal wire]. The table says the thinnest wire each breaker or fuse rating is allowed to protect.</p>
   <p class="small mute" id="rules-season"></p>
   <div class="wrap"><table id="rule-table"></table></div>
   <h3>Why this is not the house-wiring table</h3>
-  <p>If you have ever opened the NEC ampacity tables, these gauges look reckless: 12 AWG on a 40 A breaker, 18 AWG on 20 A. Four things are different on a robot. The runs are short and in free air, not bundled in conduit. The loads are intermittent: a drive motor pulls its peak for a second, not for three hours. The breakers are snap-action and trip fast on a real overload. And it is 12 V: at 12 V the thing that actually limits you is voltage drop, not insulation heating. A volt lost in a thin motor lead is 8% of your bus, and the brown-out threshold is only a few volts below where a tired battery already sits under load. So the manual's table is a minimum, and most teams go one or two gauges heavier on anything that pulls real current.</p>
+  <p>If you have ever opened the NEC ampacity [how much current a wire may carry without overheating] tables, these gauges look reckless: 12 AWG on a 40 A breaker, 18 AWG on 20 A. Four things are different on a robot. The runs are short and in free air, not bundled in conduit. The loads are intermittent: a drive motor pulls its peak for a second, not for three hours. The breakers are snap-action and trip fast on a real overload. And it is 12 V: at 12 V the thing that actually limits you is voltage drop, not insulation heating. A volt lost in a thin motor lead is 8% of your bus, and the brown-out [the robot's computer resetting because the battery voltage sagged too low under a heavy load] threshold is only a few volts below where a tired battery already sits under load. So the manual's table is a minimum, and most teams go one or two gauges heavier on anything that pulls real current.</p>
   <p class="small mute">The 'other rules' table on the Reference tab has the rest of the power section (battery, charger, roboRIO and radio supply, legal breakers and fuses, branch-circuit maxima, wire colours).</p>
 </section>
 
 <section class="tab" id="tab-reference">
   <h2>Reference</h2>
+  <p class="small mute">The tables below (wire resistance, example team standards, connectors, ferrule [a small metal sleeve crimped onto the end of a stranded wire so it goes cleanly into a screw terminal] colours, brown-out thresholds, battery numbers) come from the data block at the top of this file; every row names its source.</p>
   <h3>Copper wire resistance (AWG 6-24)</h3>
   <p class="small mute">Generated from the AWG formula and copper resistivity at 20 C, solid wire. Stranded wire of the same gauge reads about 2-5% higher. NEC Chapter 9 Table 8 lists resistance at 75 C for stranded conductors, so it reads about 22% higher than this table (copper's temperature coefficient is about 0.393% per degree C, times 55 degrees) plus the stranding allowance. For a robot wire at room temperature these are the right numbers. The ampacity columns are rules of thumb only; the rule table decides what you may fit.</p>
   <div class="wrap"><table id="awg-table"></table></div>
@@ -382,26 +410,31 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 
 <section class="tab" id="tab-calc">
   <h2>Calculators</h2>
-  <p class="small mute">Each one prints the same sentence as <code>python -m frc_shop_card ...</code>. <span id="golden-status"></span></p>
+  <p>Each calculator answers in one sentence. Press the button to fill them all with worked examples, then change any number to see your own answer.</p>
+  <p><button class="btn primary" id="calc-example" type="button">Show me an example</button></p>
+  <div class="msg ok" id="calc-example-msg" hidden></div>
+  <p class="small mute">Advanced: the same sentences come from <code>python -m frc_shop_card ...</code> on a computer with Python. <span id="golden-status"></span></p>
 
   <div class="card-box">
     <h3>1. Voltage drop</h3>
+    <p class="gloss">How many volts are lost in a wire run and how much the wire heats. Current goes out on one wire and back on the other, so the round trip is twice the one-way length.</p>
     <div class="calc">
-      <label>AWG (6-24)<input id="vd-awg" type="number" min="6" max="24" step="1" value="6"></label>
-      <label>One-way length, ft<input id="vd-feet" type="number" min="0" step="any" value="10"></label>
-      <label>Current, A<input id="vd-amps" type="number" min="0" step="any" value="120"></label>
+      <label>AWG (6-24)<span class="gloss">wire gauge number</span><input id="vd-awg" type="number" min="6" max="24" step="1" value="6"></label>
+      <label>One-way length, ft<span class="gloss">from the battery to the load</span><input id="vd-feet" type="number" min="0" step="any" value="10"></label>
+      <label>Current, A<span class="gloss">amps flowing in that wire</span><input id="vd-amps" type="number" min="0" step="any" value="120"></label>
     </div>
     <p class="readout" id="vd-out"></p>
   </div>
 
   <div class="card-box">
     <h3>2. Brown-out</h3>
+    <p class="gloss">How far the battery voltage sags when a heavy load pulls on it, and what current would drag it down to the brown-out threshold [the voltage where the robot's computer starts cutting power to protect itself]. mohm = milliohm, a thousandth of an ohm.</p>
     <div class="calc">
-      <label>Battery, mohm<input id="bo-batt" type="number" min="0" step="any" value="15"></label>
-      <label>Path (SB50 + lugs + cable), mohm<input id="bo-path" type="number" min="0" step="any" value="8"></label>
-      <label>Current, A<input id="bo-amps" type="number" min="0" step="any" value="300"></label>
-      <label>Threshold, V<input id="bo-thr" type="number" min="0" step="any" value="6.8"></label>
-      <label>Open-circuit, V<input id="bo-ocv" type="number" min="0" step="any" value="12.6"></label>
+      <label>Battery, mohm<span class="gloss">the battery's own resistance</span><input id="bo-batt" type="number" min="0" step="any" value="15"></label>
+      <label>Path (SB50 + lugs + cable), mohm<span class="gloss">connector, lugs and cable between battery and robot</span><input id="bo-path" type="number" min="0" step="any" value="8"></label>
+      <label>Current, A<span class="gloss">the load, for example a stalled motor</span><input id="bo-amps" type="number" min="0" step="any" value="300"></label>
+      <label>Threshold, V<span class="gloss">voltage where the robot browns out</span><input id="bo-thr" type="number" min="0" step="any" value="6.8"></label>
+      <label>Open-circuit, V<span class="gloss">battery voltage with nothing connected</span><input id="bo-ocv" type="number" min="0" step="any" value="12.6"></label>
     </div>
     <p class="readout" id="bo-out"></p>
     <p class="small mute" id="bo-ref"></p>
@@ -409,6 +442,7 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 
   <div class="card-box">
     <h3>3. Battery internal resistance</h3>
+    <p class="gloss">How tired a battery is: the drop between its resting voltage and its voltage under load, divided by the load current. Lower is better.</p>
     <div class="calc">
       <label>Open-circuit, V<input id="br-open" type="number" min="0" step="any" value="12.6"></label>
       <label>Under load, V<input id="br-loaded" type="number" min="0" step="any" value="11.9"></label>
@@ -419,6 +453,7 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 
   <div class="card-box">
     <h3>4. Short circuit (the wrench across the terminals)</h3>
+    <p class="gloss">What happens when metal lands across the battery terminals: the current that flows and the heat it makes.</p>
     <div class="calc">
       <label>Battery, mohm<input id="sc-batt" type="number" min="0" step="any" value="12"></label>
       <label>Path, mohm<input id="sc-path" type="number" min="0" step="any" value="3"></label>
@@ -429,6 +464,7 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 
   <div class="card-box">
     <h3>Ohm's law and power (fill any two)</h3>
+    <p class="gloss">Fill in any two of volts, amps and ohms; the page finds the third and the power in watts.</p>
     <div class="calc">
       <label>Volts<input id="ol-v" type="number" step="any" value="12"></label>
       <label>Amps<input id="ol-i" type="number" step="any"></label>
@@ -439,6 +475,7 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 
   <div class="card-box">
     <h3>I&#178;t (your own current and time; no trip curves)</h3>
+    <p class="gloss">I&#178;t [current squared times time: the heat a burst of current puts into a wire or a breaker, and the unit breaker trip curves are drawn in]. Type your own current and time; the page prints no trip curves.</p>
     <div class="calc">
       <label>Current, A<input id="it-i" type="number" min="0" step="any" value="60"></label>
       <label>Time, s<input id="it-t" type="number" min="0" step="any" value="2"></label>
@@ -448,6 +485,7 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 
   <div class="card-box">
     <h3>Breaker or fuse to minimum gauge (reads the rule table above)</h3>
+    <p class="gloss">Type a breaker or fuse rating and read the thinnest wire the rule table allows for it.</p>
     <div class="calc">
       <label>Rating, A<input id="gl-amps" type="number" min="0" step="any" value="40"></label>
       <label>Protection<select id="gl-kind"><option value="breaker">breaker (120 = main)</option><option value="fuse">fuse</option></select></label>
@@ -464,11 +502,13 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 <section class="tab" id="tab-cards">
   <h2>Flashcards</h2>
   <div class="row controls">
-    <label>Week<select id="fc-week"></select></label>
-    <label>Box<select id="fc-box"><option value="all">all</option><option value="1">1 - again</option><option value="2">2 - hard</option><option value="3">3 - got it</option><option value="new">not seen yet</option></select></label>
+    <label>Week<span class="gloss">preseason week 0 (first meeting) to 10 of the teaching plan; pick the week you are teaching, or all</span><select id="fc-week"></select></label>
+    <label>Show cards you marked<span class="gloss">the page sorts cards into three boxes by how you rated them</span><select id="fc-box"><option value="all">all</option><option value="1">1 - again</option><option value="2">2 - hard</option><option value="3">3 - got it</option><option value="new">not seen yet</option></select></label>
     <button class="btn" id="fc-shuffle">Shuffle</button>
     <button class="btn" id="fc-reset">Reset progress</button>
   </div>
+  <div class="msg" id="fc-reset-confirm" hidden>Clear all flashcard progress stored in this browser? <button class="btn" id="fc-reset-yes" type="button">Yes, clear it</button><button class="btn" id="fc-reset-no" type="button">Keep it</button></div>
+  <div class="msg ok" id="fc-msg" hidden></div>
   <div class="stats" id="fc-stats"></div>
   <div class="card-box flash" id="fc-card"></div>
   <div class="row">
@@ -477,17 +517,19 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
     <button class="btn" id="fc-next">Next</button>
   </div>
   <div class="row" id="fc-rate" hidden>
-    <button class="btn rate" data-box="1">Again</button>
-    <button class="btn rate" data-box="2">Hard</button>
-    <button class="btn rate" data-box="3">Got it</button>
+    <button class="btn rate" id="fc-rate-1" data-box="1">Again</button>
+    <button class="btn rate" id="fc-rate-2" data-box="2">Hard</button>
+    <button class="btn rate" id="fc-rate-3" data-box="3">Got it</button>
   </div>
   <p class="small mute">Keys: <kbd>space</kbd> show answer, <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> rate, arrows move. Three boxes: Again (box 1) comes back first, Hard (box 2) next, Got it (box 3) last. Progress lives only in this browser (no names, no accounts); use Reset on a shared shop computer.</p>
   <h3>What I keep missing</h3>
   <ul id="fc-missing" class="small"></ul>
   <details class="small"><summary>Export / import progress (move your boxes to another device)</summary>
-    <p>Copy the text below to save it; paste saved text and press Import to restore it.</p>
-    <textarea id="fc-io"></textarea>
-    <div class="row"><button class="btn" id="fc-export">Export</button><button class="btn" id="fc-import">Import</button></div>
+    <p>Export puts your progress in the box as text. Press Copy and keep it somewhere (a note, an email to yourself). On the other device, paste it into this box and press Import.</p>
+    <textarea id="fc-io" aria-label="Exported progress"></textarea>
+    <div class="row"><button class="btn" id="fc-export">Export</button><button class="btn" id="fc-copy">Copy</button><button class="btn" id="fc-download">Download as a file</button><button class="btn" id="fc-import">Import</button></div>
+    <div class="msg" id="fc-io-msg" hidden></div>
+    <p class="mute">If Download does nothing, you are using the online copy: use Copy instead.</p>
   </details>
 </section>
 
@@ -495,15 +537,24 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
   <h2>Print</h2>
   <div class="row controls">
     <label>What to print<select id="pr-mode"><option value="cheat">One-page cheat sheet</option><option value="quiz">Weekly warm-up + answer key + exit ticket</option></select></label>
-    <label>Week<select id="pr-week"></select></label>
-    <label>Seed<input id="pr-seed" type="number" min="0" step="1" value="1"></label>
+    <label>Week<span class="gloss">preseason week 0 to 10 of the teaching plan</span><select id="pr-week"></select></label>
+    <label>Seed<span class="gloss">any number; the same seed gives the same quiz</span><input id="pr-seed" type="number" min="0" step="1" value="1"></label>
     <button class="btn primary" id="pr-print">Print</button>
   </div>
-  <p class="small mute screen-only">Use your browser's print dialog (this button opens it). Nothing to install. The same week and seed always give the same five questions; <code>python -m frc_shop_card warmup --week 2 --seed 7</code> prints them too. Dark mode never reaches the printer: print layouts are black on white.</p>
+  <p class="small mute screen-only">Print opens your browser's normal print dialog; nothing to install. If nothing happens, you are using the online copy: open your own copy on a computer to print, or use a Copy button below and paste the text into any document. The same week and seed always give the same five questions (advanced: <code>python -m frc_shop_card warmup --week 2 --seed 7</code> prints them too). Dark mode never reaches the printer: print layouts are black on white.</p>
+  <div class="row screen-only"><button class="btn" id="pr-copy-cheat" type="button">Copy the cheat sheet as text</button><button class="btn" id="pr-copy-quiz" type="button">Copy this warm-up as text</button></div>
+  <div class="msg screen-only" id="pr-msg" hidden></div>
+  <textarea class="screen-only" id="pr-text" hidden aria-label="Plain-text copy of the sheet"></textarea>
   <div class="sheet" id="sheet-cheat"></div>
   <div class="sheet" id="sheet-quiz" hidden></div>
 </section>
 </main>
+<footer class="screen-only">
+  <h2>What this card can and cannot tell you</h2>
+  <p class="small">It can give you the minimum wire for a breaker or fuse from the season's rule table, the volts lost in a wire, how far a battery sags under load, and the current a shorted battery drives. It cannot replace the current Game Manual (rules move every January), judge a specific part (vendor numbers drift), give breaker trip times or torque values, or stand in for your team's safety training. Every number here is a starting point to check, not a ruling.</p>
+  <h2>Where the numbers come from</h2>
+  <p class="small">Every row in every table carries its source: physics (a formula), rule (the FRC Game Manual, with the rule number and season), vendor (a named datasheet or documentation page) or example (an invented team standard for you to edit). The calculators use Ohm's law and the standard wire-gauge formula; the self-check line on the Calculators tab confirms they agree with the worked examples stored in this file.</p>
+</footer>
 
 <script id="card-logic">
 /* Pure logic. Twin of frc_shop_card/calc.py, report.py and card.py. No DOM in here, so the
@@ -760,6 +811,20 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
     return '<span class="tag tag-' + esc(t) + '">' + esc(label) + "</span>";
   }
   function src(row) { return '<div class="src">' + esc(row.source) + (row.season ? " (season " + esc(row.season) + ", verify)" : "") + "</div>"; }
+  function showMsg(id, text, kind) { var el = $(id); el.textContent = text; el.className = "msg" + (kind ? " " + kind : ""); el.hidden = false; }
+  /* Copy to the clipboard from a click; when the browser refuses (older browsers, some viewers), put the text in a box and select it. */
+  function copyText(text, msgId, taId) {
+    function fallback() {
+      var ta = $(taId); ta.hidden = false; ta.value = text;
+      try { ta.focus(); ta.select(); ta.setSelectionRange(0, text.length); } catch (e) {}
+      showMsg(msgId, "Copy did not work here. The text is selected in the box below: press Ctrl+C on a PC, or long-press it and choose Copy on a phone.", "err");
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { showMsg(msgId, "Copied. Paste it into a note, an email or a document.", "ok"); }, fallback);
+      } else fallback();
+    } catch (e) { fallback(); }
+  }
 
   var DATA;
   try {
@@ -803,15 +868,18 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
   var RULES = (DATA.rule_table || []).filter(function (r) { return r.source && r.tag; });
   var seasons = {}; RULES.forEach(function (r) { if (r.season) seasons[r.season] = 1; });
   $("rules-season").textContent = "Season " + Object.keys(seasons).join(", ") + " rows, all marked verify. Each is a minimum; heavier wire is always allowed.";
-  function ruleRow(r, compact) {
-    var amps = r.protection === "breaker" || r.protection === "fuse"
+  function ruleRating(r) {
+    return r.protection === "breaker" || r.protection === "fuse"
       ? (r.amps_min > 0 ? r.amps_min + "-" + r.amps_max : "up to " + r.amps_max) + " A " + r.protection
       : (r.protection === "main" ? "main path" : r.protection === "signal" ? "signal level" : "");
+  }
+  function ruleRow(r, compact) {
+    var amps = ruleRating(r);
     return "<tr><td>" + esc(r.label) + (compact ? "" : "<br><span class='small mute'>" + esc(r.note || "") + "</span>") + "</td>" +
-      "<td class='n'>" + esc(amps) + "</td><td class='n'><b>" + esc(r.min_awg) + (typeof r.min_awg === "number" ? " AWG" : "") + "</b></td>" +
+      "<td class='n'><b>" + esc(r.min_awg) + (typeof r.min_awg === "number" ? " AWG" : "") + "</b></td><td class='n'>" + esc(amps) + "</td>" +
       (compact ? "" : "<td>" + tag(r.tag) + src(r) + "</td>") + "</tr>";
   }
-  $("rule-table").innerHTML = "<tr><th>Circuit</th><th>Rating</th><th>Minimum wire</th><th>Source</th></tr>" + RULES.map(function (r) { return ruleRow(r, false); }).join("");
+  $("rule-table").innerHTML = "<tr><th>Circuit</th><th>Minimum wire</th><th>Rating</th><th>Source</th></tr>" + RULES.map(function (r) { return ruleRow(r, false); }).join("");
 
   /* ---- reference ---- */
   var AWG = (DATA.awg_table || []).filter(function (r) { return r.source && r.tag; });
@@ -845,6 +913,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
       (body ? "<div class='wrap'><table>" + body + "</table></div>" : "<p class='small mute'>(no rows)</p>");
   }).join("");
 
+  /* On a phone the wide tables scroll sideways; say so, once above each one (the CSS shows this line only below 600px). */
+  document.querySelectorAll(".wrap").forEach(function (w) {
+    var hint = document.createElement("p"); hint.className = "swipe small mute"; hint.textContent = "Swipe the table sideways to see the rest of the columns.";
+    w.parentNode.insertBefore(hint, w);
+  });
+
   /* ---- calculators ---- */
   function val(id) { var v = $(id).value; return v === "" ? null : Number(v); }
   function out(id, lines, err) { var el = $(id); el.classList.toggle("err", !!err); el.innerHTML = err ? esc(err) : lines.map(esc).join("<br>"); }
@@ -861,6 +935,36 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
   }
   document.querySelectorAll("#tab-calc input, #tab-calc select").forEach(function (el) { el.addEventListener("input", calcAll); el.addEventListener("change", calcAll); });
   calcAll();
+  /* "Show me an example": the golden examples in the data block are typed into the calculators, so the page and the Python agree. */
+  var EXAMPLE_FIELDS = { vdrop: { awg: "vd-awg", feet: "vd-feet", amps: "vd-amps" },
+                         brownout: { battery_mohm: "bo-batt", path_mohm: "bo-path", amps: "bo-amps", threshold: "bo-thr", open_v: "bo-ocv" },
+                         battery_r: { open_v: "br-open", loaded_v: "br-loaded", amps: "br-amps" },
+                         short: { battery_mohm: "sc-batt", path_mohm: "sc-path", open_v: "sc-ocv" },
+                         ohm: { volts: "ol-v", amps: "ol-i", ohms: "ol-r" }, i2t: { amps: "it-i", seconds: "it-t" } };
+  function fillExample() {
+    var filled = 0;
+    (DATA.golden || []).forEach(function (ex) {
+      var map = EXAMPLE_FIELDS[ex.calc]; if (!map) return;
+      var inp = ex["in"] || {};
+      Object.keys(map).forEach(function (k) {
+        var v = inp[k];
+        if (v == null && k === "open_v") v = FRC.DEFAULT_OPEN_V;
+        $(map[k]).value = v == null ? "" : String(v);
+      });
+      filled++;
+    });
+    $("gl-amps").value = "40"; $("gl-kind").value = "breaker";
+    calcAll();
+    showTab("calc");
+    showMsg("calc-example-msg", "Filled " + filled + " calculators with worked examples. Each sentence below is the answer for the numbers above it; change any number to see your own.", "ok");
+    try {   /* scroll so the button sits just under the sticky tab bar, not behind it */
+      var nav = document.querySelector("nav.tabs"), sticky = nav && getComputedStyle(nav).position === "sticky";
+      var top = $("calc-example").getBoundingClientRect().top + window.pageYOffset - (sticky ? nav.offsetHeight : 0) - 8;
+      window.scrollTo(0, Math.max(0, top));
+    } catch (e) {}
+  }
+  $("calc-example").addEventListener("click", fillExample);
+  $("hdr-example").addEventListener("click", fillExample);
   $("bo-ref").textContent = boRows.length ? "Thresholds on this card: " + boRows.filter(function (r) { return typeof r.value === "number"; }).map(function (r) { return r.item + " " + r.value + " V"; }).join("; ") + ". See the Reference tab for sources." : "";
   var bad = FRC.checkGolden(DATA.golden);
   $("golden-status").innerHTML = bad.length ? "<span class='danger'>Self-check: the page's calculators disagree with the golden examples: " + esc(bad.join("; ")) + "</span>"
@@ -877,7 +981,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
   var weekSel = $("fc-week");
   weekSel.innerHTML = "<option value='all'>all weeks</option>" + [0,1,2,3,4,5,6,7,8,9,10].map(function (w) { return "<option value='" + w + "'>week " + w + "</option>"; }).join("");
   weekSel.value = String(fc.week);
-  function boxOf(c) { var p = progress[c.id]; return p ? p.box : 0; }
+  /* a progress record is {box: 1..3, misses: n, seen: n}; anything else (a number, text, a stray key) counts as unseen */
+  function isRecord(p) { return !!p && typeof p === "object" && !Array.isArray(p) && (p.box === 1 || p.box === 2 || p.box === 3); }
+  function boxOf(c) { var p = progress[c.id]; return isRecord(p) ? p.box : 0; }
   function buildQueue() {
     var list = CARDS.filter(function (c) {
       if (fc.week !== "all" && c.week !== Number(fc.week)) return false;
@@ -898,7 +1004,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
     $("fc-stats").innerHTML = "<span>" + CARDS.length + " cards</span><span>box 1 again: " + counts[1] + "</span><span>box 2 hard: " + counts[2] + "</span><span>box 3 got it: " + counts[3] + "</span><span>unseen: " + counts[0] + "</span>";
     if (!c) { el.innerHTML = "<div class='mute'>No cards match this filter.</div>"; $("fc-rate").hidden = true; return; }
     var b = boxOf(c);
-    el.innerHTML = "<div class='small mute'>" + (fc.i + 1) + " of " + fc.queue.length + " &middot; week " + c.week + " &middot; " + esc(c.kind) + (b ? " &middot; box " + b : " &middot; new") + "</div>" +
+    el.innerHTML = "<div class='small mute'>" + (fc.i + 1) + " of " + fc.queue.length + " &middot; preseason week " + c.week + " &middot; " + esc(c.kind) + (b ? " &middot; box " + b : " &middot; new") + "</div>" +
       "<div class='front'>" + esc(c.front) + "</div>" +
       (fc.flipped ? "<div class='back'>" + esc(c.back) + "<div class='src'>" + esc(c.source) + " " + tag(c.tag) + "</div></div>" : "");
     $("fc-rate").hidden = !fc.flipped;
@@ -906,14 +1012,15 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
     renderMissing();
   }
   function renderMissing() {
-    var miss = CARDS.filter(function (c) { return progress[c.id] && progress[c.id].misses >= 2; })
+    var miss = CARDS.filter(function (c) { return isRecord(progress[c.id]) && progress[c.id].misses >= 2; })
       .sort(function (a, b) { return progress[b.id].misses - progress[a.id].misses; }).slice(0, 12);
     $("fc-missing").innerHTML = miss.length ? miss.map(function (c) { return "<li>" + esc(c.front) + " <span class='mute'>(missed " + progress[c.id].misses + "x, week " + c.week + ")</span></li>"; }).join("")
       : "<li class='mute'>Nothing yet. Cards you mark Again twice or more show up here.</li>";
   }
   function rate(box) {
     var c = fc.queue[fc.i]; if (!c || !fc.flipped) return;   /* rate only once the answer is showing */
-    var p = progress[c.id] || { box: 0, misses: 0, seen: 0 };
+    var p = isRecord(progress[c.id]) ? progress[c.id] : { box: 0, misses: 0, seen: 0 };
+    p.misses = Number(p.misses) || 0; p.seen = Number(p.seen) || 0;
     p.box = box; p.seen += 1; if (box === 1) p.misses += 1;
     progress[c.id] = p; lsSet("progress", progress);
     next();
@@ -924,17 +1031,55 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
   $("fc-next").addEventListener("click", next);
   $("fc-prev").addEventListener("click", prev);
   $("fc-shuffle").addEventListener("click", function () { fc.shuffled = true; buildQueue(); });
-  $("fc-reset").addEventListener("click", function () {
-    if (!confirm("Clear all flashcard progress stored in this browser?")) return;
+  $("fc-reset").addEventListener("click", function () { $("fc-msg").hidden = true; $("fc-reset-confirm").hidden = false; });
+  $("fc-reset-no").addEventListener("click", function () { $("fc-reset-confirm").hidden = true; });
+  $("fc-reset-yes").addEventListener("click", function () {
+    $("fc-reset-confirm").hidden = true;
     progress = {}; lsClearAll(); lsSet("tab", "cards"); buildQueue();
+    showMsg("fc-msg", "Progress cleared. Every card is new again.", "ok");
   });
   document.querySelectorAll("#fc-rate button").forEach(function (b) { b.addEventListener("click", function () { rate(Number(b.dataset.box)); }); });
   weekSel.addEventListener("change", function () { fc.week = weekSel.value; lsSet("fc_week", fc.week); buildQueue(); });
   $("fc-box").addEventListener("change", function () { fc.box = $("fc-box").value; buildQueue(); });
-  $("fc-export").addEventListener("click", function () { $("fc-io").value = JSON.stringify(progress); });
+  $("fc-export").addEventListener("click", function () {
+    $("fc-io").value = JSON.stringify(progress);
+    showMsg("fc-io-msg", "Your progress is in the box above (" + Object.keys(progress).length + " cards rated). Press Copy, then paste it somewhere safe.", "ok");
+  });
+  $("fc-copy").addEventListener("click", function () {
+    if (!$("fc-io").value) $("fc-io").value = JSON.stringify(progress);
+    copyText($("fc-io").value, "fc-io-msg", "fc-io");
+  });
+  $("fc-download").addEventListener("click", function () {
+    var text = $("fc-io").value || JSON.stringify(progress);
+    try {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "application/json" })); a.download = "flashcard_progress.json";
+      document.body.appendChild(a); a.click(); a.remove();
+      showMsg("fc-io-msg", "A file named flashcard_progress.json should be in your Downloads folder. If nothing happened, you are using the online copy: use Copy instead.", "ok");
+    } catch (e) { showMsg("fc-io-msg", "This browser could not make a file. Use Copy instead.", "err"); }
+  });
+  /* Import keeps only entries that name a card on this page and look like a progress record; a leading BOM
+     (some editors add one when saving) and stray spaces are ignored. */
+  function cleanProgress(text) {
+    var p = JSON.parse(String(text || "").replace(/^\uFEFF/, "").trim() || "{}");
+    if (!p || typeof p !== "object" || Array.isArray(p)) throw new Error("not an object");
+    var known = {}; CARDS.forEach(function (c) { known[c.id] = true; });
+    var keys = Object.keys(p), out = {}, matched = 0;
+    keys.forEach(function (k) {
+      var r = p[k];
+      if (!known[k] || !isRecord(r)) return;
+      out[k] = { box: r.box, misses: Math.max(0, Number(r.misses) || 0), seen: Math.max(0, Number(r.seen) || 0) };
+      matched++;
+    });
+    return { progress: out, matched: matched, total: keys.length };
+  }
   $("fc-import").addEventListener("click", function () {
-    try { var p = JSON.parse($("fc-io").value || "{}"); if (typeof p !== "object" || Array.isArray(p)) throw new Error("not an object"); progress = p; lsSet("progress", progress); buildQueue(); }
-    catch (e) { alert("That text is not exported progress: " + e.message); }
+    var r;
+    try { r = cleanProgress($("fc-io").value); }
+    catch (e) { showMsg("fc-io-msg", "That text is not exported progress (" + e.message + "). Paste exactly what Export produced, starting with { and ending with }.", "err"); return; }
+    if (!r.matched) { showMsg("fc-io-msg", "Nothing imported: none of the " + r.total + " entries in that text matched a card on this page, or they were not in the shape Export makes. Your progress is unchanged.", "err"); return; }
+    progress = r.progress; lsSet("progress", progress); buildQueue();
+    showMsg("fc-io-msg", "Imported: " + r.matched + " of " + r.total + " entries matched cards on this page and now carry a box." + (r.matched < r.total ? " The rest were skipped." : ""), "ok");
   });
   document.addEventListener("keydown", function (ev) {
     if (!$("tab-cards").classList.contains("active")) return;
@@ -962,10 +1107,10 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
     var bo = sourced(tbl.brownout).filter(function (r) { return typeof r.value === "number" || r.id === "bo_syscore"; });
     var bat = sourced(DATA.battery).filter(function (r) { return /^(bat_rint|bat_beak|bat_cba|bat_retire|bat_alt|bat_policy|bat_charge)$/.test(r.id); });
     var torque = ((DATA.reference_tables || []).filter(function (t) { return t.id === "torque"; })[0] || {});
-    return "<h1>FRC Electrical Shop Card: cheat sheet</h1>" + printBanner() +
+    return "<h1>Robotics electrical card: cheat sheet</h1>" + printBanner() +
       "<div class='cols'><div>" +
       "<h2>Safety</h2><ul class='small'>" + sourced(DATA.safety).map(function (r) { return "<li>" + esc(r.item) + "</li>"; }).join("") + "</ul>" +
-      "<h2>Breaker / fuse to minimum wire (season " + esc(Object.keys(seasons).join(", ")) + ", verify)</h2><table><tr><th>Circuit</th><th>Rating</th><th>Min wire</th></tr>" +
+      "<h2>Breaker / fuse to minimum wire (season " + esc(Object.keys(seasons).join(", ")) + ", verify)</h2><table><tr><th>Circuit</th><th>Min wire</th><th>Rating</th></tr>" +
       RULES.filter(function (r) { return r.protection !== "other"; }).map(function (r) { return ruleRow(r, true); }).join("") + "</table>" +
       "<p class='small'>Colours (R624): " + esc((RULES.filter(function (r) { return r.id === "colour"; })[0] || {}).note || "") + "</p>" +
       "<h2>Voltage lost in the wire (round trip, 12 V)</h2>" + grid +
@@ -980,12 +1125,55 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
   function quizSheet(week, seed) {
     var w = FRC.warmup(DATA, week, seed);
     return "<h1>Weekly warm-up: week " + w.week + " (seed " + w.seed + ")</h1>" + printBanner() +
-      "<p class='small'>Name: ____________________   Date: __________   Three questions from this week, two from earlier weeks. Write what you remember; then we go over the key together.</p>" +
+      "<p class='small'>Name: ____________________   Date: __________   Three questions from this preseason week, two from earlier weeks. Write what you remember; then we go over the key together.</p>" +
       "<ol>" + w.questions.map(function (c) { return "<li>" + esc(c.front) + " <span class='small'>(week " + c.week + ")</span><div class='blank'></div><div class='blank'></div></li>"; }).join("") + "</ol>" +
       "<h2>Exit ticket (before you leave)</h2><ol><li>One safety rule from today:<div class='blank'></div></li><li>The SL connector current limit, and the wire gauge it takes:<div class='blank'></div></li><li>One thing that is still fuzzy:<div class='blank'></div></li></ol>" +
       "<div class='page-break'><h1>Answer key: week " + w.week + " (seed " + w.seed + ")</h1>" + printBanner() +
       "<ol>" + w.questions.map(function (c) { return "<li><b>" + esc(c.front) + "</b><br>" + esc(c.back) + "<div class='src'>" + esc(c.source) + "</div></li>"; }).join("") + "</ol></div>";
   }
+  /* Plain-text twins of the two sheets, for the Copy buttons (the hosted viewer cannot print). */
+  function cheatSheetText() {
+    var tbl = FRC.tables(DATA), L = [];
+    function sourced(rows) { return (rows || []).filter(function (r) { return r.source && r.tag; }); }
+    function minAwg(r) { return String(r.min_awg) + (typeof r.min_awg === "number" ? " AWG" : ""); }
+    var gauges = [6, 8, 10, 12, 14, 16, 18], amps = [5, 10, 20, 40, 80, 120];
+    var conn = sourced(tbl.connectors).filter(function (r) { return /^sl_/.test(r.id) || r.id === "can_term" || r.id === "sb50_r"; });
+    var bo = sourced(tbl.brownout).filter(function (r) { return typeof r.value === "number" || r.id === "bo_syscore"; });
+    var bat = sourced(DATA.battery).filter(function (r) { return /^(bat_rint|bat_beak|bat_cba|bat_retire|bat_alt|bat_policy|bat_charge)$/.test(r.id); });
+    var torque = ((DATA.reference_tables || []).filter(function (t) { return t.id === "torque"; })[0] || {});
+    L.push("ROBOTICS ELECTRICAL CARD: CHEAT SHEET", BANNER, "", "SAFETY");
+    sourced(DATA.safety).forEach(function (r) { L.push("- " + r.item); });
+    L.push("", "BREAKER / FUSE TO MINIMUM WIRE (season " + Object.keys(seasons).join(", ") + ", verify)");
+    RULES.filter(function (r) { return r.protection !== "other"; }).forEach(function (r) { L.push("- " + r.label + ": " + ruleRating(r) + " -> " + minAwg(r)); });
+    L.push("Colours (R624): " + ((RULES.filter(function (r) { return r.id === "colour"; })[0] || {}).note || ""));
+    L.push("", "VOLTAGE LOST IN THE WIRE (round trip, 12 V), 10 ft one way", "AWG | " + amps.map(function (a) { return a + " A"; }).join(" | "));
+    gauges.forEach(function (n) { L.push(n + " AWG | " + amps.map(function (a) { return FRC.num(FRC.vdrop(n, a, 10).volts, 2) + " V"; }).join(" | ")); });
+    L.push("", "EXAMPLE TEAM STANDARDS (edit to match yours)");
+    sourced(DATA.team_standards_example).forEach(function (r) { L.push("- " + r.item + ": " + r.value + " " + (r.unit || "")); });
+    L.push("", "CONNECTORS AND CRIMPS");
+    conn.forEach(function (r) { L.push("- " + r.item + ": " + r.value + " " + clause(r.unit)); });
+    L.push("", "TORQUE", torque.note || "", "", "BROWN-OUT");
+    bo.forEach(function (r) { L.push("- " + r.item + ": " + r.value + " " + clause(r.unit)); });
+    L.push("", "BATTERY");
+    bat.forEach(function (r) { L.push("- " + (r.print_item || clause(r.item)) + ": " + r.value + " " + clause(r.unit)); });
+    return L.join("\n").replace(/[ \t]+$/gm, "");
+  }
+  function quizSheetText(week, seed) {
+    var w = FRC.warmup(DATA, week, seed), L = [];
+    L.push("WEEKLY WARM-UP: WEEK " + w.week + " (seed " + w.seed + ")", BANNER, "",
+           "Name: ____________________   Date: __________",
+           "Three questions from this preseason week, two from earlier weeks. Write what you remember; then we go over the key together.", "");
+    w.questions.forEach(function (c, i) { L.push((i + 1) + ". " + c.front + " (week " + c.week + ")", "", ""); });
+    L.push("EXIT TICKET (before you leave)", "1. One safety rule from today:", "", "2. The SL connector current limit, and the wire gauge it takes:", "", "3. One thing that is still fuzzy:", "",
+           "----------------------------------------", "ANSWER KEY: WEEK " + w.week + " (seed " + w.seed + ")", BANNER, "");
+    w.questions.forEach(function (c, i) { L.push((i + 1) + ". " + c.front, "   " + c.back, "   (" + c.source + ")", ""); });
+    return L.join("\n");
+  }
+  $("pr-copy-cheat").addEventListener("click", function () { copyText(cheatSheetText(), "pr-msg", "pr-text"); });
+  $("pr-copy-quiz").addEventListener("click", function () {
+    var wk = Number(prWeek.value), sd = Number($("pr-seed").value) || 0;
+    copyText(quizSheetText(wk, sd), "pr-msg", "pr-text");
+  });
   function renderPrint() {
     var mode = $("pr-mode").value;
     $("sheet-cheat").hidden = mode !== "cheat"; $("sheet-quiz").hidden = mode !== "quiz";
@@ -993,7 +1181,11 @@ if (typeof module !== "undefined" && module.exports) module.exports = FRC;
     else { var wk = Number(prWeek.value), sd = Number($("pr-seed").value) || 0; lsSet("pr_week", wk); lsSet("pr_seed", sd); $("sheet-quiz").innerHTML = quizSheet(wk, sd); }
   }
   ["pr-mode", "pr-week", "pr-seed"].forEach(function (id) { $(id).addEventListener("change", renderPrint); $(id).addEventListener("input", renderPrint); });
-  $("pr-print").addEventListener("click", function () { renderPrint(); window.print(); });
+  $("pr-print").addEventListener("click", function () {
+    renderPrint();
+    showMsg("pr-msg", "The print dialog should be open. If nothing happened, you are using the online copy: open your own copy on a computer to print, or use a Copy button.", "ok");
+    window.print();
+  });
   renderPrint();
 
   showTab(location.hash.length > 1 ? location.hash.slice(1) : lsGet("tab", "safety"));

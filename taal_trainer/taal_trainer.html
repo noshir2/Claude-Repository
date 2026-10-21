@@ -141,14 +141,27 @@
 }
 </script>
 <style>
-:root{--bg:#fff;--fg:#1a1a1a;--mute:#666;--line:#ddd;--card:#f4f4f6;--accent:#0a5fd6;
-  --sam:#c0262d;--taali:#0a7d33;--khali:#9a6b00;--hl:#ffe08a;--hlfg:#1a1a1a;--btn:#0a7d33;--stop:#c0262d}
-@media(prefers-color-scheme:dark){:root{--bg:#16181b;--fg:#e8e8e8;--mute:#9aa;--line:#33383d;--card:#1f2327;
-  --accent:#6ea8ff;--sam:#ff6b72;--taali:#4cc77a;--khali:#e8b84a;--hl:#ffd54f;--hlfg:#1a1a1a;--btn:#1f8f48;--stop:#c0262d}}
+:root{--bg:#fbfaf7;--fg:#1f2328;--mute:#5d6671;--line:#d9d6cf;--panel:#f1efe9;--accent:#1b5e9e;--accent-fg:#ffffff;
+  --good:#1b7f3b;--warn:#9a6700;--bad:#b42318;--focus:#7fb3e6;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --card:#f1efe9;--sam:#c0262d;--taali:#0a7d33;--khali:#9a6b00;--hl:#ffe08a;--hlfg:#1a1a1a;--btn:#0a7d33;--stop:#c0262d}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;
+  --card:#1e2329;--sam:#ff6b72;--taali:#4cc77a;--khali:#e8b84a;--hl:#ffd54f;--hlfg:#1a1a1a;--btn:#1f8f48;--stop:#c0262d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15181c;--fg:#e9e9e6;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#6fb1ea;--accent-fg:#0d1117;--good:#55c57a;--warn:#e3b341;--bad:#ff7b72;--focus:#4a90d9;
+  --card:#1e2329;--sam:#ff6b72;--taali:#4cc77a;--khali:#e8b84a;--hl:#ffd54f;--hlfg:#1a1a1a;--btn:#1f8f48;--stop:#c0262d;color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;background:var(--bg);color:var(--fg)}
-body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:860px;margin:0 auto;
-  padding:12px 16px calc(24px + env(safe-area-inset-bottom));overflow-x:hidden}
+body{font:16px/1.55 var(--font);max-width:860px;margin:0 auto;
+  padding-block:12px calc(24px + env(safe-area-inset-bottom, 0px));padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));overflow-x:hidden}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.cell{transition:none}button:active{transform:none}}
+.back{display:inline-block;margin:4px 0 8px;color:var(--accent);font-size:.95em}
+.steps{padding-left:1.3em;margin:.5em 0}.steps li{margin:.3em 0}
+details.words{margin:4px 0 8px}details.words summary{cursor:pointer;color:var(--accent)}
+#startstop-top{margin-bottom:4px}
+.confirmrow{display:inline-block;margin-left:8px}
+.msg{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);padding:8px 10px;border-radius:8px;margin:8px 0;font-size:.95em}
 h1{font-size:1.5em;margin:.2em 0 .1em}
 h2{font-size:1.05em;margin:1.4em 0 .4em;border-bottom:1px solid var(--line)}
 p{margin:.4em 0}
@@ -156,10 +169,10 @@ p{margin:.4em 0}
 .card{background:var(--card);border-radius:12px;padding:12px;margin:10px 0}
 label{display:inline-flex;align-items:center;gap:6px;margin:4px 12px 4px 0}
 select,input[type=number]{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;
-  background:var(--bg);color:var(--fg);max-width:100%}
+  background:var(--bg);color:var(--fg);max-width:100%;min-height:44px}
 input[type=number]{width:4.5em}
 input[type=range]{width:100%;margin:8px 0}
-button{font:inherit;padding:10px 14px;border:0;border-radius:10px;background:var(--line);color:var(--fg);
+button{font:inherit;padding:10px 14px;border:0;border-radius:10px;background:var(--line);color:var(--fg);min-height:44px;
   cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button:active{transform:scale(.98)}
 .badge{display:inline-block;font-size:.75em;padding:2px 8px;border-radius:999px;background:var(--line);margin-left:6px;vertical-align:middle}
@@ -195,6 +208,7 @@ button:active{transform:scale(.98)}
 .startstop.on{background:var(--stop)}
 .tempo{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tempo .val{font-size:1.4em;font-weight:700;min-width:5.5em}
+.tempolabel{display:block;margin:6px 0 0}
 .tempo button{min-width:52px;min-height:48px;font-size:1.2em}
 .tapbtn{min-width:120px}
 .game{display:none;margin-top:8px}.game.show{display:block}
@@ -208,8 +222,20 @@ button:active{transform:scale(.98)}
 </style>
 </head>
 <body>
+<a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
 <h1>Taal Trainer</h1>
-<p class="mute small">Counts the way a tabla player counts: theka bols matra by matra, with sam (X), taali (claps, 2 3 4) and khali (wave, 0). Works offline on this device only; nothing is uploaded.</p>
+<p>A practice metronome for Indian classical music: it counts every beat of a taal [a rhythm cycle] out loud and on screen, so you can clap, wave and recite along with it.</p>
+<p class="mute small">Nothing you type or choose leaves your device. Close the page and it is gone, except the few settings it remembers in this browser (your last taal, the tempo, practice minutes per day and the game's best score).</p>
+<ol class="steps small">
+  <li>Pick a taal below. Teentaal, with 16 beats, is the usual first one and is already selected.</li>
+  <li>Press the big green <b>Start</b> button. The beat sounds and the yellow highlight moves across the grid.</li>
+  <li>Clap on <b>X</b> and on the numbered beats, wave on <b>0</b>, and say the word shown. Press <b>Stop</b> when you are done.</li>
+</ol>
+<button id="startstop-top" class="startstop" type="button">Start</button>
+<p class="small mute" id="start-hint-top">Sound starts with that first press. The beat shows in the readout and grid below.</p>
+<details class="small words"><summary>What the words mean</summary>
+<p class="mute">theka [the standard drum pattern of a taal]; bol [one spoken drum syllable, such as Dha]; matra [one beat]; vibhag [a group of beats, drawn as a box in the grid]; sam [the first beat of the cycle, shown as X]; taali [a clap beat, shown as 2, 3, 4]; khali [a wave beat with an empty sound, shown as 0].</p>
+</details>
 
 <div class="card">
   <label for="taal">Taal
@@ -217,11 +243,8 @@ button:active{transform:scale(.98)}
   </label>
   <span id="status" class="badge"></span>
   <p class="small" id="taalnote"></p>
-  <p class="small mute">Thekas vary by teacher and gharana; confirm with your teacher. Entries marked "confirm" are a common form; a teacher may use different bols or divisions. Edit the table at the top of this file.</p>
+  <p class="small mute">Thekas vary by teacher and gharana [the school or family tradition a player learned in]; confirm with your teacher. Entries marked "confirm" are a common form; a teacher may use different bols or divisions. Edit the table at the top of this file.</p>
 </div>
-
-<div id="hint-sound" class="hint small">No sound? Check the phone's silent switch and volume. The beat still runs on screen without sound.</div>
-<div id="hint-blocked" class="hint small">Sound is off (the browser has not allowed audio yet, or this device has no audio). The visual beat still runs. Tap Stop, then Start again, to retry sound.</div>
 
 <div class="readout" id="readout" aria-live="off">
   <div class="marker" id="r-marker">&nbsp;</div>
@@ -231,6 +254,10 @@ button:active{transform:scale(.98)}
 </div>
 <div class="grid" id="grid"></div>
 
+<div id="hint-sound" class="hint small">No sound? Check the phone's silent switch and volume. The beat still runs on screen without sound.</div>
+<div id="hint-blocked" class="hint small">Sound is off (the browser has not allowed audio yet, or this device has no audio). The visual beat still runs. Tap Stop, then Start again, to retry sound.</div>
+
+<p class="small mute" id="start-hint">Press Start: the beat begins and the highlight moves across the grid. Sound starts with that first press.</p>
 <button id="startstop" class="startstop" type="button">Start</button>
 
 <div class="game" id="game">
@@ -241,9 +268,10 @@ button:active{transform:scale(.98)}
 
 <div class="card">
   <div class="tempo">
-    <span class="val"><span id="bpm-val">80</span> <span class="small mute">matras/min</span></span>
-    <span id="laya" class="small"></span>
+    <span class="val"><span id="bpm-val">80</span> <span class="small mute">matras (beats) per minute</span></span>
+    <span class="small mute">laya [the speed]:</span> <span id="laya" class="small"></span>
   </div>
+  <label for="bpm" class="tempolabel"><b>Tempo</b> <span class="small mute">how fast the beats come; drag the slider or use - and +</span></label>
   <input type="range" id="bpm" min="30" max="300" step="1" value="80" aria-label="Tempo in matras per minute">
   <div class="tempo">
     <button id="bpm-minus" type="button" aria-label="Slower">-</button>
@@ -251,29 +279,36 @@ button:active{transform:scale(.98)}
     <button id="tap" type="button" class="tapbtn">Tap tempo</button>
     <span id="tapinfo" class="small mute"></span>
   </div>
-  <p class="small mute">Laya labels: vilambit about 30-60, madhya about 60-120, drut about 120-200 matras/min and above. Ranges are approximate; your teacher's tempo overrides them.</p>
+  <p class="small mute">Laya names: vilambit (slow) about 30-60, madhya (medium) about 60-120, drut (fast) about 120-200 beats per minute and above. Ranges are approximate; your teacher's tempo overrides them. Tap tempo: tap the button in time with a song and the slider follows.</p>
 </div>
 
 <div class="card">
-  <label><input type="checkbox" id="countin"> Count-in (one cycle first)</label>
+  <label><input type="checkbox" id="countin"> Count-in (play one full cycle first so you hear the tempo)</label>
   <label>Loop <input type="number" id="loop" min="0" max="999" value="0"> cycles, then stop (0 = keep going)</label>
   <br>
-  <label><input type="checkbox" id="hidebols"> Hide bols (padhant: recite from memory)</label>
+  <label><input type="checkbox" id="hidebols"> Hide the words (bols), so you recite them from memory: padhant [reciting the words aloud from memory]</label>
   <label>Hide after <input type="number" id="hideafter" min="0" max="99" value="0"> cycles (0 = off)</label>
-  <label><input type="checkbox" id="hidemarks"> Hide markers too (hardest)</label>
+  <label><input type="checkbox" id="hidemarks"> Hide markers too (hardest: only the moving highlight is left)</label>
   <br>
   <label><input type="checkbox" id="mute"> Sound off</label>
-  <label><input type="checkbox" id="randmute"> Mute random matras (keep the cycle inside)</label>
-  <label><input type="checkbox" id="findsam"> Find-the-sam game</label>
+  <label><input type="checkbox" id="randmute"> Mute random matras (about one beat in three goes silent, so you keep the cycle in your head)</label>
+  <label><input type="checkbox" id="findsam"> Find-the-sam game (the sound stops; tap exactly on the sam)</label>
 </div>
 
 <div class="card">
   <p><b>Today: <span id="today-min">0</span> min</b> <span class="small mute">(counted while the trainer runs, on this device only)</span></p>
   <div class="days" id="days"></div>
   <button id="reset-min" type="button" class="small">Reset minutes</button>
+  <span class="confirmrow small" id="reset-min-confirm" hidden>Wipe the last 7 days of minutes? <button id="reset-min-yes" type="button" class="small">Yes, wipe them</button> <button id="reset-min-no" type="button" class="small">Keep them</button></span>
+  <p class="small mute" id="reset-min-msg" hidden>Minutes wiped.</p>
 </div>
 
-<p class="small mute">Keyboard: <span class="kbd">Space</span> start/stop, <span class="kbd">Up</span>/<span class="kbd">Down</span> tempo by 1, <span class="kbd">Left</span>/<span class="kbd">Right</span> by 5, <span class="kbd">T</span> tap tempo. Sounds are simple synthesized tones, not a tabla. See README.md for what the numbers mean and where the thekas come from.</p>
+<p class="small mute">Keyboard: <span class="kbd">Space</span> start/stop, <span class="kbd">Up</span>/<span class="kbd">Down</span> tempo by 1, <span class="kbd">Left</span>/<span class="kbd">Right</span> by 5, <span class="kbd">T</span> tap tempo. Sounds are simple synthesized tones, not a tabla.</p>
+
+<h2>What this can and cannot tell you</h2>
+<p class="small">It can keep a steady cycle, show where the claps and waves fall, hide the words so you recite from memory, and count your practice minutes. It cannot judge your hands or voice, play a real tabla, or tell you which version of a theka your teacher or exam board expects: thekas vary, so confirm with your teacher. Every beat is a whole beat: a half-beat bol is shown as written, but the click lands on the beat.</p>
+<h2>Where the figures come from</h2>
+<p class="small">The taal tables (beats, groups, clap and wave positions, bols) follow common textbook forms as given on Wikipedia's taal pages, chandrakantha.com and the University of Washington theka list; each taal carries its own source line in the table at the top of this file. The laya ranges are a teaching simplification, not a rule. Check anything that matters for an exam against your teacher and the exam body's current syllabus.</p>
 
 <script>
 (function () {
@@ -287,6 +322,7 @@ button:active{transform:scale(.98)}
       '). Run  python -m taal_trainer.check  to see exactly what is wrong, fix it, then reopen this page.';
     document.getElementById('r-where').textContent = 'Taal table has a mistake';
     document.getElementById('startstop').disabled = true;
+    document.getElementById('startstop-top').disabled = true;
     return;
   }
   var TAALS = DATA.taals;
@@ -429,7 +465,8 @@ button:active{transform:scale(.98)}
   var el = {};
   ['taal', 'status', 'taalnote', 'grid', 'readout', 'r-marker', 'r-bol', 'r-where', 'r-cycle', 'startstop', 'bpm', 'bpm-val', 'laya',
    'bpm-minus', 'bpm-plus', 'tap', 'tapinfo', 'countin', 'loop', 'hidebols', 'hideafter', 'hidemarks', 'mute', 'randmute',
-   'findsam', 'game', 'samtap', 'gameresult', 'today-min', 'days', 'reset-min', 'hint-sound', 'hint-blocked']
+   'findsam', 'game', 'samtap', 'gameresult', 'today-min', 'days', 'reset-min', 'reset-min-confirm', 'reset-min-yes', 'reset-min-no', 'reset-min-msg',
+   'hint-sound', 'hint-blocked', 'startstop-top']
     .forEach(function (id) { el[id.replace(/-([a-z])/g, function (_, c) { return c.toUpperCase(); })] = document.getElementById(id); });
 
   function kindClass(k) { return k === 'tick' ? '' : k; }
@@ -484,7 +521,7 @@ button:active{transform:scale(.98)}
     var n = now(), shown = null;
     while (S.queue.length && S.queue[0].t <= n) shown = S.queue.shift();
     if (shown) showBeat(shown);
-    if (S.stopAt !== null && n >= S.stopAt) { stop(); return; }
+    if (S.stopAt !== null && n >= S.stopAt) { stop(true); return; }
     // practice minutes: only while the page is visible, and never a gap longer than 2 s (the browser
     // pauses frames while the tab is hidden or the phone is locked; the beat is not running then)
     var p = performance.now(), gap = p - S.lastTick;
@@ -499,27 +536,45 @@ button:active{transform:scale(.98)}
     ensureAudio();
     S.taal = TAALS[el.taal.selectedIndex];
     S.countIn = el.countin.checked;
-    S.loopN = Math.max(0, parseInt(el.loop.value, 10) || 0);
+    S.loopN = clampCount(el.loop, 999); clampCount(el.hideafter, 99);
     S.clock = wantedClock();
     S.matra = 1; S.cycle = S.countIn ? 0 : 1; S.stopAt = null; S.queue = []; S.samTimes = [];
     S.nextTime = now() + 0.1;
     S.running = true; S.lastTick = performance.now(); S.lastSave = S.lastTick;
-    el.startstop.textContent = 'Stop'; el.startstop.classList.add('on');
+    setButtons(true);
     el.gameresult.textContent = '';
     schedule();
     S.timer = setInterval(schedule, TIMER_MS);
     requestAnimationFrame(frame);
     setTimeout(updateHints, 300);
   }
-  function stop() {
+  // loopDone: the 'Loop N cycles' count ran out, so the page stopped on purpose; say so until the next Start.
+  function stop(loopDone) {
     S.running = false;
     if (S.timer) { clearInterval(S.timer); S.timer = null; }
     saveMinutes(); S.lastTick = 0;
-    el.startstop.textContent = 'Start'; el.startstop.classList.remove('on');
+    setButtons(false);
     resetReadout();
+    if (loopDone === true && S.loopN > 0) el.rCycle.textContent = 'Stopped after ' + S.loopN + (S.loopN === 1 ? ' cycle' : ' cycles') + ', on the sam. Press Start to go again.';
     updateHints();
   }
+  // The Start/Stop button is on the page twice (under the steps and under the grid); both show the same state.
+  function setButtons(on) {
+    [el.startstop, el.startstopTop].forEach(function (b) { if (!b) return; b.textContent = on ? 'Stop' : 'Start'; b.classList.toggle('on', on); });
+  }
   function toggle() { if (S.running) stop(); else start(); }
+  // The top button sits above the readout and grid: after starting, bring them on screen if they are below the fold.
+  function toggleFromTop() {
+    toggle();
+    if (!S.running) return;
+    try {
+      var r = el.readout.getBoundingClientRect();
+      if (r.bottom > window.innerHeight) {
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        el.readout.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+      }
+    } catch (e) {}
+  }
 
   function updateHints() {
     var mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints || 0) > 1;
@@ -601,12 +656,15 @@ button:active{transform:scale(.98)}
 
   el.taal.addEventListener('change', function () { selectTaal(el.taal.selectedIndex); });
   el.startstop.addEventListener('click', toggle);
+  el.startstopTop.addEventListener('click', toggleFromTop);
   el.bpm.addEventListener('input', function () { setBpm(el.bpm.value); });
   el.bpmMinus.addEventListener('click', function () { setBpm(S.bpm - 1); });
   el.bpmPlus.addEventListener('click', function () { setBpm(S.bpm + 1); });
   el.tap.addEventListener('click', tap);
   el.samtap.addEventListener('click', samTap);
-  el.resetMin.addEventListener('click', resetMinutes);
+  el.resetMin.addEventListener('click', function () { el.resetMinMsg.hidden = true; el.resetMinConfirm.hidden = false; });
+  el.resetMinNo.addEventListener('click', function () { el.resetMinConfirm.hidden = true; });
+  el.resetMinYes.addEventListener('click', function () { el.resetMinConfirm.hidden = true; resetMinutes(); el.resetMinMsg.hidden = false; });
   el.mute.addEventListener('change', updateHints);
   el.findsam.addEventListener('change', function () {
     el.game.classList.toggle('show', el.findsam.checked);
@@ -616,6 +674,14 @@ button:active{transform:scale(.98)}
   el.hidebols.addEventListener('change', function () { if (!S.running) resetReadout(); });
   el.hidemarks.addEventListener('change', function () { if (!S.running) resetReadout(); });
   el.hideafter.addEventListener('input', function () { if (!S.running) resetReadout(); });
+  // Both count boxes mean "0 = off"; a negative or blank entry is written back as 0 so the box shows what the page uses.
+  function clampCount(input, max) {
+    var v = Math.max(0, Math.min(max, parseInt(input.value, 10) || 0));
+    if (String(v) !== input.value) input.value = v;
+    return v;
+  }
+  el.loop.addEventListener('change', function () { S.loopN = clampCount(el.loop, 999); });
+  el.hideafter.addEventListener('change', function () { clampCount(el.hideafter, 99); if (!S.running) resetReadout(); });
   document.addEventListener('keydown', function (e) {
     var tag = (e.target && e.target.tagName) || '';
     if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;

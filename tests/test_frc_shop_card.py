@@ -433,3 +433,113 @@ def test_javascript_logic_agrees_with_python(tmp_path, data):
     assert js["nosrc"] == [[c["id"], c["back"]] for c in card.expand_cards(nosrc)]
     assert len(js["nosrc"]) == len(js["cards"]) - 1
     assert js["fmt"] == [report.num(1234.5, 1), report.num(0.125, 2), report.g(7.5), report.num(1e6)]
+
+
+# --- first-time-user contract: no browser pop-ups, back link, privacy line, theme blocks --------
+def test_page_meets_first_time_user_contract():
+    html = HTML.read_text(encoding="utf-8")
+    assert not re.search(r"\b(alert|confirm|prompt)\(", html)           # confirmations live on the page
+    assert 'href="../index.html"' in html and "Back to the toolbox" in html
+    assert "Nothing you type or choose leaves your device." in html
+    assert re.search(r":root\s*\{[^}]*--bg:", html)                                           # light tokens
+    assert re.search(r'@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\(\[data-theme="light"\]\)\s*\{[^}]*color-scheme:\s*dark', html)
+    assert re.search(r':root\[data-theme="dark"\]\s*\{[^}]*color-scheme:\s*dark', html)
+    assert re.search(r"body\s*\{[^}]*background:\s*var\(--bg\)", html) or re.search(r"html,\s*body\s*\{[^}]*background:\s*var\(--bg\)", html)
+    assert re.search(r"\[hidden\]\s*\{\s*display:\s*none\s*!important", html)
+    assert "env(safe-area-inset-left, 0px)" in html and "env(safe-area-inset-right, 0px)" in html
+    assert 'id="hdr-example"' in html and 'id="calc-example"' in html                           # first click shows a result
+    assert "If nothing happens, you are using the online copy" in html
+    assert 'id="pr-copy-cheat"' in html and 'id="pr-copy-quiz"' in html and "navigator.clipboard.writeText" in html
+    # round-3 review: 'week' explained where it sits, ids on the tab and rate buttons, a tab bar that steps aside on short screens
+    assert html.count("preseason week 0") >= 2 and "&middot; preseason week " in html
+    for cid in ("tab-btn-safety", "tab-btn-rules", "tab-btn-reference", "tab-btn-calc", "tab-btn-cards", "tab-btn-print",
+                "fc-rate-1", "fc-rate-2", "fc-rate-3"):
+        assert f'id="{cid}"' in html, cid
+    assert re.search(r"@media screen and \(max-height:700px\)\{nav\.tabs\{position:static\}", html)
+
+
+# --- review fixes: wording a first-time user sees, and the import that must not break a later rating --------
+def test_review_fixes_in_the_page_text():
+    html = HTML.read_text(encoding="utf-8")
+    assert "Robotics electrical card: cheat sheet" in html and "FRC Electrical Shop Card: cheat sheet" not in html   # one name on screen and on paper
+    assert "Show cards you marked" in html                                       # the Leitner 'Box' filter explained where it sits
+    assert "Swipe the table sideways" in html                                     # wide tables on a phone
+    assert "<th>Circuit</th><th>Minimum wire</th>" in html                        # the answer column comes second
+    assert "function cleanProgress" in html and "matched cards on this page" in html
+
+
+@pytest.fixture(scope="module")
+def frc_page():
+    pw = pytest.importorskip("playwright.sync_api")
+    with pw.sync_playwright() as p:
+        try:
+            browser = p.chromium.launch()
+        except Exception:
+            try:
+                browser = p.chromium.launch(executable_path="/opt/pw-browsers/chromium")
+            except Exception as e:
+                pytest.skip(f"no headless Chromium: {e}")
+
+        def make(width=375):
+            ctx = browser.new_context(viewport={"width": width, "height": 800})
+            page = ctx.new_page()
+            errors = []
+            page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+            page.on("pageerror", lambda e: errors.append(str(e)))
+            page.goto((ROOT / "frc_shop_card" / "frc_shop_card.html").as_uri())
+            page.wait_for_timeout(200)
+            return page, errors
+
+        yield make
+        browser.close()
+
+
+def test_import_keeps_only_well_formed_progress_and_rating_never_throws(frc_page):
+    page, errors = frc_page(375)
+    page.click('nav.tabs button[data-tab="cards"]')
+    page.evaluate("document.querySelector('#tab-cards details').open = true")
+    cid = page.evaluate("FRC.expandCards(JSON.parse(document.getElementById('card-data').textContent))[0].id")
+    # a number where a record should be, and a key that is not a card: refused with a plain message, progress unchanged
+    for bad in (json.dumps({cid: 5}), json.dumps({"card_that_does_not_exist": {"box": 2, "misses": 0, "seen": 1}})):
+        page.fill("#fc-io", bad)
+        page.click("#fc-import")
+        assert page.text_content("#fc-io-msg").startswith("Nothing imported")
+        assert "unseen: 69" in page.text_content("#fc-stats")
+    # a BOM in front (some editors add one) and one stray entry: the good entry is taken, the count is honest
+    page.fill("#fc-io", "﻿" + json.dumps({cid: {"box": 2, "misses": 1, "seen": 3}, "x": 1}))
+    page.click("#fc-import")
+    assert "Imported: 1 of 2" in page.text_content("#fc-io-msg")
+    assert "box 2 hard: 1" in page.text_content("#fc-stats")
+    # a malformed record already in storage (from an older copy of the page) must not break rating
+    page.evaluate(f"localStorage.setItem('frc_shop_card.progress', JSON.stringify({{'{cid}': 5}}))")
+    page.reload()
+    page.wait_for_timeout(200)
+    page.click('nav.tabs button[data-tab="cards"]')
+    page.click("#fc-flip")
+    page.click('#fc-rate button[data-box="3"]')
+    assert "box 3 got it: 1" in page.text_content("#fc-stats")
+    assert errors == []
+
+
+def test_every_control_has_an_id_and_the_tab_bar_is_short_on_a_phone(frc_page):
+    page, errors = frc_page(375)
+    assert page.evaluate("[...document.querySelectorAll('input,select,textarea,button')].filter(e => !e.id).length") == 0
+    nav = page.evaluate("(n => [n.getBoundingClientRect().height, getComputedStyle(n).position])(document.querySelector('nav.tabs'))")
+    assert nav[1] == "sticky" and nav[0] <= 106, nav                     # two rows of pills at 375x800 (was 111)
+    page.click("#tab-btn-cards")
+    assert "preseason week 0" in page.text_content("#fc-card")
+    assert page.evaluate("document.querySelector('label[for], #fc-week').closest('label').textContent").startswith("Weekpreseason week 0")
+    page.click("#hdr-example")
+    page.wait_for_timeout(300)
+    assert page.text_content("#vd-out").startswith("At 120 A through 10 ft of 6 AWG")
+    assert errors == []
+
+
+def test_rule_table_answer_column_is_on_screen_at_phone_width(frc_page):
+    page, errors = frc_page(375)
+    page.click('nav.tabs button[data-tab="rules"]')
+    right = page.evaluate("[...document.querySelectorAll('#rule-table th')].find(t => t.textContent === 'Minimum wire').getBoundingClientRect().right")
+    assert right <= 375                                                         # the answer is visible without swiping
+    assert page.evaluate("getComputedStyle(document.querySelector('#tab-rules .swipe')).display") == "block"
+    assert page.evaluate("document.documentElement.scrollWidth") <= 375
+    assert errors == []

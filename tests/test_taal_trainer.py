@@ -320,6 +320,8 @@ def test_page_runs_muted_without_errors_at_phone_width(page_factory):
     page.wait_for_timeout(3400)
     assert page.evaluate(f"{tt}.state.running") is False
     assert page.text_content("#startstop") == "Start"
+    assert page.text_content("#startstop-top") == "Start"                 # the second copy of the button mirrors it
+    assert page.text_content("#r-cycle").startswith("Stopped after 2 cycles, on the sam.")   # a loop that ran out says so
     key = page.evaluate(f"'taal_trainer.minutes.' + {tt}.dateKey()")
     assert page.evaluate(f"localStorage.getItem('{key}')") is not None
     assert all(k.startswith("taal_trainer.") for k in page.evaluate("Object.keys(localStorage)"))
@@ -377,6 +379,66 @@ def test_broken_taal_table_shows_a_message_not_a_blank_page(page_factory, tmp_pa
     note = page.text_content("#taalnote")
     assert note.startswith("The taal table at the top of this file has a mistake")
     assert "taal_trainer.check" in note
-    assert page.is_disabled("#startstop")
+    assert page.is_disabled("#startstop") and page.is_disabled("#startstop-top")
     assert page.text_content("#r-where") == "Taal table has a mistake"
     assert errors == [], "the slip is reported on the page, not thrown"
+
+
+# ---- first-time-user contract: no browser pop-ups, back link, privacy line, theme blocks ----
+def test_page_meets_first_time_user_contract(html):
+    assert not re.search(r"\b(alert|confirm|prompt)\(", html)           # confirmations live on the page
+    assert 'href="../index.html"' in html and "Back to the toolbox" in html
+    assert "Nothing you type or choose leaves your device." in html
+    assert re.search(r":root\s*\{[^}]*--bg:", html)
+    assert re.search(r'@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\(\[data-theme="light"\]\)\s*\{[^}]*color-scheme:\s*dark', html)
+    assert re.search(r':root\[data-theme="dark"\]\s*\{[^}]*color-scheme:\s*dark', html)
+    assert re.search(r"html,\s*body\s*\{[^}]*background:\s*var\(--bg\)", html)
+    assert re.search(r"\[hidden\]\s*\{\s*display:\s*none\s*!important", html)
+    assert "env(safe-area-inset-left, 0px)" in html and "env(safe-area-inset-right, 0px)" in html
+    assert 'id="start-hint"' in html and "Press Start" in html
+    assert 'id="startstop-top"' in html                                 # a Start button under the steps, before the taal card
+    assert "<summary>What the words mean</summary>" in html             # the gloss paragraph folds away on a phone
+    for word in ("matra [", "vibhag [", "sam [", "taali [", "khali [", "laya [", "theka [", "padhant ["):
+        assert word in html, word                                       # each term glossed in plain words
+
+
+# ---- review fixes: plain-word labels, and count boxes that show what the page uses ----
+def test_review_fixes_in_the_page_text(html):
+    assert "Hide the words (bols)" in html                                   # the page's own word first, bol in brackets
+    assert 'class="tempolabel"' in html and "<b>Tempo</b>" in html          # the tempo card is named
+    assert "function clampCount" in html
+
+
+def test_start_button_is_on_the_first_phone_screen_and_scrolls_to_the_beat(page_factory):
+    """Round-3 review: the only green button used to be two screens down on a phone."""
+    page, errors = page_factory(width=375, block_audio=True)
+    top = page.evaluate("document.getElementById('startstop-top').getBoundingClientRect()")
+    assert 0 <= top["top"] and top["bottom"] <= 800, top                 # visible without scrolling at 375x800
+    assert page.evaluate("window.scrollY") == 0
+    page.click("#startstop-top")
+    page.wait_for_timeout(1200)                                          # smooth scroll settles
+    assert page.evaluate("window.TaalTrainer.state.running") is True
+    assert page.text_content("#startstop-top") == "Stop" and page.text_content("#startstop") == "Stop"
+    assert page.evaluate("document.getElementById('startstop-top').classList.contains('on')")
+    r = page.evaluate("document.getElementById('readout').getBoundingClientRect()")
+    assert r["top"] >= -1 and r["bottom"] <= 800, r                      # the readout (and the grid under it) came on screen
+    assert page.text_content("#r-where").startswith("matra ")
+    page.click("#startstop")                                             # either button stops it
+    assert page.text_content("#startstop-top") == "Start"
+    assert page.evaluate("window.TaalTrainer.state.running") is False
+    assert errors == []
+
+
+def test_negative_loop_and_hide_after_are_written_back_as_zero(page_factory):
+    page, errors = page_factory(width=375, block_audio=True)
+    page.fill("#loop", "-4")
+    page.dispatch_event("#loop", "change")
+    assert page.input_value("#loop") == "0"
+    page.fill("#hideafter", "-1")
+    page.dispatch_event("#hideafter", "change")
+    assert page.input_value("#hideafter") == "0"
+    page.fill("#loop", "2")
+    page.click("#startstop")
+    assert page.evaluate("window.TaalTrainer.state.loopN") == 2
+    page.click("#startstop")
+    assert errors == []

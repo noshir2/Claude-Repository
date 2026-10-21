@@ -1,0 +1,10 @@
+1. Welcome: you have unzipped the toolbox. Double-click the file called index.html: the "Start here" page.
+2. If your computer asks which program to use, choose your web browser (Chrome, Edge, Safari or Firefox).
+3. The page lists every tool with one sentence and a button that opens it.
+4. On most tool pages, press the big button near the top first: it fills the page with made-up data.
+5. Then use your own numbers, or choose your own file where the page asks for one.
+6. Nothing you type or choose is uploaded anywhere. It all stays on this computer.
+7. Each folder holds one tool's page plus .py code files you never open. Leave the folders where they are.
+8. README.md is the longer version of this note, including how to download a fresh copy later.
+9. On a phone, the online link you were given is the easiest route (README.md says more about phones).
+10. If a page looks wrong, close it and double-click it again. There is nothing to break.
