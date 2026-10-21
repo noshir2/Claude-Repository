@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FRC Electrical Shop Card</title>
+<!--
+  EDIT NUMBERS HERE. Everything the page shows comes from the JSON block right below.
+  One table row per line. Keep the quotes and commas. After editing, run from the repo folder:
+      python -m frc_shop_card check      (Windows: python or py; Mac: python3)
+  which tells you if a row lost its source, a card lost its week, or a calculator disagrees.
+  Tags: physics / rule / vendor / example-team-standard. Rule rows also carry "season".
+-->
+<script id="card-data" type="application/json">
+{
+  "banner": "Rule rows are from the FRC Game Manual for the season tagged; the manual is re-issued every January and the control system is changing (SystemCore replacing roboRIO). Verify against the current season's manual before teaching or wiring. This card is not a substitute for your team's safety training.",
+  "safety": [
+    {"id": "fault", "item": "A shorted 12 V robot battery is a burn and fire hazard, not a shock hazard.", "detail": "12.6 V across roughly 15 mohm (battery + a few mohm of path) is about 840 A of bolted-fault current; a wrench across the terminals gets red hot, spits molten metal and can start a fire. 12 V is far below the level where shock or arc flash is the concern; the fault current is the danger.", "source": "computed from Ohm's law with the MK ES17-12 datasheet internal resistance (approx. 12 mohm) plus a few mohm of path; MK Battery ES17-12 datasheet (ES17-12 user guide hosted by REV Robotics)", "tag": "physics"},
+    {"id": "jewelry", "item": "No rings, watches, metal bracelets or lanyards near the battery or main power path.", "detail": "Metal on skin across hundreds of amps burns before you can let go. Pocket the badge, roll the sleeves.", "source": "common FRC shop practice; your team's safety training governs", "tag": "example-team-standard"},
+    {"id": "dmm", "item": "DMM: measure voltage. Never measure current unsupervised.", "detail": "The 20 A current jack is a near-short (a fraction of an ohm). Put those leads across a battery and you have made the wrench demo with the meter. Resistance and continuity only on a dead, disconnected circuit.", "source": "common FRC shop practice; your team's safety training governs", "tag": "example-team-standard"},
+    {"id": "carry", "item": "Lift batteries with two hands by the body; cap the SB50.", "detail": "Never carry a battery by its leads or connector. Set it flat; cover or cap the Anderson connector so nothing metal can bridge the contacts in a bin or a bag.", "source": "common FRC shop practice; your team's safety training governs", "tag": "example-team-standard"},
+    {"id": "charger", "item": "Fast charger only while its light shows charging (typically orange); when it shows full (green), move the battery to a tender/maintainer.", "detail": "Chargers for the robot battery are limited to 6 A average by rule. Do not leave a battery on a fast charger after it reports full. Read your own charger's manual for its light colours.", "source": "common FRC shop practice; the 6 A average charge limit is 2026 FRC Game Manual (REBUILT), Version TU22, R604; charger-light colours are your charger's, verify in its manual", "tag": "example-team-standard"},
+    {"id": "esd", "item": "ESD basics before touching a bare board.", "detail": "Touch bare frame metal or a grounded surface first (or wear a wrist strap), hold boards by the edges, keep spares in their anti-static bags. A discharge you cannot feel can still kill a chip.", "source": "common FRC shop practice; your team's safety training governs", "tag": "example-team-standard"},
+    {"id": "hot", "item": "Hot wire or a warm battery means something is wrong.", "detail": "Copper only gets warm when it is undersized, loose or shorted. A battery that is warm after a match was worked hard; one that is warm on the bench is a problem. Stop and measure.", "source": "physics: heating is I^2 x R in the wire or the connection; computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"}
+  ],
+  "rule_table": [
+    {"id": "main", "protection": "main", "amps_min": 120, "amps_max": 120, "min_awg": 6, "label": "Battery <-> SB connector <-> 120 A main breaker <-> power distribution device", "note": "6 AWG (7 SWG or 16 mm2) copper or larger; copper-clad aluminium counts as copper. The only 120 A breaker on the robot, reachable from outside.", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R609, R612 and R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "b12", "protection": "breaker", "amps_min": 31, "amps_max": 40, "min_awg": 12, "label": "31-40 A breaker protected circuit", "note": "12 AWG (13 SWG or 4 mm2)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "b14", "protection": "breaker", "amps_min": 21, "amps_max": 30, "min_awg": 14, "label": "21-30 A breaker protected circuit", "note": "14 AWG (16 SWG or 2.5 mm2)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "b18", "protection": "breaker", "amps_min": 6, "amps_max": 20, "min_awg": 18, "label": "6-20 A breaker protected circuit", "note": "18 AWG (19 SWG or 1 mm2); same for PDP dedicated terminals to VRM/RPM or PCM/PH and compressor outputs from PCM/PH", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "f18", "protection": "fuse", "amps_min": 11, "amps_max": 20, "min_awg": 18, "label": "11-20 A fuse protected circuit", "note": "18 AWG (19 SWG or 1 mm2)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "b22", "protection": "breaker", "amps_min": 0, "amps_max": 5, "min_awg": 22, "label": "5 A or smaller breaker protected circuit; motor power adapter board circuit", "note": "22 AWG (22 SWG or 0.5 mm2)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "f22", "protection": "fuse", "amps_min": 0, "amps_max": 10, "min_awg": 22, "label": "10 A or smaller fuse protected circuit", "note": "22 AWG (22 SWG or 0.5 mm2)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "f24", "protection": "fuse", "amps_min": 0, "amps_max": 2, "min_awg": 24, "label": "2 A or smaller fuse protected circuit; VRM 2 A circuits", "note": "24 AWG (24 SWG or 0.25 mm2)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "f26", "protection": "fuse", "amps_min": 0, "amps_max": 1, "min_awg": 26, "label": "1 A or smaller fuse protected circuit; roboRIO PWM port outputs", "note": "26 AWG (27 SWG or 0.14 mm2) or a single Cat5e/6/7/8 pair", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "sig", "protection": "signal", "amps_min": 0, "amps_max": 1, "min_awg": 28, "label": "SIGNAL LEVEL circuits (1 A or less and the source cannot deliver more): CAN, non-PWM roboRIO outputs, solenoid outputs, VRM 500 mA, RPM, Arduino outputs", "note": "28 AWG (29 SWG or 0.08 mm2); need not be copper. Common practice is 22 AWG twisted pair for CAN, which is well above this minimum.", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "radio", "protection": "other", "amps_min": 10, "amps_max": 10, "min_awg": 18, "label": "VH-109 radio 12 V power input", "note": "18 AWG or larger, from a non-switched 10 A fused/breakered PD channel; PoE passthrough load 2 A or less at 12 V on Cat5e/6/7/8 (2 pairs)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R617, R626 and R622 Table 8-4", "tag": "rule", "season": "2026"},
+    {"id": "colour", "protection": "other", "amps_min": null, "amps_max": null, "min_awg": "n/a", "label": "Wire colour convention (all non-signal, constant-polarity wiring, full length)", "note": "Positive (+24/+12/+5 V): red, yellow, white, brown, or black with a stripe. Common/negative: black or blue. Exceptions: manufacturer-attached wire and PoE Ethernet.", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R624", "tag": "rule", "season": "2026"}
+  ],
+  "reference_tables": [
+    {
+      "id": "other_rules",
+      "title": "Other 2026 power rules worth knowing",
+      "note": "Rule numbers and values from the manual version tagged; every one of them can change with a Team Update and will be renumbered for 2027.",
+      "rows": [
+        {"id": "r601", "item": "Legal robot battery (R601)", "value": "exactly one non-spillable sealed lead-acid, 12 V nominal, 17 to 18.2 Ah at the 20-hour rate, 11.0-14.5 lb, nut-and-bolt terminals; e.g. MK ES17-12, Enersys NP18-12B, Duracell DURA12-18NB, Power Sonic PS-12180NB", "unit": "", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R601", "tag": "rule", "season": "2026"},
+        {"id": "r604", "item": "Charger current limit (R604)", "value": 6, "unit": "A average, maximum; charger must carry the matching Anderson SB connector (R603)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R603-R604", "tag": "rule", "season": "2026"},
+        {"id": "r609", "item": "Main power path (R609)", "value": "battery, one pair of Anderson SB-type connectors, one 120 A main breaker (Bussmann CB185/CB285 series or Optifuse 153120/253120), one power distribution device, all in 6 AWG copper or larger", "unit": "", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R609", "tag": "rule", "season": "2026"},
+        {"id": "r611", "item": "Frame isolation check (R611)", "value": 120, "unit": "ohm or more between either battery-side post of the PD's Anderson connector and any point on the robot frame", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R611", "tag": "rule", "season": "2026"},
+        {"id": "r612", "item": "Main breaker (R612)", "value": "the only 120 A breaker on the robot; quickly and safely reachable from outside the robot", "unit": "", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R612", "tag": "rule", "season": "2026"},
+        {"id": "r614", "item": "Custom circuit voltage limit (R614)", "value": 24, "unit": "V maximum that a custom circuit may produce (COTS PoE injectors excepted)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R614", "tag": "rule", "season": "2026"},
+        {"id": "r615", "item": "roboRIO power (R615)", "value": 10, "unit": "A fuse or breaker, on its own non-switched PD channel, nothing else on it", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R615", "tag": "rule", "season": "2026"},
+        {"id": "r617", "item": "Radio power (R616-R617)", "value": 10, "unit": "A fuse or breaker on a non-switched PD channel (PDP 1.0 shared VRM/PCM pair may use 20 A); power through a passive injector into the radio's RIO port and/or its 12 V input", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R616-R617", "tag": "rule", "season": "2026"},
+        {"id": "r619", "item": "Permitted PD circuit breakers (R619)", "value": 40, "unit": "A or lower: Snap Action VB3-A / AT2-A (F57 terminals), MX5-A / MX5-L, REV Robotics ATO auto-resetting, CTR Electronics ATO auto-resetting; ATM breakers up to the fuse value R620 allows", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R619 (CTRE breakers added by a 2026 Team Update)", "tag": "rule", "season": "2026"},
+        {"id": "r620", "item": "Permitted fuses (R620)", "value": "automotive blade fuses only: ATC/ATO 10 A or lower in any PD; PDH ATM fuses 15 A or lower, except one 20 A fuse for a PCM/PH; PDP ATM fuses matching the value printed on the holder. Press fuses in firmly.", "unit": "", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R620", "tag": "rule", "season": "2026"},
+        {"id": "r621", "item": "Branch-circuit maxima (R621 Table 8-3)", "value": "motor controller up to 40 A, one per breaker; custom circuit up to 40 A; fans up to 20 A; PCM/PH with compressor up to 20 A, one per breaker; servo power module / servo hub up to 20 A; extra VRM/PCM/PH up to 20 A, three total. Smaller is always allowed.", "unit": "", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R621 Table 8-3", "tag": "rule", "season": "2026"},
+        {"id": "r621mc", "item": "Motor controller branch breaker (R621 Table 8-3)", "value": 40, "unit": "A maximum, one motor controller per breaker", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R621 Table 8-3", "tag": "rule", "season": "2026"},
+        {"id": "r626", "item": "Radio PoE passthrough (R626)", "value": 2, "unit": "A maximum at 12 V for the powered device; standard Cat5e/6/7/8 cable; the VH-109 itself powered through its 12 V input terminals with 18 AWG or larger", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R626", "tag": "rule", "season": "2026"},
+        {"id": "r701", "item": "2026 robot controller (R701-R702)", "value": "one NI roboRIO or roboRIO 2.0 (image 2026_v1.2 or later); radio is the Vivid Hosting VH-109", "unit": "", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R701-R702", "tag": "rule", "season": "2026"},
+        {"id": "systemcore", "item": "SystemCore timeline", "value": "FIRST's new controller is scheduled for FRC starting the 2027 season; the 2027 manual will renumber and change these rules", "unit": "", "source": "FIRST community blog 'Introducing the future mobile robot controller' (Nov 2024); WPILib 2027 yearly changelog", "tag": "vendor"},
+        {"id": "canpractice", "item": "CAN wiring (practice, not a rule)", "value": "22 AWG twisted pair, yellow (CAN H) and green (CAN L), daisy-chained; terminated at both ends", "unit": "", "source": "WPILib docs, 'Basic Robot Wiring' (practice guide, not a rule)", "tag": "vendor"},
+        {"id": "wpiwire", "item": "WPILib starter wiring (practice)", "value": "roboRIO, radio and PH/PCM on 18 AWG red/black; roboRIO and radio each on a 10 A fuse in non-switchable PDH channels; motor controllers on 40 A breakers with 10 or 12 AWG", "unit": "", "source": "WPILib docs, 'Basic Robot Wiring' (practice guide, not a rule)", "tag": "vendor"}
+      ]
+    },
+    {
+      "id": "connectors",
+      "title": "Connectors and crimps",
+      "note": "Vendor datasheet values. The SL crimp dimensions are deliberately not printed: get them from the Molex crimp specification for your terminal part number and write them in your team's own standards doc.",
+      "rows": [
+        {"id": "sl_amps", "item": "Molex SL connector, maximum current per contact", "value": 3.0, "unit": "A per contact (series 70066 housing, 2.54 mm pitch, -40 to +105 C)", "source": "Molex SL crimp housing 70066 datasheet", "tag": "vendor"},
+        {"id": "sl_awg", "item": "Molex SL crimp terminal 16-02-0086 wire size", "value": "22-24", "unit": "AWG (wire insulation diameter 1.63 mm max); other SL terminals cover 24-30 AWG", "source": "Molex SL crimp terminal 16-02-0086 (series 70058) datasheet; product specs PS-70058-001 / PS-70400-001", "tag": "vendor"},
+        {"id": "sl_crimp", "item": "Molex SL crimp dimensions (strip length, conductor and insulation crimp height/width)", "value": "see the Molex crimp specification for your terminal part number", "unit": "(the terminal datasheet says crimp heights live in the Molex Application Tooling Specification for the tool, not on the product sheet; no numbers are printed here because none could be matched to that document)", "source": "Molex SL crimp terminal 16-02-0086 (series 70058) datasheet; product specs PS-70058-001 / PS-70400-001", "tag": "vendor"},
+        {"id": "sb50_amps", "item": "Anderson SB50 current rating", "value": 120, "unit": "A wire-to-wire (UL 1977) with 6 AWG; CSA 50 A; 50 A wire-to-PCB and 50 A hot-plug; housing is still marked 50 A", "source": "Anderson Power Products SB50 datasheet, 'SB50 Connector Specifications' table", "tag": "vendor"},
+        {"id": "sb50_r", "item": "Anderson SB50 average mated contact resistance", "value": 0.2, "unit": "mohm per contact, measured with 1-1/4 in of 6 AWG (about 0.4 mohm for the + and - pair)", "source": "Anderson Power Products SB50 datasheet, 'SB50 Connector Specifications' table", "tag": "vendor"},
+        {"id": "sb50_pcb", "item": "Anderson SB50 contact-to-contact resistance (PCB figure)", "value": 0.5, "unit": "mohm; this is the number many lessons round to 'about half a milliohm per SB50'", "source": "Anderson Power Products SB50 datasheet, 'SB50 Connector Specifications' table", "tag": "vendor"},
+        {"id": "sb50_wire", "item": "Anderson SB50 wire range", "value": "16-6", "unit": "AWG (1.3-13.3 mm2) with the matching contact bushings; 600 V; 10,000 mating cycles silver-plated, 1,500 tin", "source": "Anderson Power Products SB50 datasheet, 'SB50 Connector Specifications' table", "tag": "vendor"},
+        {"id": "sb120_amps", "item": "Anderson SB120 current rating", "value": 240, "unit": "A wire-to-wire (UL 1977) with 1 AWG; 120 A wire-to-busbar; wire 10-1 AWG; SB50-to-SB120 adapters are allowed on the robot (R609)", "source": "Anderson Power Products SB120 datasheet", "tag": "vendor"},
+        {"id": "sb120_r", "item": "Anderson SB120 average mated contact resistance", "value": 0.136, "unit": "mohm (measured with 5-1/2 in of 2 AWG)", "source": "Anderson Power Products SB120 datasheet", "tag": "vendor"},
+        {"id": "can_term", "item": "CAN bus termination", "value": 120, "unit": "ohm at each end of the bus (the PDH carries one); CAN FD uses the same termination", "source": "REV Robotics PDH (REV-11-1850) specifications page, docs.revrobotics.com", "tag": "vendor"}
+      ]
+    },
+    {
+      "id": "distribution",
+      "title": "REV PDH and Mini Power Module",
+      "note": "Vendor specifications; the rules in the manual still cap what you may fit (40 A breakers, 15 A ATM fuses, one 20 A for a PH/PCM).",
+      "rows": [
+        {"id": "pdh_hc", "item": "PDH high-current channels", "value": 20, "unit": "channels; ATO/ATC breaker or fuse, 40 A maximum supported each; wire 24-8 AWG bare or 24-10 AWG with ferrule, strip 0.5 in", "source": "REV Robotics PDH (REV-11-1850) specifications page, docs.revrobotics.com", "tag": "vendor"},
+        {"id": "pdh_lc", "item": "PDH low-current channels", "value": 15, "unit": "A continuous each (20 A single-channel peak for 5 min); 3 fixed + 1 switchable; ATM/APM fuse or breaker, 15 A max fuse (20 A only for a PH/PCM); WAGO 26-14 AWG bare, 22-18 AWG ferrule", "source": "REV Robotics PDH (REV-11-1850) specifications page, docs.revrobotics.com", "tag": "vendor"},
+        {"id": "pdh_sw", "item": "PDH switchable channel", "value": 10, "unit": "Hz maximum switching rate; 15 A continuous", "source": "REV Robotics PDH (REV-11-1850) specifications page, docs.revrobotics.com", "tag": "vendor"},
+        {"id": "pdh_in", "item": "PDH input", "value": "4.7-18", "unit": "V (12 V typical); main input wire 18-6 AWG solid, 18-4 AWG stranded, 18-6 AWG with ferrule, strip 0.75 in; total device current not published (the 120 A main breaker governs)", "source": "REV Robotics PDH (REV-11-1850) specifications page, docs.revrobotics.com", "tag": "vendor"},
+        {"id": "pdh_meas", "item": "PDH channel current measurement", "value": "0-127.9 A at 125 mA steps (high-current), 0-31.94 A at 62.5 mA (low-current); input voltage 7.81 mV steps", "unit": "", "source": "REV Robotics PDH (REV-11-1850) specifications page, docs.revrobotics.com", "tag": "vendor"},
+        {"id": "mpm_ch", "item": "Mini Power Module channel rating", "value": 15, "unit": "A per channel, 6 channels, ATM fuses; output WAGO 26-16 AWG bare, 22-18 AWG ferrule", "source": "REV Robotics Mini Power Module (REV-11-1956) specifications page, docs.revrobotics.com", "tag": "vendor"},
+        {"id": "mpm_total", "item": "Mini Power Module total device current", "value": 40, "unit": "A total; it is a fused distributor only (no regulation), fed from one PDH high-current channel; input 3-18 V", "source": "REV Robotics Mini Power Module (REV-11-1956) specifications page, docs.revrobotics.com", "tag": "vendor"},
+        {"id": "mpm_led", "item": "Mini Power Module channel LED", "value": "solid red = fuse missing or tripped", "unit": "", "source": "REV Robotics Mini Power Module (REV-11-1956) specifications page, docs.revrobotics.com", "tag": "vendor"}
+      ]
+    },
+    {
+      "id": "brownout",
+      "title": "Brown-out thresholds",
+      "note": "roboRIO numbers from the current WPILib docs; SystemCore numbers from an alpha specification and marked verify.",
+      "rows": [
+        {"id": "bo_stage1", "item": "roboRIO stage 1 (6 V PWM rail starts to droop)", "value": 6.8, "unit": "V; below this the 6 V servo/PWM rail sags", "source": "WPILib docs, 'roboRIO Brownout and Understanding Current Draw'", "tag": "vendor"},
+        {"id": "bo_rio1", "item": "roboRIO 1.0 stage 2 brown-out (outputs disabled)", "value": 6.3, "unit": "V, fixed", "source": "WPILib docs, 'roboRIO Brownout and Understanding Current Draw'", "tag": "vendor"},
+        {"id": "bo_rio2", "item": "roboRIO 2.0 stage 2 brown-out (outputs disabled)", "value": 6.75, "unit": "V default, settable in code (RobotController.setBrownoutVoltage)", "source": "WPILib docs, 'roboRIO Brownout and Understanding Current Draw'", "tag": "vendor"},
+        {"id": "bo_recover", "item": "roboRIO brown-out recovery", "value": 7.5, "unit": "V; outputs come back when the bus rises above this", "source": "WPILib docs, 'roboRIO Brownout and Understanding Current Draw'", "tag": "vendor"},
+        {"id": "bo_blackout", "item": "roboRIO stage 3 (blackout)", "value": 4.5, "unit": "V; the controller may reboot (restarts above 4.65 V)", "source": "WPILib docs, 'roboRIO Brownout and Understanding Current Draw'", "tag": "vendor"},
+        {"id": "bo_what", "item": "What stage 2 does", "value": "PWM outputs disabled (one neutral pulse first), 6 V / 5 V / 3.3 V user rails off, relays low, CAN motor controllers told to disable, pneumatics off, power LED amber, Driver Station shows 'Voltage Brownout', 12 V fault counter +1", "unit": "", "source": "WPILib docs, 'roboRIO Brownout and Understanding Current Draw'", "tag": "vendor"},
+        {"id": "bo_syscore", "item": "SystemCore (2027+) brown-out threshold, ALPHA spec, verify", "value": "configurable, about 6.0-6.3 V", "unit": "(the alpha sheet lists '6 V nominal' in one table and '6.3 V' in another; restore 7.5 V; input 5-26 V; brown-out protection was disabled in the alpha image). Treat as provisional.", "source": "Limelight 'SystemCore Specifications' (June 2025 ALPHA, revised Oct 2025, 'subject to change')", "tag": "vendor"}
+      ]
+    },
+    {
+      "id": "ferrules",
+      "title": "Insulated ferrule colours (DIN 46228-4 vs the 'WE' code)",
+      "note": "DIN 46228-4; vendors differ; your stock may differ. Two incompatible colour codes exist, so check which code your kit uses before trusting a colour.",
+      "rows": [
+        {"id": "fer050", "mm2": 0.5, "din_colour": "white", "we_colour": "orange", "awg": "20", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer075", "mm2": 0.75, "din_colour": "grey", "we_colour": "white", "awg": "18 (vendors also 20)", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer100", "mm2": 1.0, "din_colour": "red", "we_colour": "yellow", "awg": "18", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer150", "mm2": 1.5, "din_colour": "black", "we_colour": "red", "awg": "16", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer250", "mm2": 2.5, "din_colour": "blue", "we_colour": "blue", "awg": "14", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer400", "mm2": 4.0, "din_colour": "grey", "we_colour": "grey", "awg": "12", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer600", "mm2": 6.0, "din_colour": "yellow", "we_colour": "black", "awg": "10", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer1000", "mm2": 10, "din_colour": "red", "we_colour": "ivory", "awg": "8", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer1600", "mm2": 16, "din_colour": "blue", "we_colour": "green", "awg": "6", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer034", "mm2": 0.34, "din_colour": "turquoise (below the standard's range; some vendors pink)", "we_colour": "turquoise", "awg": "22", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"},
+        {"id": "fer025", "mm2": 0.25, "din_colour": "yellow (below the standard's range)", "we_colour": "light blue", "awg": "24", "source": "DIN 46228-4 colour code as tabulated in RS 'Twin Wire Ferrules DIN 46228 Part 4' and TE 'DIN Wire Ferrules' datasheets; vendors differ; your stock may differ", "tag": "vendor"}
+      ]
+    },
+    {
+      "id": "torque",
+      "title": "Torque values",
+      "note": "No torque values are printed. The values commonly passed around the shop could not be matched to a vendor datasheet while this card was built, so they were left out rather than guessed. Use the torque on your lug, breaker and motor vendor's datasheet and record it in your team's own standards doc.",
+      "rows": [
+      ]
+    }
+  ],
+  "team_standards_example": [
+    {"id": "ts_batt", "item": "Battery, main breaker and PDH input", "value": 6, "unit": "AWG (the rule minimum is also 6 AWG)", "source": "EXAMPLE team standard (this repo); not a published rule. Edit the data block to match your team's own document.", "tag": "example-team-standard"},
+    {"id": "ts_big", "item": "Large drive/mechanism motors on 40 A breakers", "value": 10, "unit": "AWG (rule minimum 12 AWG; the extra copper is for voltage drop)", "source": "EXAMPLE team standard (this repo); not a published rule. Edit the data block to match your team's own document.", "tag": "example-team-standard"},
+    {"id": "ts_mid", "item": "Mid-size motors on 40 A breakers", "value": 12, "unit": "AWG (equals the rule minimum)", "source": "EXAMPLE team standard (this repo); not a published rule. Edit the data block to match your team's own document.", "tag": "example-team-standard"},
+    {"id": "ts_comp", "item": "Compressor", "value": 16, "unit": "AWG on a 20 A breaker (rule minimum 18 AWG)", "source": "EXAMPLE team standard (this repo); not a published rule. Edit the data block to match your team's own document.", "tag": "example-team-standard"},
+    {"id": "ts_sig", "item": "Sensors and CAN", "value": 22, "unit": "AWG, CAN as twisted pair (rule minimum for signal level is 28 AWG)", "source": "EXAMPLE team standard (this repo); not a published rule. Edit the data block to match your team's own document.", "tag": "example-team-standard"},
+    {"id": "ts_fer", "item": "Ferrule colours", "value": "as stocked", "unit": "write your kit's colours here; the DIN colour code varies by supplier (see the ferrule table)", "source": "EXAMPLE team standard (this repo); not a published rule. Edit the data block to match your team's own document.", "tag": "example-team-standard"}
+  ],
+  "motors": [
+  ],
+  "motors_note": "No motor stall-current rows are shipped: none could be tied to a vendor datasheet while this card was built. To add one, give the row item/value/unit/source/tag with the datasheet named in source.",
+  "battery": [
+    {"id": "bat_nom", "item": "Nominal capacity of a legal battery", "value": "17 to 18.2", "unit": "Ah at the 20-hour rate (12 V nominal, 11.0-14.5 lb)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R601", "tag": "rule", "season": "2026"},
+    {"id": "bat_mk", "item": "MK ES17-12 datasheet", "value": 18, "unit": "Ah at 0.9 A to 10.5 V (20 h); 15.3 Ah at 3.06 A (5 h); 6.3 Ah at 54 A (3C); max discharge 270 A for 5 s; cycle charge 14.4-15.0 V, float 13.5-13.8 V; 6.0 kg", "source": "MK Battery ES17-12 datasheet (ES17-12 user guide hosted by REV Robotics)", "tag": "vendor"},
+    {"id": "bat_rint", "item": "New battery internal resistance (battery alone, datasheet, 1 kHz)", "value": 12, "unit": "mohm approx. for the MK ES17-12 (an older sheet revision says 10; the Enersys NP18-12 sheet says about 11)", "source": "MK Battery ES17-12 datasheet (ES17-12 user guide hosted by REV Robotics); Enersys NP18-12 figure as quoted in 'Testing and Analysis of FIRST Robotics Batteries' (2015 report posted on Chief Delphi)", "tag": "vendor"},
+    {"id": "bat_beak", "print_item": "Handheld tester (Battery Beak type) on a new battery, leads and SB50 included", "item": "What a handheld tester (Battery Beak type) reads on a new battery, leads and SB50 included", "value": "15 to 23", "unit": "mohm typical; cables and terminals add about 3-5 mohm; wait about 15 min after charging; community rule of thumb 'under 20 mohm is good'. No official thresholds are published.", "source": "Chief Delphi forum threads 'Computerized Battery Analyzer', 'Battery testing', 'Everything on batteries' (community practice, not a standard)", "tag": "vendor"},
+    {"id": "bat_sb50", "item": "SB50 connector resistance to add to the path", "value": "0.2 to 0.5", "unit": "mohm per contact (wire-to-wire mated 0.200; PCB contact-to-contact 0.500)", "source": "Anderson Power Products SB50 datasheet, 'SB50 Connector Specifications' table", "tag": "vendor"},
+    {"id": "bat_ocv", "item": "Open-circuit voltage, full charge", "value": 12.65, "unit": "V = 100% after a 24 h rest (flooded cell table; sealed AGM reads slightly higher); fresh off the charger FRC batteries read 12.7-13.2 V from surface charge", "source": "Battery University BU-903 'How to Measure State of Charge'; 'Testing and Analysis of FIRST Robotics Batteries' (2015 report posted on Chief Delphi)", "tag": "vendor"},
+    {"id": "bat_soc", "item": "Resting voltage vs state of charge", "value": "75% 12.45 V, 50% 12.24 V, 25% 12.06 V, 0% 11.89 V", "unit": "(rest at least 4 h first)", "source": "Battery University BU-903 'How to Measure State of Charge'", "tag": "vendor"},
+    {"id": "bat_cba", "item": "AndyMark CBA discharge test settings", "value": 10, "unit": "A test current to an 11 V cutoff; lead acid, 13.2 V, 6 cells, 18 Ah entered; do not pause the test; the number to read is Ah at the end", "source": "AndyMark 'Computerized Battery Analyzer' product page (read Oct 2026)", "tag": "vendor"},
+    {"id": "bat_retire", "item": "AndyMark retirement rule", "value": 12, "unit": "Ah: if the curve crosses 11 V before 12 Ah on 2 consecutive tests from a full charge, keep the battery out of competition (practice, demos, testing only)", "source": "AndyMark 'Computerized Battery Analyzer' product page (read Oct 2026)", "tag": "vendor"},
+    {"id": "bat_alt", "print_item": "Alternative test at 7.5 A (community practice, not comparable with the AndyMark 10 A / 11 V profile)", "item": "Common team alternative test (community practice, not comparable with the AndyMark profile)", "value": 7.5, "unit": "A load to a 10.5-10.8 V cutoff; never take a battery below 10.5 V under load; 14+ Ah measured performs well, 12 Ah or less tends to brown out late in a match", "source": "Chief Delphi forum threads 'Computerized Battery Analyzer', 'Battery testing', 'Everything on batteries' (community practice, not a standard)", "tag": "vendor"},
+    {"id": "bat_policy", "item": "EXAMPLE team policy (not a published standard; your team decides)", "value": 12.5, "unit": "Ah measured or less = not for competition; combined with the AndyMark 'twice under 12 Ah = retire' rule", "source": "EXAMPLE team standard (this repo); not a published rule. Edit the data block to match your team's own document.", "tag": "example-team-standard"},
+    {"id": "bat_charge", "item": "Charger limit", "value": 6, "unit": "A average maximum (R604)", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R604", "tag": "rule", "season": "2026"}
+  ],
+  "awg_table": [
+    {"id": "awg6", "awg": 6, "diameter_mm": 4.115, "area_mm2": 13.3, "mohm_per_ft": 0.395, "ohm_per_1000ft": 0.395, "ohm_per_km": 1.296, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 101, "nec75_a": 65, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"},
+    {"id": "awg7", "awg": 7, "diameter_mm": 3.665, "area_mm2": 10.55, "mohm_per_ft": 0.4981, "ohm_per_1000ft": 0.4981, "ohm_per_km": 1.634, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"},
+    {"id": "awg8", "awg": 8, "diameter_mm": 3.264, "area_mm2": 8.366, "mohm_per_ft": 0.6281, "ohm_per_1000ft": 0.6281, "ohm_per_km": 2.061, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 73, "nec75_a": 50, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"},
+    {"id": "awg9", "awg": 9, "diameter_mm": 2.906, "area_mm2": 6.634, "mohm_per_ft": 0.7921, "ohm_per_1000ft": 0.7921, "ohm_per_km": 2.599, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"},
+    {"id": "awg10", "awg": 10, "diameter_mm": 2.588, "area_mm2": 5.261, "mohm_per_ft": 0.9988, "ohm_per_1000ft": 0.9988, "ohm_per_km": 3.277, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 55, "nec75_a": 35, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"},
+    {"id": "awg11", "awg": 11, "diameter_mm": 2.305, "area_mm2": 4.172, "mohm_per_ft": 1.259, "ohm_per_1000ft": 1.259, "ohm_per_km": 4.132, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"},
+    {"id": "awg12", "awg": 12, "diameter_mm": 2.053, "area_mm2": 3.309, "mohm_per_ft": 1.588, "ohm_per_1000ft": 1.588, "ohm_per_km": 5.21, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 41, "nec75_a": 25, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"},
+    {"id": "awg13", "awg": 13, "diameter_mm": 1.828, "area_mm2": 2.624, "mohm_per_ft": 2.003, "ohm_per_1000ft": 2.003, "ohm_per_km": 6.57, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"},
+    {"id": "awg14", "awg": 14, "diameter_mm": 1.628, "area_mm2": 2.081, "mohm_per_ft": 2.525, "ohm_per_1000ft": 2.525, "ohm_per_km": 8.285, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 32, "nec75_a": 20, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"},
+    {"id": "awg15", "awg": 15, "diameter_mm": 1.45, "area_mm2": 1.65, "mohm_per_ft": 3.184, "ohm_per_1000ft": 3.184, "ohm_per_km": 10.45, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"},
+    {"id": "awg16", "awg": 16, "diameter_mm": 1.291, "area_mm2": 1.309, "mohm_per_ft": 4.015, "ohm_per_1000ft": 4.015, "ohm_per_km": 13.17, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 22, "nec75_a": 16, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"},
+    {"id": "awg17", "awg": 17, "diameter_mm": 1.15, "area_mm2": 1.038, "mohm_per_ft": 5.063, "ohm_per_1000ft": 5.063, "ohm_per_km": 16.61, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"},
+    {"id": "awg18", "awg": 18, "diameter_mm": 1.024, "area_mm2": 0.823, "mohm_per_ft": 6.385, "ohm_per_1000ft": 6.385, "ohm_per_km": 20.95, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 16, "nec75_a": 14, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"},
+    {"id": "awg19", "awg": 19, "diameter_mm": 0.9116, "area_mm2": 0.6527, "mohm_per_ft": 8.051, "ohm_per_1000ft": 8.051, "ohm_per_km": 26.41, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"},
+    {"id": "awg20", "awg": 20, "diameter_mm": 0.8118, "area_mm2": 0.5176, "mohm_per_ft": 10.15, "ohm_per_1000ft": 10.15, "ohm_per_km": 33.31, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 11, "nec75_a": 11, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"},
+    {"id": "awg21", "awg": 21, "diameter_mm": 0.7229, "area_mm2": 0.4105, "mohm_per_ft": 12.8, "ohm_per_1000ft": 12.8, "ohm_per_km": 42.0, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"},
+    {"id": "awg22", "awg": 22, "diameter_mm": 0.6438, "area_mm2": 0.3255, "mohm_per_ft": 16.14, "ohm_per_1000ft": 16.14, "ohm_per_km": 52.96, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 7, "nec75_a": 7, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"},
+    {"id": "awg23", "awg": 23, "diameter_mm": 0.5733, "area_mm2": 0.2582, "mohm_per_ft": 20.35, "ohm_per_1000ft": 20.35, "ohm_per_km": 66.78, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics"},
+    {"id": "awg24", "awg": 24, "diameter_mm": 0.5106, "area_mm2": 0.2047, "mohm_per_ft": 25.67, "ohm_per_1000ft": 25.67, "ohm_per_km": 84.21, "source": "computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)", "tag": "physics", "chassis_a": 3.5, "nec75_a": 3.5, "ampacity_source": "PowerStream wire gauge table (rules of thumb; 'chassis wiring' = short runs in free air); NEC 310.16 75 C column as tabulated on Wikipedia 'American wire gauge'"}
+  ],
+  "cards": [
+    {"week": 0, "kind": "safety", "front": "A wrench bridges the two battery terminals. What happens, and what kind of hazard is it?", "back": "A bolted fault of roughly 800-1000 A (12.6 V / about 15 mohm): the wrench and terminals get red hot, spit molten metal and can start a fire. It is a burn and fire hazard, not a shock hazard.", "source": "computed from Ohm's law with the MK ES17-12 datasheet internal resistance (approx. 12 mohm) plus a few mohm of path"},
+    {"week": 0, "kind": "safety", "front": "Which personal items come off before working near the battery or main power path?", "back": "Rings, watches, metal bracelets, lanyards and dangling badges. Metal on skin across hundreds of amps burns before you can let go.", "source": "common FRC shop practice; your team's safety training governs"},
+    {"week": 0, "kind": "safety", "front": "The DMM rule: what do you measure, and what do you never do unsupervised?", "back": "Measure voltage (and resistance or continuity only on a dead, disconnected circuit). Never measure current unsupervised: the 20 A jack is a near-short, so across a battery it is the wrench demo.", "source": "common FRC shop practice; your team's safety training governs"},
+    {"week": 0, "kind": "safety", "front": "How do you carry and put down a robot battery?", "back": "Two hands on the body, never by the leads or connector; set it flat; cap or cover the SB50 so nothing metal can bridge the contacts.", "source": "common FRC shop practice; your team's safety training governs"},
+    {"week": 0, "kind": "safety", "front": "Fast charger versus tender: when does a battery move?", "back": "Charge on the fast charger only while its light shows charging (typically orange); when it shows full (green), move it to a tender/maintainer or unplug. Chargers are limited to 6 A average by rule.", "source": "common FRC shop practice; the 6 A limit is 2026 FRC Game Manual (REBUILT), Version TU22, R604; charger light colours per your charger's manual"},
+    {"week": 0, "kind": "safety", "front": "ESD basics before touching a bare board (roboRIO, PDH, motor controller)?", "back": "Touch bare frame metal or a grounded surface first (or wear a wrist strap), hold boards by the edges, keep spares in their anti-static bags.", "source": "common FRC shop practice; your team's safety training governs"},
+    {"week": 1, "kind": "number", "from_table": "rule_table", "row": "main", "template": "Minimum wire gauge for the main power path: battery, SB connector, 120 A main breaker, PDH?", "answer": "{min_awg} AWG copper or larger ({note})"},
+    {"week": 1, "kind": "number", "from_table": "other_rules", "row": "r612", "template": "How many 120 A breakers may a robot carry, and where must it be?", "answer": "{value}"},
+    {"week": 1, "kind": "number", "from_table": "connectors", "row": "sb50_r", "template": "Average mated contact resistance of an Anderson SB50 (datasheet)?", "answer": "{value} {unit}"},
+    {"week": 1, "kind": "number", "from_table": "battery", "row": "bat_rint", "template": "Internal resistance of a new FRC battery, battery alone (datasheet)?", "answer": "about {value} {unit}"},
+    {"week": 1, "kind": "concept", "front": "Why does the main power path get the fattest wire when a single motor circuit can also pull 40 A?", "back": "Everything adds up through it: the main path carries the sum of every motor's current, hundreds of amps for a moment, and every milliohm there drops bus voltage for the whole robot.", "source": "physics (Kirchhoff's current law); 2026 FRC Game Manual (REBUILT), Version TU22, R609"},
+    {"week": 1, "kind": "concept", "front": "Why is a loose or corroded battery lug worse than a slightly thin wire?", "back": "A bad lug can add more resistance than 10 ft of 6 AWG (about 4 mohm). At 200 A that is 0.8 V lost and 160 W of heat, right at the terminal.", "source": "computed: 10 ft of 6 AWG = 3.95 mohm (computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)); V = I x R, P = I^2 x R"},
+    {"week": 1, "kind": "concept", "front": "Resting voltage versus voltage under load: which one tells you the battery's health?", "back": "Resting voltage mostly tells state of charge (about 12.65 V full, 11.9 V empty). Health shows under load: a tired battery sags more at the same amps, and that sag per amp is its internal resistance.", "source": "Battery University BU-903 'How to Measure State of Charge'; physics: R = (open - loaded) / amps"},
+    {"week": 2, "kind": "number", "from_table": "distribution", "row": "pdh_hc", "template": "How many high-current channels does the REV PDH have, and the largest breaker each supports?", "answer": "{value} {unit}"},
+    {"week": 2, "kind": "number", "from_table": "distribution", "row": "pdh_lc", "template": "Continuous current rating of a PDH low-current channel?", "answer": "{value} {unit}"},
+    {"week": 2, "kind": "number", "from_table": "distribution", "row": "mpm_total", "template": "Total current rating of the REV Mini Power Module?", "answer": "{value} {unit}"},
+    {"week": 2, "kind": "number", "from_table": "other_rules", "row": "r619", "template": "Largest circuit breaker allowed in a PD channel, and which families are legal?", "answer": "{value} {unit}"},
+    {"week": 2, "kind": "number", "from_table": "other_rules", "row": "r620", "template": "Which fuses are legal in the PD, and how big?", "answer": "{value}"},
+    {"week": 2, "kind": "concept", "front": "Breaker versus fuse: which resets itself, and why does FRC allow auto-resetting breakers on motors?", "back": "The snap-action breakers (VB3/AT2/MX5 and the REV/CTRE ATO types) reset after they cool, so a stalled motor stops the robot for a moment instead of ending the match. A fuse opens once and must be replaced.", "source": "2026 FRC Game Manual (REBUILT), Version TU22, R619-R620"},
+    {"week": 2, "kind": "concept", "front": "What is the Mini Power Module for, and what is it not?", "back": "A fused distributor: one PDH high-current channel in, six fused outputs out (15 A each, 40 A total) for small loads. It is not a regulator; it passes battery voltage straight through.", "source": "REV Robotics Mini Power Module (REV-11-1956) specifications page, docs.revrobotics.com"},
+    {"week": 2, "kind": "concept", "front": "Why put ferrules on stranded wire in WAGO or lever terminals?", "back": "The ferrule holds the strands together so the lever clamps all of them, no stray strand shorts to the neighbour, and the joint survives vibration. Match the ferrule to the wire and use the terminal's with-ferrule gauge range.", "source": "REV Robotics PDH (REV-11-1850) specifications page, docs.revrobotics.com (with-ferrule wire ranges); shop practice"},
+    {"week": 2, "kind": "concept", "front": "Why does the FRC gauge table allow more amps per gauge than house wiring?", "back": "Short runs in free air, intermittent loads, snap-action breakers that trip fast, and only 12 V: at 12 V the real limit is voltage drop, not insulation heating. House-wiring tables assume bundled conductors in conduit, continuous load and 75 C insulation.", "source": "NEC 310.16 75 C column vs PowerStream 'chassis wiring' figures, both as tabulated on Wikipedia 'American wire gauge' and powerstream.com"},
+    {"week": 3, "kind": "concept", "front": "Soldering: what do you heat, and where does the solder go?", "back": "Heat the joint (both the wire and the pad or terminal) with the iron, then feed solder to the joint, not to the iron tip. Good solder flows in and looks shiny and smooth; a dull blob was not hot enough.", "source": "shop practice (no numbers)"},
+    {"week": 3, "kind": "concept", "front": "What is a cold solder joint and why does it matter on a robot?", "back": "Solder that never wetted the metal: dull, grainy, often cracked. Under vibration it becomes an intermittent connection, the hardest kind of fault to find at a competition.", "source": "shop practice (no numbers)"},
+    {"week": 3, "kind": "concept", "front": "Heat shrink: what it does and what it does not do?", "back": "It insulates and strain-relieves a finished joint. It does not fix a bad crimp or solder joint. Inspect the joint first, then shrink.", "source": "shop practice (no numbers)"},
+    {"week": 3, "kind": "safety", "front": "Three soldering-iron safety habits?", "back": "Iron goes back in its stand every time; work with ventilation and keep your face out of the fumes; wash hands after handling solder. Never flick solder off the tip.", "source": "common FRC shop practice; your team's safety training governs"},
+    {"week": 3, "kind": "safety", "front": "Why does ESD matter when you felt nothing?", "back": "A discharge too small to feel can still damage a chip. The board may work today and fail at competition. Ground yourself before touching bare electronics.", "source": "common FRC shop practice; your team's safety training governs"},
+    {"week": 4, "kind": "number", "from_table": "other_rules", "row": "r621mc", "template": "Largest breaker allowed for one motor controller, and how many controllers per breaker?", "answer": "{value} {unit}"},
+    {"week": 4, "kind": "number", "from_table": "rule_table", "row": "sig", "template": "Rule minimum wire size for CAN and other signal-level circuits?", "answer": "{min_awg} AWG; {note}"},
+    {"week": 4, "kind": "number", "from_table": "other_rules", "row": "canpractice", "template": "Common CAN wiring practice (gauge, colours, topology)?", "answer": "{value}"},
+    {"week": 4, "kind": "number", "from_table": "connectors", "row": "can_term", "template": "CAN bus termination resistance, and where?", "answer": "{value} {unit}"},
+    {"week": 4, "kind": "concept", "front": "What does a stalled motor do to the bus?", "back": "Stall current is the motor's maximum draw. Several motors stalling together can pull the bus below the brown-out threshold even on a good battery. Check each motor's datasheet for its stall current; none are printed on this card.", "source": "physics: bus voltage = open-circuit volts - total amps x total path resistance; WPILib docs, 'roboRIO Brownout and Understanding Current Draw'"},
+    {"week": 4, "kind": "concept", "front": "Why is CAN a daisy chain with a terminator at each end, and what should a meter read across CAN H and CAN L with power off?", "back": "CAN is one shared pair: every device taps the same two wires and the 120 ohm terminators at the two ends absorb reflections. Two 120 ohm resistors in parallel read about 60 ohm.", "source": "REV Robotics PDH (REV-11-1850) specifications page, docs.revrobotics.com (120 ohm termination); physics: parallel resistors"},
+    {"week": 5, "kind": "number", "from_table": "rule_table", "row": "b12", "template": "Minimum wire gauge for a {amps_min}-{amps_max} A breaker protected circuit?", "answer": "{min_awg} AWG ({note})"},
+    {"week": 5, "kind": "number", "from_table": "rule_table", "row": "b14", "template": "Minimum wire gauge for a {amps_min}-{amps_max} A breaker protected circuit?", "answer": "{min_awg} AWG ({note})"},
+    {"week": 5, "kind": "number", "from_table": "rule_table", "row": "b18", "template": "Minimum wire gauge for a {amps_min}-{amps_max} A breaker protected circuit?", "answer": "{min_awg} AWG ({note})"},
+    {"week": 5, "kind": "number", "from_table": "rule_table", "row": "b22", "template": "Minimum wire gauge for a breaker of {amps_max} A or less?", "answer": "{min_awg} AWG ({note})"},
+    {"week": 5, "kind": "number", "from_table": "rule_table", "row": "f24", "template": "Minimum wire gauge for a fuse of {amps_max} A or less?", "answer": "{min_awg} AWG ({note})"},
+    {"week": 5, "kind": "number", "from_table": "rule_table", "row": "colour", "template": "Which colours are legal for positive wires, and which for negative?", "answer": "{note}"},
+    {"week": 5, "kind": "number", "from_table": "awg_table", "row": "awg6", "template": "Resistance of {awg} AWG copper, per foot?", "answer": "about {mohm_per_ft} mohm per foot ({ohm_per_1000ft} ohm per 1000 ft)"},
+    {"week": 5, "kind": "number", "from_table": "awg_table", "row": "awg22", "template": "Resistance of {awg} AWG copper, per foot?", "answer": "about {mohm_per_ft} mohm per foot ({ohm_per_1000ft} ohm per 1000 ft)"},
+    {"week": 5, "kind": "concept", "front": "Why 'round trip' when figuring voltage drop?", "back": "Current goes out on the positive wire and comes back on the negative; both lengths have resistance. A 10 ft one-way run is 20 ft of wire resistance.", "source": "physics (series resistance); computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)"},
+    {"week": 5, "kind": "concept", "front": "Bigger AWG number means what, and how fast does resistance change with gauge?", "back": "Thinner wire. Every 3 gauge numbers roughly halves the copper area and doubles the resistance per foot; 6 gauge numbers is about 4x.", "source": "from the AWG formula: area ratio per 3 gauges = 92^(6/39) = 2.0; computed from the AWG formula d = 0.127 mm x 92^((36-n)/39) and copper resistivity 1.724e-8 ohm-m at 20 C (Wikipedia 'American wire gauge'; PowerStream wire table)"},
+    {"week": 6, "kind": "number", "from_table": "other_rules", "row": "r615", "template": "Fuse or breaker size for the roboRIO, and what else may share that channel?", "answer": "{value} {unit}"},
+    {"week": 6, "kind": "number", "from_table": "other_rules", "row": "r617", "template": "Fuse or breaker size for the radio supply?", "answer": "{value} {unit}"},
+    {"week": 6, "kind": "number", "from_table": "rule_table", "row": "radio", "template": "Minimum wire size for the VH-109 radio's 12 V input?", "answer": "{min_awg} AWG; {note}"},
+    {"week": 6, "kind": "number", "from_table": "brownout", "row": "bo_stage1", "template": "Bus voltage where the roboRIO's 6 V PWM rail starts to droop (stage 1)?", "answer": "below {value} {unit}"},
+    {"week": 6, "kind": "number", "from_table": "brownout", "row": "bo_rio2", "template": "roboRIO 2.0 brown-out threshold (stage 2, outputs disabled)?", "answer": "{value} {unit}"},
+    {"week": 6, "kind": "number", "from_table": "brownout", "row": "bo_syscore", "template": "SystemCore brown-out threshold (2027 and later)?", "answer": "{value} {unit}"},
+    {"week": 6, "kind": "concept", "front": "What does the roboRIO do when it browns out, and when do outputs come back?", "back": "It disables PWM outputs, turns the user rails off, tells CAN motor controllers to disable, shows 'Voltage Brownout' on the Driver Station and counts a 12 V fault. Outputs return when the bus rises above 7.5 V.", "source": "WPILib docs, 'roboRIO Brownout and Understanding Current Draw'"},
+    {"week": 7, "kind": "number", "from_table": "connectors", "row": "sl_amps", "template": "Maximum current per contact of a Molex SL connector?", "answer": "{value} {unit}"},
+    {"week": 7, "kind": "number", "from_table": "connectors", "row": "sl_awg", "template": "Wire sizes the Molex SL terminal 16-02-0086 accepts?", "answer": "{value} {unit}"},
+    {"week": 7, "kind": "number", "from_table": "connectors", "row": "sl_crimp", "template": "Where do the SL strip length and crimp heights come from?", "answer": "{value}; {unit}"},
+    {"week": 7, "kind": "concept", "front": "What are the two crimps on an SL terminal, and what does each do?", "back": "The conductor crimp (on bare strands) makes the electrical connection; the insulation crimp (on the jacket) is strain relief only. Both are set to the Molex crimp specification; pull-test a sample.", "source": "Molex SL crimp terminal 16-02-0086 (series 70058) datasheet; product specs PS-70058-001 / PS-70400-001"},
+    {"week": 7, "kind": "concept", "front": "Why can an SL connector never carry a motor lead?", "back": "3.0 A per contact maximum: SL is for sensors and signal. A motor lead on an SL pin overheats the pin and the housing.", "source": "Molex SL crimp housing 70066 datasheet"},
+    {"week": 7, "kind": "concept", "front": "What does a good crimp look like?", "back": "Strands fully inside the conductor crimp with a small bell-mouth on the wire side, no strands under the insulation crimp, no insulation under the conductor crimp, and the terminal clicks and locks in the housing. If the wire pulls out, make it again.", "source": "Molex SL crimp terminal 16-02-0086 (series 70058) datasheet; product specs PS-70058-001 / PS-70400-001; shop practice"},
+    {"week": 8, "kind": "number", "from_table": "distribution", "row": "mpm_led", "template": "A Mini Power Module channel LED is solid red. Meaning?", "answer": "{value}"},
+    {"week": 8, "kind": "number", "from_table": "distribution", "row": "pdh_sw", "template": "Fastest switching rate of the PDH switchable channel?", "answer": "{value} {unit}"},
+    {"week": 8, "kind": "concept", "front": "A CAN device is missing from the bus. First checks?", "back": "Its power LED first, then the CAN wiring: both wires landed at both ends, H and L not swapped, terminators present (about 60 ohm across H-L with power off), a unique CAN ID, and current firmware.", "source": "REV Robotics PDH (REV-11-1850) specifications page, docs.revrobotics.com; shop practice"},
+    {"week": 8, "kind": "concept", "front": "What is a CAN ID collision and how do you fix it?", "back": "Two devices of the same type with the same ID: one or both drop off, or they fight. Give every device a unique ID in the vendor's tool and label the device with it.", "source": "shop practice (no numbers)"},
+    {"week": 9, "kind": "concept", "front": "Three rules for routing power wire?", "back": "Keep it short (voltage drop is per foot, round trip); keep it away from sharp edges, moving parts and hot motors; strain-relieve near every connector so the crimp never carries the load.", "source": "physics (voltage drop) and shop practice"},
+    {"week": 9, "kind": "concept", "front": "Why keep CAN pairs away from motor leads where you can?", "back": "Motor leads carry switched current that couples noise into signal pairs. Twisting the pair cancels most of it; distance helps with the rest.", "source": "shop practice; WPILib docs, 'Basic Robot Wiring' (practice guide, not a rule) (twisted pair)"},
+    {"week": 9, "kind": "concept", "front": "What goes on a wire label, and where?", "back": "Both ends: what it feeds and which PDH channel or breaker. A label is faster than tracing under the belly pan at competition.", "source": "shop practice (no numbers)"},
+    {"week": 9, "kind": "concept", "front": "What is a service loop and why leave one?", "back": "A little slack near a connector so the plug can come off and the board come out without cutting wire. Not so much that it snags.", "source": "shop practice (no numbers)"},
+    {"week": 10, "kind": "number", "from_table": "other_rules", "row": "r611", "template": "Inspection check: minimum resistance between a battery-side PD post and the robot frame?", "answer": "{value} {unit}"},
+    {"week": 10, "kind": "concept", "front": "How do you measure a battery's internal resistance with just a DMM and a known load?", "back": "Read the open-circuit volts. Apply a known load (the robot driving, or a tester), read volts and amps. R = (open - loaded) / amps. Example: 12.6 V open, 11.9 V at 50 A = 0.7 / 50 = 14 mohm.", "source": "physics: R = (open - loaded) / amps"},
+    {"week": 10, "kind": "concept", "front": "The robot resets or stutters at full throttle. What do you check, in order?", "back": "The battery (resting volts and internal resistance), then every joint in the main path (lugs, SB50, breaker terminals) with a voltage-drop test under load, then the Driver Station log for brown-outs.", "source": "WPILib docs, 'roboRIO Brownout and Understanding Current Draw'; shop practice"},
+    {"week": 10, "kind": "concept", "front": "Voltage-drop test across one connection: how, and what is 'too much'?", "back": "Meter on DC volts, one lead each side of the lug or connector, load the robot. More than a few tenths of a volt across one joint at high current is a bad joint: 0.3 V at 100 A is 3 mohm and 30 W of heat.", "source": "physics: R = V / I, P = V x I"},
+    {"week": 10, "kind": "concept", "front": "At 120 A through 10 ft of 6 AWG (one way), how much voltage is lost and how much heat is in the wire?", "back": "About 0.95 V (7.9% of 12 V) and 114 W: 20 ft round trip x 0.395 mohm/ft = 7.9 mohm.", "source": "computed from the AWG formula (see the Calculators tab golden example)"}
+  ],
+  "golden": [
+    {"calc": "vdrop", "in": {"awg": 6, "amps": 120, "feet": 10}, "out": {"ohms": 0.0079, "volts": 0.95, "pct": 7.9, "watts": 114}, "note": "20 ft round trip x 0.3951 mohm/ft = 7.9 mohm; 120 A x 7.9 mohm = 0.95 V; 0.95/12 = 7.9%; 120^2 x 0.0079 = 114 W"},
+    {"calc": "brownout", "in": {"battery_mohm": 15, "path_mohm": 8, "amps": 300, "threshold": 6.8}, "out": {"bus_v": 5.7, "amps_at_threshold": 252}, "note": "12.6 - 300 x 0.023 = 5.7 V; (12.6 - 6.8) / 0.023 = 252 A"},
+    {"calc": "battery_r", "in": {"open_v": 12.6, "loaded_v": 11.9, "amps": 50}, "out": {"mohm": 14}, "note": "(12.6 - 11.9) / 50 = 0.014 ohm"},
+    {"calc": "short", "in": {"battery_mohm": 12, "path_mohm": 3}, "out": {"amps": 840, "battery_w": 8467, "total_w": 10584}, "note": "12.6 / 0.015 = 840 A; 840^2 x 0.012 = 8,467 W in the battery; 12.6 x 840 = 10,584 W in the whole loop"},
+    {"calc": "ohm", "in": {"volts": 12, "ohms": 4}, "out": {"amps": 3, "watts": 36}, "note": "12 / 4 = 3 A; 12 x 3 = 36 W"},
+    {"calc": "i2t", "in": {"amps": 60, "seconds": 2}, "out": {"i2t": 7200}, "note": "60^2 x 2 = 7,200 A^2-s"}
+  ]
+}
+</script>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--mute:#5f6670;--line:#d9dde3;--panel:#f4f6f8;--accent:#0b5fa5;--accent-fg:#fff;
+  --warn-bg:#fff4d6;--warn-fg:#5a3d00;--warn-line:#e4b94f;--danger:#b3261e;--ok:#0a7d33;--tag-physics:#2a6f97;--tag-rule:#8a3b12;--tag-vendor:#4a6a2a;--tag-example:#6b4b8a}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e8e8e8;--mute:#9aa3ad;--line:#343a42;--panel:#1e2329;--accent:#5aa9e6;--accent-fg:#0d1117;
+  --warn-bg:#3a2e10;--warn-fg:#ffd98a;--warn-line:#8a6d1f;--danger:#ff7b72;--ok:#4cc77a;--tag-physics:#7fb7dd;--tag-rule:#e8a07a;--tag-vendor:#a7cf7a;--tag-example:#c3a3e0}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 16px 48px;max-width:1040px;margin:0 auto}
+h1{font-size:1.5em;margin:.6em 0 .2em}h2{font-size:1.2em;margin:1.4em 0 .4em;border-bottom:1px solid var(--line);padding-bottom:.2em}
+h3{font-size:1.02em;margin:1.1em 0 .3em}
+p{margin:.4em 0}.mute{color:var(--mute)}.small{font-size:.86em}
+.banner{background:var(--warn-bg);color:var(--warn-fg);border:1px solid var(--warn-line);border-radius:8px;padding:10px 12px;margin:10px 0;font-size:.93em}
+nav.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 6px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:2;border-bottom:1px solid var(--line)}
+nav.tabs button{font:inherit;font-size:.95em;padding:8px 14px;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;cursor:pointer;min-height:40px}
+nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+section.tab{display:none}section.tab.active{display:block}
+.wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.92em}th,td{text-align:left;vertical-align:top;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{background:var(--panel);font-weight:600}td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag{display:inline-block;font-size:.72em;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-left:4px;white-space:nowrap;vertical-align:middle}
+.tag-physics{color:var(--tag-physics)}.tag-rule{color:var(--tag-rule)}.tag-vendor{color:var(--tag-vendor)}.tag-example-team-standard{color:var(--tag-example)}
+.src{color:var(--mute);font-size:.82em}
+.card-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0}
+.danger{color:var(--danger)}.ok{color:var(--ok)}
+.safety li{margin:.5em 0}.safety b{display:block}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 12px;align-items:end}
+.calc label{display:flex;flex-direction:column;font-size:.86em;color:var(--mute)}
+.calc input,.calc select,.controls input,.controls select{font:inherit;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);min-height:40px;width:100%}
+.readout{margin-top:8px;font-size:1.02em}.readout.err{color:var(--danger)}
+button.btn{font:inherit;padding:9px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);cursor:pointer;min-height:42px}
+button.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button.btn.rate{flex:1;min-width:90px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+[hidden]{display:none !important}   /* the hidden attribute wins over any display rule above (e.g. .row) */
+.controls label{display:flex;flex-direction:column;font-size:.86em;color:var(--mute);min-width:120px;flex:1}
+.flash{min-height:150px;font-size:1.15em;display:flex;flex-direction:column;justify-content:center}
+.flash .front{font-weight:600}.flash .back{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.stats{display:flex;flex-wrap:wrap;gap:14px;font-size:.9em;color:var(--mute)}
+textarea{width:100%;min-height:90px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px}
+kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line);border-radius:4px;padding:0 5px;background:var(--panel)}
+.sheet{border:1px solid var(--line);padding:12px;margin:10px 0;background:#fff;color:#111}
+.sheet h1{font-size:1.25em;margin:0 0 4px}.sheet h2{font-size:1em;margin:.7em 0 .2em;border-bottom:1px solid #999;padding-bottom:1px}
+.sheet .banner{background:#fff6dc;color:#4a3300;border-color:#d5ad45;font-size:.8em;padding:6px 8px;margin:6px 0}
+.sheet table{font-size:.8em}.sheet th{background:#eee}.sheet th,.sheet td{border-bottom:1px solid #bbb;padding:2px 5px;color:#111}
+.sheet .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.sheet ol li{margin:.35em 0}.sheet .blank{border-bottom:1px solid #777;height:1.4em;margin:4px 0}
+.sheet .page-break{break-before:page;page-break-before:always;margin-top:24px;border-top:2px dashed #999;padding-top:12px}
+@media(max-width:600px){.sheet .cols{grid-template-columns:1fr}body{font-size:15px}}
+@media print{
+  body{background:#fff;color:#000;padding:0;max-width:none;font-size:10.5pt}
+  header,nav.tabs,section.tab,.screen-only{display:none !important}
+  #tab-print{display:block !important}
+  #tab-print .controls,#tab-print .screen-only{display:none !important}
+  .sheet{border:0;padding:0;margin:0;background:#fff;color:#000;font-size:8.2pt;line-height:1.25}
+  .sheet h1{font-size:13pt;margin:0 0 2px}.sheet h2{font-size:9pt;margin:5px 0 1px}
+  .sheet table{font-size:7.4pt}.sheet th,.sheet td{padding:1px 3px}.sheet ul,.sheet ol{margin:2px 0;padding-left:16px}.sheet li{margin:1px 0}
+  .sheet p{margin:2px 0}.sheet .cols{gap:0 12px}
+  #tab-print > h2{display:none}
+  .sheet[hidden]{display:none !important}
+  .sheet .banner{background:#fff;border:1px solid #000;color:#000}
+  .sheet th{background:#eee;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:9mm}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>FRC Electrical Shop Card</h1>
+  <p class="mute small">Offline. Nothing is sent anywhere; flashcard progress stays in this browser only.</p>
+  <div class="banner" id="banner"></div>
+  <div id="load-error" class="card-box danger" hidden></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-tab="safety">Safety</button>
+  <button role="tab" data-tab="rules">Rules</button>
+  <button role="tab" data-tab="reference">Reference</button>
+  <button role="tab" data-tab="calc">Calculators</button>
+  <button role="tab" data-tab="cards">Flashcards</button>
+  <button role="tab" data-tab="print">Print</button>
+</nav>
+
+<main>
+<section class="tab" id="tab-safety">
+  <h2>Safety first</h2>
+  <p class="danger"><b>This card is not a substitute for your team's safety training.</b> It is the list a new mentor is asked about most.</p>
+  <ul class="safety" id="safety-list"></ul>
+</section>
+
+<section class="tab" id="tab-rules">
+  <h2>Breaker or fuse rating to minimum wire gauge</h2>
+  <p class="small mute" id="rules-season"></p>
+  <div class="wrap"><table id="rule-table"></table></div>
+  <h3>Why this is not the house-wiring table</h3>
+  <p>If you have ever opened the NEC ampacity tables, these gauges look reckless: 12 AWG on a 40 A breaker, 18 AWG on 20 A. Four things are different on a robot. The runs are short and in free air, not bundled in conduit. The loads are intermittent: a drive motor pulls its peak for a second, not for three hours. The breakers are snap-action and trip fast on a real overload. And it is 12 V: at 12 V the thing that actually limits you is voltage drop, not insulation heating. A volt lost in a thin motor lead is 8% of your bus, and the brown-out threshold is only a few volts below where a tired battery already sits under load. So the manual's table is a minimum, and most teams go one or two gauges heavier on anything that pulls real current.</p>
+  <p class="small mute">The 'other rules' table on the Reference tab has the rest of the power section (battery, charger, roboRIO and radio supply, legal breakers and fuses, branch-circuit maxima, wire colours).</p>
+</section>
+
+<section class="tab" id="tab-reference">
+  <h2>Reference</h2>
+  <h3>Copper wire resistance (AWG 6-24)</h3>
+  <p class="small mute">Generated from the AWG formula and copper resistivity at 20 C, solid wire. Stranded wire of the same gauge reads about 2-5% higher. NEC Chapter 9 Table 8 lists resistance at 75 C for stranded conductors, so it reads about 22% higher than this table (copper's temperature coefficient is about 0.393% per degree C, times 55 degrees) plus the stranding allowance. For a robot wire at room temperature these are the right numbers. The ampacity columns are rules of thumb only; the rule table decides what you may fit.</p>
+  <div class="wrap"><table id="awg-table"></table></div>
+
+  <h3>EXAMPLE team standards (edit the data block to match your team's)</h3>
+  <p class="small mute">These are generic examples that satisfy the 2026 rule table with margin. They are not attributed to any team. Your team's own document stays out of this repo.</p>
+  <div class="wrap"><table id="team-table"></table></div>
+
+  <div id="reference-tables"></div>
+
+  <h3>Battery numbers</h3>
+  <div class="wrap"><table id="battery-table"></table></div>
+
+  <h3>Motor stall currents</h3>
+  <p class="small mute" id="motors-note"></p>
+  <div class="wrap"><table id="motors-table"></table></div>
+</section>
+
+<section class="tab" id="tab-calc">
+  <h2>Calculators</h2>
+  <p class="small mute">Each one prints the same sentence as <code>python -m frc_shop_card ...</code>. <span id="golden-status"></span></p>
+
+  <div class="card-box">
+    <h3>1. Voltage drop</h3>
+    <div class="calc">
+      <label>AWG (6-24)<input id="vd-awg" type="number" min="6" max="24" step="1" value="6"></label>
+      <label>One-way length, ft<input id="vd-feet" type="number" min="0" step="any" value="10"></label>
+      <label>Current, A<input id="vd-amps" type="number" min="0" step="any" value="120"></label>
+    </div>
+    <p class="readout" id="vd-out"></p>
+  </div>
+
+  <div class="card-box">
+    <h3>2. Brown-out</h3>
+    <div class="calc">
+      <label>Battery, mohm<input id="bo-batt" type="number" min="0" step="any" value="15"></label>
+      <label>Path (SB50 + lugs + cable), mohm<input id="bo-path" type="number" min="0" step="any" value="8"></label>
+      <label>Current, A<input id="bo-amps" type="number" min="0" step="any" value="300"></label>
+      <label>Threshold, V<input id="bo-thr" type="number" min="0" step="any" value="6.8"></label>
+      <label>Open-circuit, V<input id="bo-ocv" type="number" min="0" step="any" value="12.6"></label>
+    </div>
+    <p class="readout" id="bo-out"></p>
+    <p class="small mute" id="bo-ref"></p>
+  </div>
+
+  <div class="card-box">
+    <h3>3. Battery internal resistance</h3>
+    <div class="calc">
+      <label>Open-circuit, V<input id="br-open" type="number" min="0" step="any" value="12.6"></label>
+      <label>Under load, V<input id="br-loaded" type="number" min="0" step="any" value="11.9"></label>
+      <label>Load, A<input id="br-amps" type="number" min="0" step="any" value="50"></label>
+    </div>
+    <p class="readout" id="br-out"></p>
+  </div>
+
+  <div class="card-box">
+    <h3>4. Short circuit (the wrench across the terminals)</h3>
+    <div class="calc">
+      <label>Battery, mohm<input id="sc-batt" type="number" min="0" step="any" value="12"></label>
+      <label>Path, mohm<input id="sc-path" type="number" min="0" step="any" value="3"></label>
+      <label>Open-circuit, V<input id="sc-ocv" type="number" min="0" step="any" value="12.6"></label>
+    </div>
+    <p class="readout" id="sc-out"></p>
+  </div>
+
+  <div class="card-box">
+    <h3>Ohm's law and power (fill any two)</h3>
+    <div class="calc">
+      <label>Volts<input id="ol-v" type="number" step="any" value="12"></label>
+      <label>Amps<input id="ol-i" type="number" step="any"></label>
+      <label>Ohms<input id="ol-r" type="number" step="any" value="4"></label>
+    </div>
+    <p class="readout" id="ol-out"></p>
+  </div>
+
+  <div class="card-box">
+    <h3>I&#178;t (your own current and time; no trip curves)</h3>
+    <div class="calc">
+      <label>Current, A<input id="it-i" type="number" min="0" step="any" value="60"></label>
+      <label>Time, s<input id="it-t" type="number" min="0" step="any" value="2"></label>
+    </div>
+    <p class="readout" id="it-out"></p>
+  </div>
+
+  <div class="card-box">
+    <h3>Breaker or fuse to minimum gauge (reads the rule table above)</h3>
+    <div class="calc">
+      <label>Rating, A<input id="gl-amps" type="number" min="0" step="any" value="40"></label>
+      <label>Protection<select id="gl-kind"><option value="breaker">breaker (120 = main)</option><option value="fuse">fuse</option></select></label>
+    </div>
+    <p class="readout" id="gl-out"></p>
+  </div>
+
+  <div class="card-box">
+    <h3>Stall current vs brown-out (worked example)</h3>
+    <p class="small" id="stall-example"></p>
+  </div>
+</section>
+
+<section class="tab" id="tab-cards">
+  <h2>Flashcards</h2>
+  <div class="row controls">
+    <label>Week<select id="fc-week"></select></label>
+    <label>Box<select id="fc-box"><option value="all">all</option><option value="1">1 - again</option><option value="2">2 - hard</option><option value="3">3 - got it</option><option value="new">not seen yet</option></select></label>
+    <button class="btn" id="fc-shuffle">Shuffle</button>
+    <button class="btn" id="fc-reset">Reset progress</button>
+  </div>
+  <div class="stats" id="fc-stats"></div>
+  <div class="card-box flash" id="fc-card"></div>
+  <div class="row">
+    <button class="btn primary" id="fc-flip">Show answer</button>
+    <button class="btn" id="fc-prev">Previous</button>
+    <button class="btn" id="fc-next">Next</button>
+  </div>
+  <div class="row" id="fc-rate" hidden>
+    <button class="btn rate" data-box="1">Again</button>
+    <button class="btn rate" data-box="2">Hard</button>
+    <button class="btn rate" data-box="3">Got it</button>
+  </div>
+  <p class="small mute">Keys: <kbd>space</kbd> show answer, <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> rate, arrows move. Three boxes: Again (box 1) comes back first, Hard (box 2) next, Got it (box 3) last. Progress lives only in this browser (no names, no accounts); use Reset on a shared shop computer.</p>
+  <h3>What I keep missing</h3>
+  <ul id="fc-missing" class="small"></ul>
+  <details class="small"><summary>Export / import progress (move your boxes to another device)</summary>
+    <p>Copy the text below to save it; paste saved text and press Import to restore it.</p>
+    <textarea id="fc-io"></textarea>
+    <div class="row"><button class="btn" id="fc-export">Export</button><button class="btn" id="fc-import">Import</button></div>
+  </details>
+</section>
+
+<section class="tab" id="tab-print">
+  <h2>Print</h2>
+  <div class="row controls">
+    <label>What to print<select id="pr-mode"><option value="cheat">One-page cheat sheet</option><option value="quiz">Weekly warm-up + answer key + exit ticket</option></select></label>
+    <label>Week<select id="pr-week"></select></label>
+    <label>Seed<input id="pr-seed" type="number" min="0" step="1" value="1"></label>
+    <button class="btn primary" id="pr-print">Print</button>
+  </div>
+  <p class="small mute screen-only">Use your browser's print dialog (this button opens it). Nothing to install. The same week and seed always give the same five questions; <code>python -m frc_shop_card warmup --week 2 --seed 7</code> prints them too. Dark mode never reaches the printer: print layouts are black on white.</p>
+  <div class="sheet" id="sheet-cheat"></div>
+  <div class="sheet" id="sheet-quiz" hidden></div>
+</section>
+</main>
+
+<script id="card-logic">
+/* Pure logic. Twin of frc_shop_card/calc.py, report.py and card.py. No DOM in here, so the
+   test suite can run this block in Node and compare it with Python. */
+var FRC = (function () {
+  var RHO = 1.724e-8, M_PER_FT = 0.3048, NOMINAL_V = 12, DEFAULT_OPEN_V = 12.6, AWG_MIN = 6, AWG_MAX = 24;
+
+  function num(x, d) {
+    d = d || 0;
+    var p = Math.pow(10, d);
+    var v = Math.floor(Math.abs(x) * p + 0.5) / p;
+    var s = v.toFixed(d), parts = s.split("."), whole = parts[0], frac = parts[1];
+    var groups = [];
+    while (whole.length > 3) { groups.unshift(whole.slice(-3)); whole = whole.slice(0, -3); }
+    groups.unshift(whole);
+    return ((x < 0 && v !== 0) ? "-" : "") + groups.join(",") + (frac ? "." + frac : "");
+  }
+  function g(x) {
+    var s = num(x, 2);
+    if (s.indexOf(".") >= 0) s = s.replace(/0+$/, "").replace(/\.$/, "");
+    return s;
+  }
+  function checkAwg(awg) {
+    awg = Number(awg);
+    if (!isFinite(awg) || awg !== Math.floor(awg) || awg < AWG_MIN || awg > AWG_MAX)
+      throw new Error("AWG must be a whole number from " + AWG_MIN + " to " + AWG_MAX);
+    return awg;
+  }
+  function positive(name, x) { x = Number(x); if (!(x > 0)) throw new Error(name + " must be greater than zero"); return x; }
+  function notNegative(name, x) { x = Number(x); if (!(x >= 0)) throw new Error(name + " cannot be negative"); return x; }
+
+  function awgDiameterMm(n) { return 0.127 * Math.pow(92, (36 - n) / 39); }
+  function awgAreaMm2(n) { var d = awgDiameterMm(n); return Math.PI * (d / 2) * (d / 2); }
+  function awgOhmPerM(n) { return RHO / (awgAreaMm2(n) * 1e-6); }
+  function awgMohmPerFt(n) { return awgOhmPerM(n) * M_PER_FT * 1000; }
+
+  function vdrop(awg, amps, feet) {
+    awg = checkAwg(awg); amps = positive("amps", amps); feet = positive("feet", feet);
+    var rt = 2 * feet, ohms = awgOhmPerM(awg) * M_PER_FT * rt, volts = amps * ohms;
+    return { awg: awg, amps: amps, feet: feet, round_trip_ft: rt, ohms: ohms, mohm: ohms * 1000, volts: volts,
+             pct: volts / NOMINAL_V * 100, watts: amps * amps * ohms };
+  }
+  function brownout(batteryMohm, pathMohm, amps, threshold, openV) {
+    batteryMohm = notNegative("battery mohm", batteryMohm); pathMohm = notNegative("path mohm", pathMohm);
+    var total = batteryMohm + pathMohm; positive("total resistance", total);
+    openV = positive("open-circuit volts", openV == null ? DEFAULT_OPEN_V : openV);
+    var out = { battery_mohm: batteryMohm, path_mohm: pathMohm, total_mohm: total, open_v: openV };
+    if (amps != null && amps !== "") { out.amps = notNegative("amps", amps); out.bus_v = openV - out.amps * total / 1000; }
+    if (threshold != null && threshold !== "") {
+      out.threshold = positive("threshold volts", threshold);
+      if (out.threshold >= openV) throw new Error("threshold must be below the open-circuit voltage");
+      out.amps_at_threshold = (openV - out.threshold) / (total / 1000);
+    }
+    if (out.bus_v == null && out.amps_at_threshold == null) throw new Error("give amps and/or a threshold");
+    return out;
+  }
+  function batteryR(openV, loadedV, amps) {
+    openV = positive("open-circuit volts", openV); amps = positive("amps", amps); loadedV = positive("loaded volts", loadedV);
+    if (loadedV > openV) throw new Error("loaded voltage is above open-circuit; swap them?");
+    var ohms = (openV - loadedV) / amps;
+    return { open_v: openV, loaded_v: loadedV, amps: amps, ohms: ohms, mohm: ohms * 1000 };
+  }
+  function shortCircuit(batteryMohm, pathMohm, openV) {
+    batteryMohm = positive("battery mohm", batteryMohm); pathMohm = notNegative("path mohm", pathMohm);
+    openV = positive("open-circuit volts", openV == null ? DEFAULT_OPEN_V : openV);
+    var total = batteryMohm + pathMohm, amps = openV / (total / 1000);
+    return { battery_mohm: batteryMohm, path_mohm: pathMohm, total_mohm: total, open_v: openV, amps: amps,
+             battery_w: amps * amps * batteryMohm / 1000, total_w: openV * amps };
+  }
+  function ohmsLaw(volts, amps, ohms) {
+    var given = [volts, amps, ohms].filter(function (x) { return x != null && x !== ""; }).length;
+    if (given !== 2) throw new Error("give exactly two of volts, amps, ohms");
+    if (volts == null || volts === "") volts = notNegative("amps", amps) * notNegative("ohms", ohms);
+    else if (amps == null || amps === "") amps = notNegative("volts", volts) / positive("ohms", ohms);
+    else ohms = notNegative("volts", volts) / positive("amps", amps);
+    volts = Number(volts); amps = Number(amps); ohms = Number(ohms);
+    return { volts: volts, amps: amps, ohms: ohms, watts: volts * amps };
+  }
+  function i2t(amps, seconds) {
+    amps = notNegative("amps", amps); seconds = notNegative("seconds", seconds);
+    return { amps: amps, seconds: seconds, i2t: amps * amps * seconds };
+  }
+  function gaugeFor(ruleTable, amps, protection) {
+    amps = positive("amps", amps); protection = protection || "breaker";
+    if (amps < 0.01) throw new Error("a rating below 0.01 A is not a breaker or fuse rating; check the number");
+    var best = null;
+    ruleTable.forEach(function (row) {
+      if (row.protection !== protection && !(protection === "breaker" && row.protection === "main")) return;
+      var lo = Number(row.amps_min), hi = Number(row.amps_max);
+      if (row.amps_min == null || row.amps_max == null || !(lo <= amps && amps <= hi)) return;
+      if (best === null || hi < Number(best.amps_max)) best = row;
+    });
+    return best;
+  }
+
+  function vdropSentence(r) {
+    return "At " + g(r.amps) + " A through " + g(r.feet) + " ft of " + r.awg + " AWG (" + g(r.round_trip_ft) +
+      " ft round trip, " + num(r.mohm, 1) + " mohm) you lose " + num(r.volts, 2) + " V, about " + num(r.pct, 1) +
+      "% of 12 V; the wire dissipates " + num(r.watts) + " W.";
+  }
+  function brownoutSentences(r) {
+    var out = [];
+    if (r.bus_v != null) out.push("A " + g(r.battery_mohm) + " mohm battery plus " + g(r.path_mohm) +
+      " mohm of connectors and cable (" + g(r.total_mohm) + " mohm total) at " + g(r.amps) + " A: the " +
+      g(r.open_v) + " V battery sags to " + num(r.bus_v, 2) + " V on the bus.");
+    if (r.amps_at_threshold != null) out.push("To pull that " + g(r.open_v) + " V battery down to " + g(r.threshold) +
+      " V through " + g(r.total_mohm) + " mohm takes about " + num(r.amps_at_threshold) + " A.");
+    return out;
+  }
+  function batteryRSentence(r) {
+    return "Open-circuit " + g(r.open_v) + " V, " + g(r.loaded_v) + " V under " + g(r.amps) + " A: internal resistance about " +
+      num(r.mohm, 1) + " mohm (this includes whatever leads and connectors sit between the meter and the battery plates).";
+  }
+  function shortSentence(r) {
+    return "A bolted short across a " + g(r.open_v) + " V battery with " + g(r.battery_mohm) + " mohm inside and " +
+      g(r.path_mohm) + " mohm of path (" + g(r.total_mohm) + " mohm) drives about " + num(r.amps) +
+      " A; the battery itself heats at about " + num(r.battery_w / 1000, 1) + " kW and the whole loop at " +
+      num(r.total_w / 1000, 1) + " kW.";
+  }
+  function ohmSentence(r) { return "V = " + g(r.volts) + " V, I = " + g(r.amps) + " A, R = " + g(r.ohms) + " ohm, P = " + g(r.watts) + " W."; }
+  function i2tSentence(r) {
+    return g(r.amps) + " A for " + g(r.seconds) + " s: I^2t = " + num(r.i2t) +
+      " A^2-s. Compare it with your breaker's published curve; this card prints no trip curves.";
+  }
+  function gaugeSentence(amps, protection, row) {
+    if (!row) return g(amps) + " A " + protection + ": not in the table, see the manual.";
+    var tail = row.source + (row.season ? ", season " + row.season : "");
+    var what = row.protection === "main" ? "is the main breaker: battery to main breaker to PD input needs" : "needs";
+    return "A " + g(amps) + " A " + protection + " " + what + " at least " + row.min_awg + " AWG (" + tail +
+      "; verify against the current season's manual).";
+  }
+
+  /* tables, cards, warm-up */
+  function tables(data) {
+    var out = { rule_table: data.rule_table || [], team_standards_example: data.team_standards_example || [],
+                motors: data.motors || [], battery: data.battery || [], awg_table: data.awg_table || [], safety: data.safety || [] };
+    (data.reference_tables || []).forEach(function (t) { if (t && t.id) out[t.id] = t.rows || []; });
+    return out;
+  }
+  function findRow(rows, ref) {
+    if (typeof ref === "number") return (ref >= 0 && ref < rows.length) ? rows[ref] : null;
+    for (var i = 0; i < rows.length; i++) if (rows[i].id === ref) return rows[i];
+    return null;
+  }
+  function fill(template, row) {
+    return String(template).replace(/\{(\w+)\}/g, function (m, k) { return (k in row) ? String(row[k]) : m; });
+  }
+  function cardId(c) {
+    if (c.kind === "number" && c.from_table) return "n:" + c.from_table + ":" + c.row;
+    var s = String(c.week) + "|" + (c.front || ""), h = 0;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 4294967296;
+    return "w:" + c.week + ":" + h;
+  }
+  function expandCards(data) {
+    var tbl = tables(data), out = [];
+    (data.cards || []).forEach(function (c) {
+      if (c.kind === "number" && c.from_table) {
+        var row = findRow(tbl[c.from_table] || [], c.row);
+        if (!row || !row.source) return;   /* a row with no source does not render anywhere */
+        var src = String(row.source || "");
+        if (row.season) src += " (season " + row.season + "; verify against the current manual)";
+        out.push({ id: cardId(c), week: c.week, kind: "number", front: fill(c.template || "", row),
+                   back: fill(c.answer == null ? "{value}" : c.answer, row), source: src, tag: row.tag || "" });
+      } else {
+        out.push({ id: cardId(c), week: c.week, kind: c.kind || "concept", front: c.front || "", back: c.back || "",
+                   source: c.source || "", tag: c.tag || "" });
+      }
+    });
+    return out;
+  }
+  function lcg(seed) {
+    var s = Number(seed) % 4294967296;
+    if (s < 0) s += 4294967296;
+    return function () { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+  }
+  function shuffle(items, rand) {
+    var out = items.slice();
+    for (var i = out.length - 1; i > 0; i--) { var j = Math.floor(rand() * (i + 1)); var t = out[i]; out[i] = out[j]; out[j] = t; }
+    return out;
+  }
+  function warmup(data, week, seed, nWeek, nEarlier) {
+    nWeek = nWeek || 3; nEarlier = nEarlier || 2; week = Number(week); seed = Number(seed);
+    var cards = expandCards(data), rand = lcg(seed * 1000 + week);
+    var thisWeek = shuffle(cards.filter(function (c) { return c.week === week; }), rand);
+    var earlier = shuffle(cards.filter(function (c) { return c.week < week; }), rand);
+    var picks = thisWeek.slice(0, nWeek).concat(earlier.slice(0, nEarlier));
+    if (picks.length < nWeek + nEarlier) {
+      var extra = thisWeek.slice(nWeek).concat(earlier.slice(nEarlier));
+      picks = picks.concat(extra.slice(0, nWeek + nEarlier - picks.length));
+    }
+    return { week: week, seed: seed, questions: picks };
+  }
+  function runGolden(ex) {
+    var i = ex["in"] || {};
+    switch (ex.calc) {
+      case "vdrop": return vdrop(i.awg, i.amps, i.feet);
+      case "brownout": return brownout(i.battery_mohm, i.path_mohm, i.amps, i.threshold, i.open_v);
+      case "battery_r": return batteryR(i.open_v, i.loaded_v, i.amps);
+      case "short": return shortCircuit(i.battery_mohm, i.path_mohm, i.open_v);
+      case "ohm": return ohmsLaw(i.volts, i.amps, i.ohms);
+      case "i2t": return i2t(i.amps, i.seconds);
+    }
+    throw new Error("unknown calc " + ex.calc);
+  }
+  function goldenSentences(ex) {
+    var r = runGolden(ex);
+    switch (ex.calc) {
+      case "vdrop": return [vdropSentence(r)];
+      case "brownout": return brownoutSentences(r);
+      case "battery_r": return [batteryRSentence(r)];
+      case "short": return [shortSentence(r)];
+      case "ohm": return [ohmSentence(r)];
+      case "i2t": return [i2tSentence(r)];
+    }
+    return [];
+  }
+  function checkGolden(golden) {
+    var bad = [];
+    (golden || []).forEach(function (ex, n) {
+      var got;
+      try { got = runGolden(ex); } catch (e) { bad.push("example " + n + ": " + e.message); return; }
+      Object.keys(ex.out || {}).forEach(function (k) {
+        var want = ex.out[k], have = got[k];
+        if (typeof have !== "number" || Math.abs(have - want) > Math.max(0.02 * Math.abs(want), 0.005))
+          bad.push("example " + n + " (" + ex.calc + "): " + k + " expected " + want + ", got " + have);
+      });
+    });
+    return bad;
+  }
+  return { num: num, g: g, awgDiameterMm: awgDiameterMm, awgAreaMm2: awgAreaMm2, awgMohmPerFt: awgMohmPerFt,
+           vdrop: vdrop, brownout: brownout, batteryR: batteryR, shortCircuit: shortCircuit, ohmsLaw: ohmsLaw, i2t: i2t,
+           gaugeFor: gaugeFor, vdropSentence: vdropSentence, brownoutSentences: brownoutSentences,
+           batteryRSentence: batteryRSentence, shortSentence: shortSentence, ohmSentence: ohmSentence,
+           i2tSentence: i2tSentence, gaugeSentence: gaugeSentence, tables: tables, findRow: findRow, fill: fill,
+           cardId: cardId, expandCards: expandCards, lcg: lcg, shuffle: shuffle, warmup: warmup,
+           runGolden: runGolden, goldenSentences: goldenSentences, checkGolden: checkGolden, DEFAULT_OPEN_V: DEFAULT_OPEN_V };
+})();
+if (typeof module !== "undefined" && module.exports) module.exports = FRC;
+</script>
+
+<script>
+/* Page behaviour: reads the card-data block, renders every tab from it. */
+(function () {
+  "use strict";
+  var KEY = "frc_shop_card.";
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function lsGet(k, fallback) { try { var v = localStorage.getItem(KEY + k); return v === null ? fallback : JSON.parse(v); } catch (e) { return fallback; } }
+  function lsSet(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) { /* private mode or blocked: fine */ } }
+  function lsClearAll() { try { var ks = []; for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf(KEY) === 0) ks.push(k); } ks.forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {} }
+  function tag(t, row) {
+    if (!t) return "";
+    var label = t === "example-team-standard" ? (row && /^common FRC shop practice/i.test(row.source || "") ? "shop practice" : "example") : t;
+    return '<span class="tag tag-' + esc(t) + '">' + esc(label) + "</span>";
+  }
+  function src(row) { return '<div class="src">' + esc(row.source) + (row.season ? " (season " + esc(row.season) + ", verify)" : "") + "</div>"; }
+
+  var DATA;
+  try {
+    DATA = JSON.parse($("card-data").textContent);
+  } catch (e) {
+    $("load-error").hidden = false;
+    $("load-error").textContent = "The card-data block at the top of this file is not valid JSON (" + e.message +
+      "). Common causes: a missing comma, a trailing comma, or an unmatched quote. Fix it in Notepad, or run: python -m frc_shop_card check";
+    return;
+  }
+  /* a row that is not an object (a stray null, number or text) is treated like a row with no source: it does not
+     render, and nothing else breaks; python -m frc_shop_card check names it. Cards that are not objects are dropped. */
+  function isRow(r) { return !!r && typeof r === "object" && !Array.isArray(r); }
+  function rowsOnly(list, keep) { return (Array.isArray(list) ? list : []).map(function (r) { return isRow(r) ? r : (keep ? {} : null); }).filter(function (r) { return r !== null; }); }
+  ["safety", "rule_table", "team_standards_example", "motors", "battery", "awg_table"].forEach(function (k) { DATA[k] = rowsOnly(DATA[k], true); });
+  DATA.cards = rowsOnly(DATA.cards, false); DATA.golden = rowsOnly(DATA.golden, false);
+  DATA.reference_tables = rowsOnly(DATA.reference_tables, false);
+  DATA.reference_tables.forEach(function (t) { t.rows = rowsOnly(t.rows, true); });
+  var BANNER = DATA.banner || "";
+  $("banner").textContent = BANNER;
+
+  /* ---- tabs ---- */
+  var tabs = document.querySelectorAll("nav.tabs button");
+  function showTab(name) {
+    var found = false;
+    document.querySelectorAll("section.tab").forEach(function (s) { var on = s.id === "tab-" + name; s.classList.toggle("active", on); found = found || on; });
+    if (!found) return showTab("safety");
+    tabs.forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false"); });
+    lsSet("tab", name);
+    if (location.hash !== "#" + name) { try { history.replaceState(null, "", "#" + name); } catch (e) {} }
+  }
+  tabs.forEach(function (b) { b.addEventListener("click", function () { showTab(b.dataset.tab); }); });
+  window.addEventListener("hashchange", function () { if (location.hash.length > 1) showTab(location.hash.slice(1)); });
+
+  /* ---- safety ---- */
+  $("safety-list").innerHTML = (DATA.safety || []).filter(function (r) { return r.source; }).map(function (r) {
+    return "<li><b>" + esc(r.item) + "</b>" + esc(r.detail || "") + " " + tag(r.tag, r) + src(r) + "</li>";
+  }).join("");
+
+  /* ---- rules ---- */
+  var RULES = (DATA.rule_table || []).filter(function (r) { return r.source && r.tag; });
+  var seasons = {}; RULES.forEach(function (r) { if (r.season) seasons[r.season] = 1; });
+  $("rules-season").textContent = "Season " + Object.keys(seasons).join(", ") + " rows, all marked verify. Each is a minimum; heavier wire is always allowed.";
+  function ruleRow(r, compact) {
+    var amps = r.protection === "breaker" || r.protection === "fuse"
+      ? (r.amps_min > 0 ? r.amps_min + "-" + r.amps_max : "up to " + r.amps_max) + " A " + r.protection
+      : (r.protection === "main" ? "main path" : r.protection === "signal" ? "signal level" : "");
+    return "<tr><td>" + esc(r.label) + (compact ? "" : "<br><span class='small mute'>" + esc(r.note || "") + "</span>") + "</td>" +
+      "<td class='n'>" + esc(amps) + "</td><td class='n'><b>" + esc(r.min_awg) + (typeof r.min_awg === "number" ? " AWG" : "") + "</b></td>" +
+      (compact ? "" : "<td>" + tag(r.tag) + src(r) + "</td>") + "</tr>";
+  }
+  $("rule-table").innerHTML = "<tr><th>Circuit</th><th>Rating</th><th>Minimum wire</th><th>Source</th></tr>" + RULES.map(function (r) { return ruleRow(r, false); }).join("");
+
+  /* ---- reference ---- */
+  var AWG = (DATA.awg_table || []).filter(function (r) { return r.source && r.tag; });
+  $("awg-table").innerHTML = "<tr><th>AWG</th><th>Diameter mm</th><th>Area mm2</th><th>mohm per ft</th><th>ohm per 1000 ft</th><th>ohm per km</th><th>Chassis wiring A (rule of thumb)</th><th>NEC 75 C A (bundled)</th></tr>" +
+    AWG.map(function (r) {
+      return "<tr><td class='n'><b>" + r.awg + "</b></td><td class='n'>" + r.diameter_mm + "</td><td class='n'>" + r.area_mm2 + "</td><td class='n'>" + r.mohm_per_ft +
+        "</td><td class='n'>" + r.ohm_per_1000ft + "</td><td class='n'>" + r.ohm_per_km + "</td><td class='n'>" + (r.chassis_a == null ? "" : r.chassis_a) +
+        "</td><td class='n'>" + (r.nec75_a == null ? "" : r.nec75_a) + "</td></tr>";
+    }).join("") +
+    "<tr><td colspan='8' class='src'>" + esc(AWG.length ? AWG[0].source : "") + ". Ampacity columns: " + esc((AWG.filter(function (r) { return r.ampacity_source; })[0] || {}).ampacity_source || "") + " " + tag("physics") + "</td></tr>";
+
+  function itemTable(rows, extraCols) {
+    rows = (rows || []).filter(function (r) { return r.source && r.tag; });
+    if (!rows.length) return "";
+    return "<tr><th>Item</th><th>Value</th><th>Source</th></tr>" + rows.map(function (r) {
+      return "<tr><td>" + esc(r.item) + "</td><td>" + esc(r.value) + (r.unit ? " " + esc(r.unit) : "") + "</td><td>" + tag(r.tag) + src(r) + "</td></tr>";
+    }).join("");
+  }
+  $("team-table").innerHTML = itemTable(DATA.team_standards_example);
+  $("battery-table").innerHTML = itemTable(DATA.battery);
+  $("motors-note").textContent = DATA.motors_note || "";
+  $("motors-table").innerHTML = itemTable(DATA.motors) || "<tr><td class='mute'>No motor rows with a datasheet citation in the data block.</td></tr>";
+  $("reference-tables").innerHTML = (DATA.reference_tables || []).map(function (t) {
+    var rows = (t.rows || []).filter(function (r) { return r.source && r.tag; }), body;
+    if (t.id === "ferrules") {
+      body = rows.length ? "<tr><th>mm2</th><th>DIN 46228-4 colour</th><th>'WE' alternative colour</th><th>Nearest AWG</th><th>Source</th></tr>" + rows.map(function (r) {
+        return "<tr><td class='n'>" + esc(r.mm2) + "</td><td>" + esc(r.din_colour) + "</td><td>" + esc(r.we_colour) + "</td><td>" + esc(r.awg) + "</td><td>" + tag(r.tag) + src(r) + "</td></tr>";
+      }).join("") : "";
+    } else body = itemTable(rows);
+    return "<h3>" + esc(t.title) + "</h3>" + (t.note ? "<p class='small mute'>" + esc(t.note) + "</p>" : "") +
+      (body ? "<div class='wrap'><table>" + body + "</table></div>" : "<p class='small mute'>(no rows)</p>");
+  }).join("");
+
+  /* ---- calculators ---- */
+  function val(id) { var v = $(id).value; return v === "" ? null : Number(v); }
+  function out(id, lines, err) { var el = $(id); el.classList.toggle("err", !!err); el.innerHTML = err ? esc(err) : lines.map(esc).join("<br>"); }
+  function safe(id, fn) { try { out(id, fn()); } catch (e) { out(id, [], "Check the inputs: " + e.message); } }
+  var boRows = FRC.tables(DATA).brownout || [];
+  function calcAll() {
+    safe("vd-out", function () { return [FRC.vdropSentence(FRC.vdrop(val("vd-awg"), val("vd-amps"), val("vd-feet")))]; });
+    safe("bo-out", function () { return FRC.brownoutSentences(FRC.brownout(val("bo-batt"), val("bo-path"), val("bo-amps"), val("bo-thr"), val("bo-ocv"))); });
+    safe("br-out", function () { return [FRC.batteryRSentence(FRC.batteryR(val("br-open"), val("br-loaded"), val("br-amps")))]; });
+    safe("sc-out", function () { return [FRC.shortSentence(FRC.shortCircuit(val("sc-batt"), val("sc-path"), val("sc-ocv")))]; });
+    safe("ol-out", function () { return [FRC.ohmSentence(FRC.ohmsLaw(val("ol-v"), val("ol-i"), val("ol-r")))]; });
+    safe("it-out", function () { return [FRC.i2tSentence(FRC.i2t(val("it-i"), val("it-t")))]; });
+    safe("gl-out", function () { var k = $("gl-kind").value, a = val("gl-amps"); return [FRC.gaugeSentence(a, k, FRC.gaugeFor(RULES, a, k))]; });
+  }
+  document.querySelectorAll("#tab-calc input, #tab-calc select").forEach(function (el) { el.addEventListener("input", calcAll); el.addEventListener("change", calcAll); });
+  calcAll();
+  $("bo-ref").textContent = boRows.length ? "Thresholds on this card: " + boRows.filter(function (r) { return typeof r.value === "number"; }).map(function (r) { return r.item + " " + r.value + " V"; }).join("; ") + ". See the Reference tab for sources." : "";
+  var bad = FRC.checkGolden(DATA.golden);
+  $("golden-status").innerHTML = bad.length ? "<span class='danger'>Self-check: the page's calculators disagree with the golden examples: " + esc(bad.join("; ")) + "</span>"
+    : "<span class='ok'>Self-check: the page's calculators agree with all " + (DATA.golden || []).length + " golden examples in the data block.</span>";
+  var MOT = (DATA.motors || []).filter(function (r) { return r.source && typeof r.stall_a === "number"; });
+  $("stall-example").innerHTML = MOT.length
+    ? MOT.map(function (m) { var r = FRC.brownout(15, 8, m.stall_a, null, FRC.DEFAULT_OPEN_V); return esc(m.item) + " stalled alone (" + m.stall_a + " A, " + esc(m.source) + ") on a 15 mohm battery + 8 mohm path: bus " + FRC.num(r.bus_v, 2) + " V."; }).join("<br>")
+    : "Shown only for motors with a datasheet citation in the data block's motors section (none shipped: add rows with item, stall_a, source, tag). Meanwhile type any motor's datasheet stall current into the brown-out calculator above with your measured battery and path resistance.";
+
+  /* ---- flashcards ---- */
+  var CARDS = FRC.expandCards(DATA);
+  var progress = lsGet("progress", {});
+  var fc = { week: lsGet("fc_week", "all"), box: "all", queue: [], i: 0, flipped: false, shuffled: false };
+  var weekSel = $("fc-week");
+  weekSel.innerHTML = "<option value='all'>all weeks</option>" + [0,1,2,3,4,5,6,7,8,9,10].map(function (w) { return "<option value='" + w + "'>week " + w + "</option>"; }).join("");
+  weekSel.value = String(fc.week);
+  function boxOf(c) { var p = progress[c.id]; return p ? p.box : 0; }
+  function buildQueue() {
+    var list = CARDS.filter(function (c) {
+      if (fc.week !== "all" && c.week !== Number(fc.week)) return false;
+      var b = boxOf(c);
+      if (fc.box === "new") return b === 0;
+      if (fc.box !== "all") return b === Number(fc.box);
+      return true;
+    });
+    if (fc.shuffled) list = FRC.shuffle(list, Math.random);
+    list.sort(function (a, b) { return (boxOf(a) || 1.5) - (boxOf(b) || 1.5); });   /* box 1 first, unseen next, then 2, 3 */
+    fc.queue = list; fc.i = 0; fc.flipped = false;
+    renderCard();
+  }
+  function renderCard() {
+    var el = $("fc-card"), c = fc.queue[fc.i];
+    var counts = { 1: 0, 2: 0, 3: 0, 0: 0 };
+    CARDS.forEach(function (x) { counts[boxOf(x)]++; });
+    $("fc-stats").innerHTML = "<span>" + CARDS.length + " cards</span><span>box 1 again: " + counts[1] + "</span><span>box 2 hard: " + counts[2] + "</span><span>box 3 got it: " + counts[3] + "</span><span>unseen: " + counts[0] + "</span>";
+    if (!c) { el.innerHTML = "<div class='mute'>No cards match this filter.</div>"; $("fc-rate").hidden = true; return; }
+    var b = boxOf(c);
+    el.innerHTML = "<div class='small mute'>" + (fc.i + 1) + " of " + fc.queue.length + " &middot; week " + c.week + " &middot; " + esc(c.kind) + (b ? " &middot; box " + b : " &middot; new") + "</div>" +
+      "<div class='front'>" + esc(c.front) + "</div>" +
+      (fc.flipped ? "<div class='back'>" + esc(c.back) + "<div class='src'>" + esc(c.source) + " " + tag(c.tag) + "</div></div>" : "");
+    $("fc-rate").hidden = !fc.flipped;
+    $("fc-flip").textContent = fc.flipped ? "Hide answer" : "Show answer";
+    renderMissing();
+  }
+  function renderMissing() {
+    var miss = CARDS.filter(function (c) { return progress[c.id] && progress[c.id].misses >= 2; })
+      .sort(function (a, b) { return progress[b.id].misses - progress[a.id].misses; }).slice(0, 12);
+    $("fc-missing").innerHTML = miss.length ? miss.map(function (c) { return "<li>" + esc(c.front) + " <span class='mute'>(missed " + progress[c.id].misses + "x, week " + c.week + ")</span></li>"; }).join("")
+      : "<li class='mute'>Nothing yet. Cards you mark Again twice or more show up here.</li>";
+  }
+  function rate(box) {
+    var c = fc.queue[fc.i]; if (!c || !fc.flipped) return;   /* rate only once the answer is showing */
+    var p = progress[c.id] || { box: 0, misses: 0, seen: 0 };
+    p.box = box; p.seen += 1; if (box === 1) p.misses += 1;
+    progress[c.id] = p; lsSet("progress", progress);
+    next();
+  }
+  function next() { if (!fc.queue.length) return; fc.i = (fc.i + 1) % fc.queue.length; fc.flipped = false; renderCard(); }
+  function prev() { if (!fc.queue.length) return; fc.i = (fc.i - 1 + fc.queue.length) % fc.queue.length; fc.flipped = false; renderCard(); }
+  $("fc-flip").addEventListener("click", function () { fc.flipped = !fc.flipped; renderCard(); });
+  $("fc-next").addEventListener("click", next);
+  $("fc-prev").addEventListener("click", prev);
+  $("fc-shuffle").addEventListener("click", function () { fc.shuffled = true; buildQueue(); });
+  $("fc-reset").addEventListener("click", function () {
+    if (!confirm("Clear all flashcard progress stored in this browser?")) return;
+    progress = {}; lsClearAll(); lsSet("tab", "cards"); buildQueue();
+  });
+  document.querySelectorAll("#fc-rate button").forEach(function (b) { b.addEventListener("click", function () { rate(Number(b.dataset.box)); }); });
+  weekSel.addEventListener("change", function () { fc.week = weekSel.value; lsSet("fc_week", fc.week); buildQueue(); });
+  $("fc-box").addEventListener("change", function () { fc.box = $("fc-box").value; buildQueue(); });
+  $("fc-export").addEventListener("click", function () { $("fc-io").value = JSON.stringify(progress); });
+  $("fc-import").addEventListener("click", function () {
+    try { var p = JSON.parse($("fc-io").value || "{}"); if (typeof p !== "object" || Array.isArray(p)) throw new Error("not an object"); progress = p; lsSet("progress", progress); buildQueue(); }
+    catch (e) { alert("That text is not exported progress: " + e.message); }
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (!$("tab-cards").classList.contains("active")) return;
+    var t = ev.target && ev.target.tagName; if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
+    if (ev.key === " " || ev.key === "Enter") { ev.preventDefault(); fc.flipped = !fc.flipped; renderCard(); }
+    else if (ev.key === "1" || ev.key === "2" || ev.key === "3") { if (fc.flipped) rate(Number(ev.key)); }
+    else if (ev.key === "ArrowRight") next();
+    else if (ev.key === "ArrowLeft") prev();
+  });
+  buildQueue();
+
+  /* ---- print ---- */
+  var prWeek = $("pr-week");
+  prWeek.innerHTML = [0,1,2,3,4,5,6,7,8,9,10].map(function (w) { return "<option value='" + w + "'>week " + w + "</option>"; }).join("");
+  prWeek.value = String(lsGet("pr_week", 1)); $("pr-seed").value = String(lsGet("pr_seed", 1));
+  function printBanner() { return "<div class='banner'>" + esc(BANNER) + "</div>"; }
+  function clause(s) { return String(s || "").split(/[;(]/)[0].trim(); }   /* first clause only: the sheet must fit one page */
+  function cheatSheet() {
+    var tbl = FRC.tables(DATA);
+    function sourced(rows) { return (rows || []).filter(function (r) { return r.source && r.tag; }); }   /* same rule as the tabs */
+    var gauges = [6, 8, 10, 12, 14, 16, 18], amps = [5, 10, 20, 40, 80, 120];
+    var grid = "<table><tr><th>V lost, 10 ft one way</th>" + amps.map(function (a) { return "<th>" + a + " A</th>"; }).join("") + "</tr>" +
+      gauges.map(function (n) { return "<tr><td><b>" + n + " AWG</b></td>" + amps.map(function (a) { return "<td class='n'>" + FRC.num(FRC.vdrop(n, a, 10).volts, 2) + "</td>"; }).join("") + "</tr>"; }).join("") + "</table>";
+    var conn = sourced(tbl.connectors).filter(function (r) { return /^sl_/.test(r.id) || r.id === "can_term" || r.id === "sb50_r"; });
+    var bo = sourced(tbl.brownout).filter(function (r) { return typeof r.value === "number" || r.id === "bo_syscore"; });
+    var bat = sourced(DATA.battery).filter(function (r) { return /^(bat_rint|bat_beak|bat_cba|bat_retire|bat_alt|bat_policy|bat_charge)$/.test(r.id); });
+    var torque = ((DATA.reference_tables || []).filter(function (t) { return t.id === "torque"; })[0] || {});
+    return "<h1>FRC Electrical Shop Card: cheat sheet</h1>" + printBanner() +
+      "<div class='cols'><div>" +
+      "<h2>Safety</h2><ul class='small'>" + sourced(DATA.safety).map(function (r) { return "<li>" + esc(r.item) + "</li>"; }).join("") + "</ul>" +
+      "<h2>Breaker / fuse to minimum wire (season " + esc(Object.keys(seasons).join(", ")) + ", verify)</h2><table><tr><th>Circuit</th><th>Rating</th><th>Min wire</th></tr>" +
+      RULES.filter(function (r) { return r.protection !== "other"; }).map(function (r) { return ruleRow(r, true); }).join("") + "</table>" +
+      "<p class='small'>Colours (R624): " + esc((RULES.filter(function (r) { return r.id === "colour"; })[0] || {}).note || "") + "</p>" +
+      "<h2>Voltage lost in the wire (round trip, 12 V)</h2>" + grid +
+      "</div><div>" +
+      "<h2>EXAMPLE team standards (edit to match yours)</h2><table>" + sourced(DATA.team_standards_example).map(function (r) { return "<tr><td>" + esc(r.item) + "</td><td><b>" + esc(r.value) + "</b> " + esc(r.unit) + "</td></tr>"; }).join("") + "</table>" +
+      "<h2>Connectors and crimps</h2><table>" + conn.map(function (r) { return "<tr><td>" + esc(r.item) + "</td><td><b>" + esc(r.value) + "</b> " + esc(clause(r.unit)) + "</td></tr>"; }).join("") + "</table>" +
+      "<h2>Torque</h2><p class='small'>" + esc(torque.note || "") + "</p>" +
+      "<h2>Brown-out</h2><table>" + bo.map(function (r) { return "<tr><td>" + esc(r.item) + "</td><td><b>" + esc(r.value) + "</b> " + esc(clause(r.unit)) + "</td></tr>"; }).join("") + "</table>" +
+      "<h2>Battery</h2><table>" + bat.map(function (r) { return "<tr><td>" + esc(r.print_item || clause(r.item)) + "</td><td><b>" + esc(r.value) + "</b> " + esc(clause(r.unit)) + "</td></tr>"; }).join("") + "</table>" +
+      "</div></div>";
+  }
+  function quizSheet(week, seed) {
+    var w = FRC.warmup(DATA, week, seed);
+    return "<h1>Weekly warm-up: week " + w.week + " (seed " + w.seed + ")</h1>" + printBanner() +
+      "<p class='small'>Name: ____________________   Date: __________   Three questions from this week, two from earlier weeks. Write what you remember; then we go over the key together.</p>" +
+      "<ol>" + w.questions.map(function (c) { return "<li>" + esc(c.front) + " <span class='small'>(week " + c.week + ")</span><div class='blank'></div><div class='blank'></div></li>"; }).join("") + "</ol>" +
+      "<h2>Exit ticket (before you leave)</h2><ol><li>One safety rule from today:<div class='blank'></div></li><li>The SL connector current limit, and the wire gauge it takes:<div class='blank'></div></li><li>One thing that is still fuzzy:<div class='blank'></div></li></ol>" +
+      "<div class='page-break'><h1>Answer key: week " + w.week + " (seed " + w.seed + ")</h1>" + printBanner() +
+      "<ol>" + w.questions.map(function (c) { return "<li><b>" + esc(c.front) + "</b><br>" + esc(c.back) + "<div class='src'>" + esc(c.source) + "</div></li>"; }).join("") + "</ol></div>";
+  }
+  function renderPrint() {
+    var mode = $("pr-mode").value;
+    $("sheet-cheat").hidden = mode !== "cheat"; $("sheet-quiz").hidden = mode !== "quiz";
+    if (mode === "cheat") $("sheet-cheat").innerHTML = cheatSheet();
+    else { var wk = Number(prWeek.value), sd = Number($("pr-seed").value) || 0; lsSet("pr_week", wk); lsSet("pr_seed", sd); $("sheet-quiz").innerHTML = quizSheet(wk, sd); }
+  }
+  ["pr-mode", "pr-week", "pr-seed"].forEach(function (id) { $(id).addEventListener("change", renderPrint); $(id).addEventListener("input", renderPrint); });
+  $("pr-print").addEventListener("click", function () { renderPrint(); window.print(); });
+  renderPrint();
+
+  showTab(location.hash.length > 1 ? location.hash.slice(1) : lsGet("tab", "safety"));
+})();
+</script>
+</body>
+</html>
