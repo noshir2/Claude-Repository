@@ -1,0 +1,9 @@
+# Made-up candidates. Edit a copy as data/candidates.csv. Prices and premiums are per share; iv is a percent.
+# cost_basis only matters for a covered call (type C). earnings is optional (YYYY-MM-DD).
+ticker,type,strike,expiry,premium,price,iv,cost_basis,note,earnings
+AAA,P,45,2026-11-20,1.00,50,60,,plain put (worked example A),
+BBB,P,20,2026-11-20,1.50,22,110,,small biotech,2026-11-05
+CCC,C,51,2026-10-31,0.80,50,25,52,covered call below my cost basis (worked example C),
+DDD,P,80,2026-12-20,2.40,90,35,,two months out,
+SOXL,P,30,2026-11-20,1.20,36,80,,3x semiconductor fund,
+FFF,P,25,2026-11-20,0.60,28,,,no IV typed,

@@ -3,3 +3,6 @@ data/
 wheel_report.html
 __pycache__/
 .pytest_cache/
+pdh_report.html
+wheel_planner_report.html
+fantasy_report.html

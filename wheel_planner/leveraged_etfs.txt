@@ -1,0 +1,77 @@
+# Leveraged and inverse ETFs that reset daily. One ticker per line; # starts a comment.
+# Why they are flagged: the ProShares UltraPro QQQ prospectus says the fund "does not seek to achieve
+# three times (3x) the daily performance of the Index" for periods longer than a day and "you may lose
+# money when the Index return is flat"; Direxion's brochure shows a 3x fund losing 4.5% over six days
+# while the index ended flat. Owning one after assignment is not the plain wheel.
+# Sources: ProShares UltraPro QQQ summary prospectus (SEC 497K, 2023); Direxion 'Understanding
+# Leveraged & Inverse ETFs' brochure. This list goes stale: verify against the issuer's current fund list.
+#
+# ProShares: 2x Ultra / 3x UltraPro and the inverse Short versions
+TQQQ
+SQQQ
+QLD
+QID
+UPRO
+SPXU
+SSO
+SDS
+UDOW
+SDOW
+DDM
+DXD
+URTY
+SRTY
+UWM
+TWM
+UMDD
+SMDD
+UCO
+SCO
+BOIL
+KOLD
+UGL
+GLL
+AGQ
+ZSL
+UBT
+TBT
+# Direxion: Daily 2x/3x Bull and Bear funds
+SOXL
+SOXS
+TECL
+TECS
+FAS
+FAZ
+LABU
+LABD
+SPXL
+SPXS
+TNA
+TZA
+NUGT
+DUST
+JNUG
+JDST
+TMF
+TMV
+ERX
+ERY
+DRN
+DRV
+DPST
+WEBL
+WEBS
+CURE
+RETL
+YINN
+YANG
+TSLL
+NVDU
+NVDD
+# Single-stock 2x funds and notes from other issuers (GraniteShares, REX, MicroSectors): same daily reset
+NVDL
+CONL
+FNGU
+FNGD
+MSTU
+MSTZ

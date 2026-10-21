@@ -1,0 +1,18 @@
+date,hours,title,provider,category,format,location,certificate_file,notes
+# Made-up sample. Two renewal periods: 2023-12-01..2025-11-30 and 2025-12-01..2027-11-30.
+# certificate_file paths are relative to this file's folder.
+# --- previous period (all three core hours done, 34 hours total, so 4 can carry over) ---
+2024-03-12,1,Illinois statutes and rules update,Example Engineering Society,statutes_rules,webinar,online,pdh_log_certs/2024-03-12-statutes.txt,sponsor address: 100 Example St Example City IL
+2024-05-20,1,Engineering ethics case studies,Example Engineering Society,Ethics,webinar,online,pdh_log_certs/2024-05-20-ethics.txt,
+2024-09-09,1,Sexual harassment prevention training,Employer in-house training,sexual harassment,online,online,pdh_log_certs/2024-09-09-harassment.txt,IHRA-compliant employer course
+2025-02-18,10,Power system protection (1 quarter hour = 10 PDH per 1380.325(b)(1)),Example State University,elective,college course,Example City,pdh_log_certs/2025-02-18-transcript.txt,grade A; transcript on file
+2025-04-22,4,Arc-flash study fundamentals,Example Engineering Society,elective,in-person,Example City,pdh_log_certs/2025-04-22-arcflash.txt,
+2025-07-15,6,Harmonic mitigation webinar series,Example Vendor Training,elective,webinar,online,pdh_log_certs/2025-07-15-harmonics.txt,
+2025-10-03,8,Pumping station electrical design workshop,Example Engineering Society,elective,in-person,Example City,pdh_log_certs/2025-10-03-pumping.txt,
+2025-11-14,3,Variable-frequency drive specification webinar,Example Vendor Training,elective,webinar,online,pdh_log_certs/2025-11-14-vfd.txt,
+# --- current period (statutes/rules hour done; ethics and harassment still missing) ---
+2026-01-20,1,Illinois statutes and rules for design professionals,Example Engineering Society,Statutes and rules,webinar,online,pdh_log_certs/2026-01-20-statutes.txt,
+2026-03-10,8,Generator and transfer-switch design seminar,Example Engineering Society,elective,in-person,Example City,pdh_log_certs/2026-03-10-generator.txt,
+2026-03-10,5,Grounding and bonding workshop (same day as the seminar),Example Engineering Society,Elective,in-person,Example City,pdh_log_certs/2026-03-10-grounding.txt,13 hours on one day: only 12 count
+2026-06-08,2,Harmonic mitigation webinar,Example Vendor Training,elective,webinar,online,,certificate not downloaded yet
+2026-09-22,2,Motor protection and VFD application webinar,Employer in-house training,elective,webinar,online,pdh_log_certs/2026-09-22-motor.pdf,file name typed wrong on purpose: the file does not exist

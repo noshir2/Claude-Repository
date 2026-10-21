@@ -1,0 +1,3 @@
+# Your own notes, one per ticker: TICKER: note. The compare command repeats the note as a flag.
+BBB: biotech, binary event risk
+GGG: thin options, wide bid-ask spread
