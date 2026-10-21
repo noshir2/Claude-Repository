@@ -1,0 +1,38 @@
+# A second league with different slots and scoring: full PPR, 6-point passing TDs, three WR.
+# Verify every line against your league's settings page.
+
+QB = 1
+RB = 2
+WR = 3
+TE = 1
+FLEX = 1
+FLEX_FROM = WR,RB,TE
+K = 1
+DEF = 1
+
+pass_yds = 0.04
+pass_td = 6               # 6-point passing TD league
+pass_int = -2
+rush_yds = 0.1
+rush_td = 6
+rec = 1                   # full PPR
+rec_yds = 0.1
+rec_td = 6
+fumble_lost = -2
+
+fg = 3
+fg_missed = -1
+xpt = 1
+
+dst_sack = 1
+dst_int = 2
+dst_fr = 2
+dst_td = 6
+dst_safety = 2
+dst_pa_0 = 10
+dst_pa_1_6 = 7
+dst_pa_7_13 = 4
+dst_pa_14_20 = 1
+dst_pa_21_27 = 0
+dst_pa_28_34 = -1
+dst_pa_35 = -4

@@ -1,0 +1,44 @@
+# League settings: one 'name = value' per line. Lines starting with # are ignored.
+# These are Yahoo's DEFAULT settings (help.yahoo.com/kb/SLN6489.html, half-PPR).
+# A commissioner can change any of them: verify against your league's settings page.
+
+# Starting slots
+QB = 1
+RB = 2
+WR = 2
+TE = 1
+FLEX = 1
+FLEX_FROM = WR,RB,TE      # Yahoo's W/R/T flex
+K = 1
+DEF = 1
+
+# Offense
+pass_yds = 0.04           # 1 point per 25 passing yards
+pass_td = 4
+pass_int = -1
+rush_yds = 0.1            # 1 per 10
+rush_td = 6
+rec = 0.5                 # half-PPR
+rec_yds = 0.1
+rec_td = 6
+fumble_lost = -2
+
+# Kickers. Yahoo pays 3/4/5 by distance; the FantasyPros file has no distances, so one
+# average per field goal is used. 3.3 estimates Yahoo's tiers; FantasyPros' own FPTS uses 3.
+fg = 3.3
+fg_missed = 0             # Yahoo default: no penalty
+xpt = 1
+
+# Defense / special teams
+dst_sack = 1
+dst_int = 2
+dst_fr = 2
+dst_td = 6
+dst_safety = 2
+dst_pa_0 = 10             # points allowed 0
+dst_pa_1_6 = 7
+dst_pa_7_13 = 4
+dst_pa_14_20 = 1
+dst_pa_21_27 = 0
+dst_pa_28_34 = -1
+dst_pa_35 = -4            # 35 or more

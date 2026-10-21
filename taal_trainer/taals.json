@@ -1,0 +1,125 @@
+{
+  "note": "Thekas vary by teacher and gharana: confirm these with your teacher and edit here. Signs: X = sam, 2/3/4 = taali (clap), 0 = khali (wave). A '-' bol is a rest or extension of the previous bol; the matra is still counted.",
+  "taals": [
+    {
+      "name": "Teentaal",
+      "status": "standard",
+      "matras": 16,
+      "vibhags": [4, 4, 4, 4],
+      "sam": 1,
+      "taali": [1, 5, 13],
+      "khali": [9],
+      "bols": ["Dha", "Dhin", "Dhin", "Dha", "Dha", "Dhin", "Dhin", "Dha", "Dha", "Tin", "Tin", "Ta", "Ta", "Dhin", "Dhin", "Dha"],
+      "note": "Matras 12-13 are also written Na Na or Ta Na; the khali vibhag is played with the right hand only.",
+      "source": "Wikipedia (Teental); chandrakantha.com; UW Gangolli theka list"
+    },
+    {
+      "name": "Ektaal",
+      "status": "standard-but-confirm",
+      "matras": 12,
+      "vibhags": [2, 2, 2, 2, 2, 2],
+      "sam": 1,
+      "taali": [1, 5, 9, 11],
+      "khali": [3, 7],
+      "bols": ["Dhin", "Dhin", "Dhage", "Tirakita", "Tu", "Na", "Kat", "Ta", "Dhage", "Tirakita", "Dhin", "Na"],
+      "note": "Bols vary by teacher: some write Kat Tin at 7-8, Tu as Tun, and Tirakita as Traka at speed. The usual slow (vilambit) khayal taal.",
+      "source": "Wikipedia (Ektal); chandrakantha.com; ancient-future.com; UW Gangolli theka list"
+    },
+    {
+      "name": "Jhaptaal",
+      "status": "standard",
+      "matras": 10,
+      "vibhags": [2, 3, 2, 3],
+      "sam": 1,
+      "taali": [1, 3, 8],
+      "khali": [6],
+      "bols": ["Dhin", "Na", "Dhin", "Dhin", "Na", "Tin", "Na", "Dhin", "Dhin", "Na"],
+      "note": "Also spelled Dhi Na | Dhi Dhi Na | Ti Na | Dhi Dhi Na.",
+      "source": "Wikipedia (Jhaptal); chandrakantha.com; UW Gangolli theka list"
+    },
+    {
+      "name": "Rupak",
+      "status": "standard",
+      "matras": 7,
+      "vibhags": [3, 2, 2],
+      "sam": 1,
+      "taali": [4, 6],
+      "khali": [1],
+      "bols": ["Tin", "Tin", "Na", "Dhin", "Na", "Dhin", "Na"],
+      "note": "Matra 1 is the sam AND a wave (khali), so it is shown as 0 and plays the khali sound. Some books print X there instead.",
+      "source": "chandrakantha.com; UW Gangolli theka list; Wikipedia (Rupak tala)"
+    },
+    {
+      "name": "Dadra",
+      "status": "standard",
+      "matras": 6,
+      "vibhags": [3, 3],
+      "sam": 1,
+      "taali": [1],
+      "khali": [4],
+      "bols": ["Dha", "Dhin", "Na", "Dha", "Tin", "Na"],
+      "note": "Variants: Dha Dhi Na | Dha Tu Na; Dha Dhin Na | Ta Tin Na. Not played slow (vilambit).",
+      "source": "chandrakantha.com; Wikipedia (Dadra); Sahapedia; UW Gangolli theka list"
+    },
+    {
+      "name": "Keherwa",
+      "status": "standard",
+      "matras": 8,
+      "vibhags": [4, 4],
+      "sam": 1,
+      "taali": [1],
+      "khali": [5],
+      "bols": ["Dha", "Ge", "Na", "Ti", "Na", "Ka", "Dhin", "Na"],
+      "note": "Matra 7 is also written Dhi. Countless variants (Bhajani, Dhumali) exist. Not played slow (vilambit).",
+      "source": "Wikipedia (Keherwa); chandrakantha.com; ancient-future.com"
+    },
+    {
+      "name": "Chautaal",
+      "status": "standard-but-confirm",
+      "matras": 12,
+      "vibhags": [2, 2, 2, 2, 2, 2],
+      "sam": 1,
+      "taali": [1, 5, 9, 11],
+      "khali": [3, 7],
+      "bols": ["Dha", "Dha", "Din", "Ta", "Kita", "Dha", "Din", "Ta", "Tita", "Kata", "Gadi", "Gana"],
+      "note": "Shown in the 2+2+2+2+2+2 form with waves at 3 and 7. A second school divides it 4+4+2+2 with claps only at 1, 5, 9, 11 and no khali: if your teacher uses that, set vibhags to [4, 4, 2, 2] and khali to []. Spellings Kite/Tete/Gena also occur. Pakhawaj taal for dhrupad.",
+      "source": "chandrakantha.com (2x6 and 4+4+2+2 noted); Wikipedia (Vibhag); ancient-future.com; UW Gangolli theka list"
+    },
+    {
+      "name": "Deepchandi",
+      "status": "standard-but-confirm",
+      "matras": 14,
+      "vibhags": [3, 4, 3, 4],
+      "sam": 1,
+      "taali": [1, 4, 11],
+      "khali": [8],
+      "bols": ["Dha", "Dhin", "-", "Dha", "Dha", "Tin", "-", "Ta", "Tin", "-", "Dha", "Dha", "Dhin", "-"],
+      "note": "Also called Chanchar. Matras 3, 7, 10 and 14 are rests ('-'); chandrakantha.com writes Na at 14. There is also a 16-matra form. Used for thumri and hori.",
+      "source": "chandrakantha.com; UW Gangolli theka list; Sahapedia"
+    },
+    {
+      "name": "Tilwada",
+      "status": "standard-but-confirm",
+      "matras": 16,
+      "vibhags": [4, 4, 4, 4],
+      "sam": 1,
+      "taali": [1, 5, 13],
+      "khali": [9],
+      "bols": ["Dha", "Tirakita", "Dhin", "Dhin", "Dha", "Dha", "Tin", "Tin", "Ta", "Tirakita", "Dhin", "Dhin", "Dha", "Dha", "Dhin", "Dhin"],
+      "note": "Same clap/wave frame as Teentaal with a different theka. Slow (vilambit) khayal only; it loses its character when sped up.",
+      "source": "Wikipedia (Tilwada); chandrakantha.com"
+    },
+    {
+      "name": "Jhoomra",
+      "status": "standard-but-confirm",
+      "matras": 14,
+      "vibhags": [3, 4, 3, 4],
+      "sam": 1,
+      "taali": [1, 4, 11],
+      "khali": [8],
+      "bols": ["Dhin", "-Dha", "Tirakita", "Dhin", "Dhin", "Dhage", "Tirakita", "Tin", "-Ta", "Tirakita", "Dhin", "Dhin", "Dhage", "Tirakita"],
+      "note": "'-Dha' and '-Ta' mean a half-matra rest, then the bol on the second half of the matra. Very slow (ati-vilambit) khayal only.",
+      "source": "Wikipedia (Jhoomra); chandrakantha.com"
+    }
+  ]
+}

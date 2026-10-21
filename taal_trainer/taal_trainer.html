@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Taal Trainer</title>
+<!--
+  TAAL TABLE: the block right below is the only data in this file.
+  Thekas vary by teacher and gharana: confirm these with your teacher and edit here.
+  Each taal: name, status ("standard" or "standard-but-confirm"), matras, vibhags (sizes),
+  sam (always 1), taali (clap positions), khali (wave positions), bols (one per matra),
+  optional note and source. A matra listed in khali plays the khali sound and shows 0,
+  even when it is the sam (Rupak). After editing, run:  python -m taal_trainer.check
+  (or edit taals.json next to this file and run:  python -m taal_trainer.check --embed)
+-->
+<script id="taal-data" type="application/json">
+{
+  "note": "Thekas vary by teacher and gharana: confirm these with your teacher and edit here. Signs: X = sam, 2/3/4 = taali (clap), 0 = khali (wave). A '-' bol is a rest or extension of the previous bol; the matra is still counted.",
+  "taals": [
+    {
+      "name": "Teentaal",
+      "status": "standard",
+      "matras": 16,
+      "vibhags": [4, 4, 4, 4],
+      "sam": 1,
+      "taali": [1, 5, 13],
+      "khali": [9],
+      "bols": ["Dha", "Dhin", "Dhin", "Dha", "Dha", "Dhin", "Dhin", "Dha", "Dha", "Tin", "Tin", "Ta", "Ta", "Dhin", "Dhin", "Dha"],
+      "note": "Matras 12-13 are also written Na Na or Ta Na; the khali vibhag is played with the right hand only.",
+      "source": "Wikipedia (Teental); chandrakantha.com; UW Gangolli theka list"
+    },
+    {
+      "name": "Ektaal",
+      "status": "standard-but-confirm",
+      "matras": 12,
+      "vibhags": [2, 2, 2, 2, 2, 2],
+      "sam": 1,
+      "taali": [1, 5, 9, 11],
+      "khali": [3, 7],
+      "bols": ["Dhin", "Dhin", "Dhage", "Tirakita", "Tu", "Na", "Kat", "Ta", "Dhage", "Tirakita", "Dhin", "Na"],
+      "note": "Bols vary by teacher: some write Kat Tin at 7-8, Tu as Tun, and Tirakita as Traka at speed. The usual slow (vilambit) khayal taal.",
+      "source": "Wikipedia (Ektal); chandrakantha.com; ancient-future.com; UW Gangolli theka list"
+    },
+    {
+      "name": "Jhaptaal",
+      "status": "standard",
+      "matras": 10,
+      "vibhags": [2, 3, 2, 3],
+      "sam": 1,
+      "taali": [1, 3, 8],
+      "khali": [6],
+      "bols": ["Dhin", "Na", "Dhin", "Dhin", "Na", "Tin", "Na", "Dhin", "Dhin", "Na"],
+      "note": "Also spelled Dhi Na | Dhi Dhi Na | Ti Na | Dhi Dhi Na.",
+      "source": "Wikipedia (Jhaptal); chandrakantha.com; UW Gangolli theka list"
+    },
+    {
+      "name": "Rupak",
+      "status": "standard",
+      "matras": 7,
+      "vibhags": [3, 2, 2],
+      "sam": 1,
+      "taali": [4, 6],
+      "khali": [1],
+      "bols": ["Tin", "Tin", "Na", "Dhin", "Na", "Dhin", "Na"],
+      "note": "Matra 1 is the sam AND a wave (khali), so it is shown as 0 and plays the khali sound. Some books print X there instead.",
+      "source": "chandrakantha.com; UW Gangolli theka list; Wikipedia (Rupak tala)"
+    },
+    {
+      "name": "Dadra",
+      "status": "standard",
+      "matras": 6,
+      "vibhags": [3, 3],
+      "sam": 1,
+      "taali": [1],
+      "khali": [4],
+      "bols": ["Dha", "Dhin", "Na", "Dha", "Tin", "Na"],
+      "note": "Variants: Dha Dhi Na | Dha Tu Na; Dha Dhin Na | Ta Tin Na. Not played slow (vilambit).",
+      "source": "chandrakantha.com; Wikipedia (Dadra); Sahapedia; UW Gangolli theka list"
+    },
+    {
+      "name": "Keherwa",
+      "status": "standard",
+      "matras": 8,
+      "vibhags": [4, 4],
+      "sam": 1,
+      "taali": [1],
+      "khali": [5],
+      "bols": ["Dha", "Ge", "Na", "Ti", "Na", "Ka", "Dhin", "Na"],
+      "note": "Matra 7 is also written Dhi. Countless variants (Bhajani, Dhumali) exist. Not played slow (vilambit).",
+      "source": "Wikipedia (Keherwa); chandrakantha.com; ancient-future.com"
+    },
+    {
+      "name": "Chautaal",
+      "status": "standard-but-confirm",
+      "matras": 12,
+      "vibhags": [2, 2, 2, 2, 2, 2],
+      "sam": 1,
+      "taali": [1, 5, 9, 11],
+      "khali": [3, 7],
+      "bols": ["Dha", "Dha", "Din", "Ta", "Kita", "Dha", "Din", "Ta", "Tita", "Kata", "Gadi", "Gana"],
+      "note": "Shown in the 2+2+2+2+2+2 form with waves at 3 and 7. A second school divides it 4+4+2+2 with claps only at 1, 5, 9, 11 and no khali: if your teacher uses that, set vibhags to [4, 4, 2, 2] and khali to []. Spellings Kite/Tete/Gena also occur. Pakhawaj taal for dhrupad.",
+      "source": "chandrakantha.com (2x6 and 4+4+2+2 noted); Wikipedia (Vibhag); ancient-future.com; UW Gangolli theka list"
+    },
+    {
+      "name": "Deepchandi",
+      "status": "standard-but-confirm",
+      "matras": 14,
+      "vibhags": [3, 4, 3, 4],
+      "sam": 1,
+      "taali": [1, 4, 11],
+      "khali": [8],
+      "bols": ["Dha", "Dhin", "-", "Dha", "Dha", "Tin", "-", "Ta", "Tin", "-", "Dha", "Dha", "Dhin", "-"],
+      "note": "Also called Chanchar. Matras 3, 7, 10 and 14 are rests ('-'); chandrakantha.com writes Na at 14. There is also a 16-matra form. Used for thumri and hori.",
+      "source": "chandrakantha.com; UW Gangolli theka list; Sahapedia"
+    },
+    {
+      "name": "Tilwada",
+      "status": "standard-but-confirm",
+      "matras": 16,
+      "vibhags": [4, 4, 4, 4],
+      "sam": 1,
+      "taali": [1, 5, 13],
+      "khali": [9],
+      "bols": ["Dha", "Tirakita", "Dhin", "Dhin", "Dha", "Dha", "Tin", "Tin", "Ta", "Tirakita", "Dhin", "Dhin", "Dha", "Dha", "Dhin", "Dhin"],
+      "note": "Same clap/wave frame as Teentaal with a different theka. Slow (vilambit) khayal only; it loses its character when sped up.",
+      "source": "Wikipedia (Tilwada); chandrakantha.com"
+    },
+    {
+      "name": "Jhoomra",
+      "status": "standard-but-confirm",
+      "matras": 14,
+      "vibhags": [3, 4, 3, 4],
+      "sam": 1,
+      "taali": [1, 4, 11],
+      "khali": [8],
+      "bols": ["Dhin", "-Dha", "Tirakita", "Dhin", "Dhin", "Dhage", "Tirakita", "Tin", "-Ta", "Tirakita", "Dhin", "Dhin", "Dhage", "Tirakita"],
+      "note": "'-Dha' and '-Ta' mean a half-matra rest, then the bol on the second half of the matra. Very slow (ati-vilambit) khayal only.",
+      "source": "Wikipedia (Jhoomra); chandrakantha.com"
+    }
+  ]
+}
+</script>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--mute:#666;--line:#ddd;--card:#f4f4f6;--accent:#0a5fd6;
+  --sam:#c0262d;--taali:#0a7d33;--khali:#9a6b00;--hl:#ffe08a;--hlfg:#1a1a1a;--btn:#0a7d33;--stop:#c0262d}
+@media(prefers-color-scheme:dark){:root{--bg:#16181b;--fg:#e8e8e8;--mute:#9aa;--line:#33383d;--card:#1f2327;
+  --accent:#6ea8ff;--sam:#ff6b72;--taali:#4cc77a;--khali:#e8b84a;--hl:#ffd54f;--hlfg:#1a1a1a;--btn:#1f8f48;--stop:#c0262d}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:860px;margin:0 auto;
+  padding:12px 16px calc(24px + env(safe-area-inset-bottom));overflow-x:hidden}
+h1{font-size:1.5em;margin:.2em 0 .1em}
+h2{font-size:1.05em;margin:1.4em 0 .4em;border-bottom:1px solid var(--line)}
+p{margin:.4em 0}
+.mute{color:var(--mute)}.small{font-size:.85em}
+.card{background:var(--card);border-radius:12px;padding:12px;margin:10px 0}
+label{display:inline-flex;align-items:center;gap:6px;margin:4px 12px 4px 0}
+select,input[type=number]{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;
+  background:var(--bg);color:var(--fg);max-width:100%}
+input[type=number]{width:4.5em}
+input[type=range]{width:100%;margin:8px 0}
+button{font:inherit;padding:10px 14px;border:0;border-radius:10px;background:var(--line);color:var(--fg);
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.98)}
+.badge{display:inline-block;font-size:.75em;padding:2px 8px;border-radius:999px;background:var(--line);margin-left:6px;vertical-align:middle}
+.badge.confirm{background:var(--khali);color:#fff}
+.hint{display:none;background:var(--card);border-left:4px solid var(--khali);padding:8px 10px;border-radius:6px;margin:8px 0}
+.hint.show{display:block}
+
+/* big readout */
+.readout{text-align:center;padding:8px 0 4px;min-height:150px}
+.readout .marker{font-size:1.4em;font-weight:700;letter-spacing:.05em;color:var(--mute);min-height:1.4em}
+.readout .marker.sam{color:var(--sam)}.readout .marker.taali{color:var(--taali)}.readout .marker.khali{color:var(--khali)}
+.readout .bol{font-size:clamp(44px,18vw,110px);font-weight:800;line-height:1.05;min-height:1.05em;word-break:break-word}
+.readout .where{font-size:1.05em;color:var(--mute)}
+.readout .cycle{font-size:1.1em;font-weight:600}
+
+/* matra grid */
+.grid{display:flex;flex-wrap:wrap;gap:8px 4px;justify-content:center;margin:6px 0 2px}
+.vibhag{display:flex;align-items:stretch;gap:3px;padding:0 4px;border-left:3px solid var(--fg);border-radius:2px}
+.vibhag:last-child{border-right:3px solid var(--fg)}
+.cell{width:50px;min-height:74px;border-radius:8px;background:var(--card);display:flex;flex-direction:column;
+  align-items:center;justify-content:space-between;padding:4px 2px;transition:transform .05s}
+.cell .mk{font-weight:800;font-size:1.05em;min-height:1.2em}
+.cell .mk.sam{color:var(--sam)}.cell .mk.taali{color:var(--taali)}.cell .mk.khali{color:var(--khali)}
+.cell .num{font-size:.75em;color:var(--mute)}
+.cell .bl{font-size:11px;font-weight:600;line-height:1.1;text-align:center;min-height:1.1em;overflow-wrap:anywhere}
+.cell.now{background:var(--hl);color:var(--hlfg);transform:scale(1.12);box-shadow:0 0 0 3px var(--accent)}
+.cell.now .num,.cell.now .mk{color:var(--hlfg)}
+.hidden-bols .bl,.hidden-bols .readout .bol{visibility:hidden}
+.hidden-marks .mk,.hidden-marks .readout .marker{visibility:hidden}
+
+/* start/stop */
+.startstop{display:block;width:100%;min-height:84px;font-size:1.7em;font-weight:800;color:#fff;background:var(--btn);margin:12px 0}
+.startstop.on{background:var(--stop)}
+.tempo{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tempo .val{font-size:1.4em;font-weight:700;min-width:5.5em}
+.tempo button{min-width:52px;min-height:48px;font-size:1.2em}
+.tapbtn{min-width:120px}
+.game{display:none;margin-top:8px}.game.show{display:block}
+.samtap{display:block;width:100%;min-height:70px;font-size:1.4em;font-weight:800;background:var(--accent);color:#fff}
+.days{display:flex;gap:4px;margin:6px 0;flex-wrap:wrap}
+.day{flex:1 1 40px;text-align:center;background:var(--card);border-radius:8px;padding:6px 2px;font-size:.8em}
+.day b{display:block;font-size:1.2em}
+.day.today{outline:2px solid var(--accent)}
+.kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--card);padding:0 5px;border-radius:4px}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>Taal Trainer</h1>
+<p class="mute small">Counts the way a tabla player counts: theka bols matra by matra, with sam (X), taali (claps, 2 3 4) and khali (wave, 0). Works offline on this device only; nothing is uploaded.</p>
+
+<div class="card">
+  <label for="taal">Taal
+    <select id="taal"></select>
+  </label>
+  <span id="status" class="badge"></span>
+  <p class="small" id="taalnote"></p>
+  <p class="small mute">Thekas vary by teacher and gharana; confirm with your teacher. Entries marked "confirm" are a common form; a teacher may use different bols or divisions. Edit the table at the top of this file.</p>
+</div>
+
+<div id="hint-sound" class="hint small">No sound? Check the phone's silent switch and volume. The beat still runs on screen without sound.</div>
+<div id="hint-blocked" class="hint small">Sound is off (the browser has not allowed audio yet, or this device has no audio). The visual beat still runs. Tap Stop, then Start again, to retry sound.</div>
+
+<div class="readout" id="readout" aria-live="off">
+  <div class="marker" id="r-marker">&nbsp;</div>
+  <div class="bol" id="r-bol">&nbsp;</div>
+  <div class="where" id="r-where">Press Start</div>
+  <div class="cycle" id="r-cycle">&nbsp;</div>
+</div>
+<div class="grid" id="grid"></div>
+
+<button id="startstop" class="startstop" type="button">Start</button>
+
+<div class="game" id="game">
+  <p class="small">Find the sam: the sound stops after the count-in. Keep the cycle in your head and tap exactly on the sam.</p>
+  <button id="samtap" class="samtap" type="button">Tap on SAM</button>
+  <p id="gameresult" class="small"></p>
+</div>
+
+<div class="card">
+  <div class="tempo">
+    <span class="val"><span id="bpm-val">80</span> <span class="small mute">matras/min</span></span>
+    <span id="laya" class="small"></span>
+  </div>
+  <input type="range" id="bpm" min="30" max="300" step="1" value="80" aria-label="Tempo in matras per minute">
+  <div class="tempo">
+    <button id="bpm-minus" type="button" aria-label="Slower">-</button>
+    <button id="bpm-plus" type="button" aria-label="Faster">+</button>
+    <button id="tap" type="button" class="tapbtn">Tap tempo</button>
+    <span id="tapinfo" class="small mute"></span>
+  </div>
+  <p class="small mute">Laya labels: vilambit about 30-60, madhya about 60-120, drut about 120-200 matras/min and above. Ranges are approximate; your teacher's tempo overrides them.</p>
+</div>
+
+<div class="card">
+  <label><input type="checkbox" id="countin"> Count-in (one cycle first)</label>
+  <label>Loop <input type="number" id="loop" min="0" max="999" value="0"> cycles, then stop (0 = keep going)</label>
+  <br>
+  <label><input type="checkbox" id="hidebols"> Hide bols (padhant: recite from memory)</label>
+  <label>Hide after <input type="number" id="hideafter" min="0" max="99" value="0"> cycles (0 = off)</label>
+  <label><input type="checkbox" id="hidemarks"> Hide markers too (hardest)</label>
+  <br>
+  <label><input type="checkbox" id="mute"> Sound off</label>
+  <label><input type="checkbox" id="randmute"> Mute random matras (keep the cycle inside)</label>
+  <label><input type="checkbox" id="findsam"> Find-the-sam game</label>
+</div>
+
+<div class="card">
+  <p><b>Today: <span id="today-min">0</span> min</b> <span class="small mute">(counted while the trainer runs, on this device only)</span></p>
+  <div class="days" id="days"></div>
+  <button id="reset-min" type="button" class="small">Reset minutes</button>
+</div>
+
+<p class="small mute">Keyboard: <span class="kbd">Space</span> start/stop, <span class="kbd">Up</span>/<span class="kbd">Down</span> tempo by 1, <span class="kbd">Left</span>/<span class="kbd">Right</span> by 5, <span class="kbd">T</span> tap tempo. Sounds are simple synthesized tones, not a tabla. See README.md for what the numbers mean and where the thekas come from.</p>
+
+<script>
+(function () {
+  'use strict';
+  // ---------- data ----------
+  var DATA;
+  try {
+    DATA = JSON.parse(document.getElementById('taal-data').textContent);
+  } catch (e) {               // a slip while editing the table in Notepad: say so on the page, not just in the console
+    document.getElementById('taalnote').textContent = 'The taal table at the top of this file has a mistake (' + e.message +
+      '). Run  python -m taal_trainer.check  to see exactly what is wrong, fix it, then reopen this page.';
+    document.getElementById('r-where').textContent = 'Taal table has a mistake';
+    document.getElementById('startstop').disabled = true;
+    return;
+  }
+  var TAALS = DATA.taals;
+  var LS = 'taal_trainer.';
+
+  function lsGet(k) { try { return localStorage.getItem(LS + k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(LS + k, String(v)); } catch (e) {} }
+  function lsKeys() { try { var o = []; for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf(LS) === 0) o.push(k); } return o; } catch (e) { return []; } }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+  // ---------- pure helpers (also exposed for tests) ----------
+  function vibhagStarts(t) { var s = [], p = 1; for (var i = 0; i < t.vibhags.length; i++) { s.push(p); p += t.vibhags[i]; } return s; }
+  // Bhatkhande sign for matra m: 'X' sam, '0' khali, '2','3',... taali in order (skipping the sam), '' plain.
+  // A sam that is also khali (Rupak) shows '0'.
+  function markerFor(t, m) {
+    if (t.khali.indexOf(m) >= 0) return '0';
+    if (m === t.sam) return 'X';
+    var n = 2, srt = t.taali.slice().sort(function (a, b) { return a - b; });
+    for (var i = 0; i < srt.length; i++) { if (srt[i] === t.sam) continue; if (srt[i] === m) return String(n); n++; }
+    return '';
+  }
+  // Which sound: khali wins over sam (Rupak's sam is a wave), then sam, taali, plain tick.
+  function soundFor(t, m) {
+    if (t.khali.indexOf(m) >= 0) return 'khali';
+    if (m === t.sam) return 'sam';
+    if (t.taali.indexOf(m) >= 0) return 'taali';
+    return 'tick';
+  }
+  // Approximate teaching ranges (see README: Where the figures come from).
+  function layaLabel(bpm) { return bpm < 60 ? 'vilambit (slow)' : bpm < 120 ? 'madhya (medium)' : 'drut (fast)'; }
+  function clampBpm(b) { b = Math.round(b); return b < 30 ? 30 : b > 300 ? 300 : b; }
+  // Tap tempo: average gap of the last up to 4 gaps, ignoring gaps over 2 s.
+  function bpmFromTaps(times) {
+    var gaps = [];
+    for (var i = 1; i < times.length; i++) { var g = times[i] - times[i - 1]; if (g > 0 && g <= 2000) gaps.push(g); else gaps = []; }
+    if (!gaps.length) return null;
+    gaps = gaps.slice(-4);
+    var avg = gaps.reduce(function (a, b) { return a + b; }, 0) / gaps.length;
+    return clampBpm(60000 / avg);
+  }
+  function dateKey(d) { d = d || new Date(); var m = d.getMonth() + 1, day = d.getDate(); return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day; }
+
+  // ---------- audio ----------
+  var ctx = null, master = null, noiseBuf = null;
+  var AC = window.AudioContext || window.webkitAudioContext;
+  function ensureAudio() {           // must be called from a user gesture (iOS)
+    if (!AC) return;
+    if (!ctx) {
+      try {
+        ctx = new AC();
+        master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
+        var len = Math.floor(ctx.sampleRate * 0.1); noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+        var d = noiseBuf.getChannelData(0); for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+        ctx.onstatechange = updateHints;
+      } catch (e) { ctx = null; return; }
+    }
+    if (ctx.state !== 'running') { try { var p = ctx.resume(); if (p && p.then) p.then(updateHints, updateHints); } catch (e) {} }
+    try { var b = ctx.createBufferSource(); b.buffer = ctx.createBuffer(1, 1, ctx.sampleRate); b.connect(ctx.destination); b.start(0); } catch (e) {}
+  }
+  function audioOk() { return !!(ctx && ctx.state === 'running'); }
+  function tone(type, freq, t, dur, vol, freqEnd) {
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (freqEnd) o.frequency.exponentialRampToValueAtTime(freqEnd, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.02);
+  }
+  // Three distinct sounds plus a plain tick.
+  function playSound(kind, t) {
+    if (!audioOk()) return;
+    if (kind === 'sam') {              // accented, lower, longer
+      tone('sine', 170, t, 0.45, 0.6, 110);       // low thump (phone speakers barely reproduce it)
+      tone('triangle', 330, t, 0.25, 0.5, 220);   // mid body so the sam still carries on a small speaker
+    } else if (kind === 'taali') {     // clap-like short noise burst
+      var s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = 2200; f.Q.value = 0.9;
+      g.gain.setValueAtTime(0.9, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+      s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + 0.1);
+      tone('sine', 420, t, 0.07, 0.5);
+    } else if (kind === 'khali') {     // softer, higher, different timbre
+      tone('triangle', 1180, t, 0.14, 0.3, 980);
+    } else {                           // plain tick
+      tone('sine', 900, t, 0.045, 0.45);
+    }
+  }
+
+  // ---------- state ----------
+  var S = {
+    running: false, taal: null, bpm: 80,
+    clock: 'perf',        // 'audio' (ctx.currentTime) or 'perf' (performance.now) when audio is blocked
+    nextTime: 0,          // when the next matra is due, in the current clock's seconds
+    matra: 1, cycle: 0,   // cycle 0 = count-in
+    countIn: false, loopN: 0, stopAt: null,
+    queue: [],            // scheduled beats waiting to be shown: {t, matra, cycle}
+    timer: null, lastShown: null,
+    samTimes: [], tapTimes: [], lastTick: 0, secToday: 0, lastSave: 0, todayKey: dateKey()
+  };
+  var LOOKAHEAD = 0.12, TIMER_MS = 25;
+
+  function nowClock(mode) { return mode === 'audio' ? ctx.currentTime : performance.now() / 1000; }
+  function now() { return nowClock(S.clock); }
+  function wantedClock() { return audioOk() ? 'audio' : 'perf'; }
+  function switchClockIfNeeded() {
+    var w = wantedClock();
+    if (w === S.clock) return;
+    var shift = nowClock(w) - nowClock(S.clock);   // keep every pending time the same distance in the future
+    S.nextTime += shift;
+    for (var i = 0; i < S.queue.length; i++) S.queue[i].t += shift;
+    for (i = 0; i < S.samTimes.length; i++) S.samTimes[i] += shift;
+    if (S.stopAt !== null) S.stopAt += shift;
+    S.clock = w;
+  }
+
+  // Lookahead scheduler: books every matra that falls within LOOKAHEAD seconds of now.
+  function schedule() {
+    if (!S.running) return;
+    switchClockIfNeeded();
+    var t = S.taal, beat = 60 / S.bpm;
+    // After a stall (tab in the background, screen locked) resume from the next matra instead of
+    // replaying every missed beat in one burst. The matra and cycle counters carry on as they were.
+    if (S.nextTime < now() - beat) { S.nextTime = now() + 0.05; if (S.stopAt !== null) S.stopAt = S.nextTime; }
+    while (S.nextTime < now() + LOOKAHEAD) {
+      if (S.stopAt !== null) break;
+      var kind = soundFor(t, S.matra);
+      var silent = el.mute.checked || (el.findsam.checked && S.cycle >= 1) ||
+                   (el.randmute.checked && Math.random() < 0.35);
+      if (!silent) playSound(kind, S.nextTime);
+      if (S.matra === t.sam) { S.samTimes.push(S.nextTime); if (S.samTimes.length > 4) S.samTimes.shift(); }
+      S.queue.push({ t: S.nextTime, matra: S.matra, cycle: S.cycle });
+      S.nextTime += beat;
+      S.matra++;
+      if (S.matra > t.matras) {
+        S.matra = 1; S.cycle++;
+        if (S.loopN > 0 && S.cycle > S.loopN) S.stopAt = S.nextTime;   // stop exactly when the next sam would fall
+      }
+    }
+  }
+
+  // ---------- display ----------
+  var el = {};
+  ['taal', 'status', 'taalnote', 'grid', 'readout', 'r-marker', 'r-bol', 'r-where', 'r-cycle', 'startstop', 'bpm', 'bpm-val', 'laya',
+   'bpm-minus', 'bpm-plus', 'tap', 'tapinfo', 'countin', 'loop', 'hidebols', 'hideafter', 'hidemarks', 'mute', 'randmute',
+   'findsam', 'game', 'samtap', 'gameresult', 'today-min', 'days', 'reset-min', 'hint-sound', 'hint-blocked']
+    .forEach(function (id) { el[id.replace(/-([a-z])/g, function (_, c) { return c.toUpperCase(); })] = document.getElementById(id); });
+
+  function kindClass(k) { return k === 'tick' ? '' : k; }
+  function buildGrid(t) {
+    el.grid.innerHTML = '';
+    var m = 1;
+    for (var v = 0; v < t.vibhags.length; v++) {
+      var box = document.createElement('div'); box.className = 'vibhag';
+      for (var i = 0; i < t.vibhags[v]; i++, m++) {
+        var c = document.createElement('div'); c.className = 'cell'; c.id = 'm' + m;
+        var mk = document.createElement('div'); mk.className = 'mk ' + kindClass(soundFor(t, m)); mk.textContent = markerFor(t, m) || ' ';
+        var num = document.createElement('div'); num.className = 'num'; num.textContent = m;
+        var bl = document.createElement('div'); bl.className = 'bl'; bl.textContent = t.bols[m - 1];
+        c.appendChild(mk); c.appendChild(num); c.appendChild(bl); box.appendChild(c);
+      }
+      el.grid.appendChild(box);
+    }
+  }
+  function showBeat(b) {
+    var t = S.taal;
+    if (S.lastShown) { var old = document.getElementById('m' + S.lastShown); if (old) old.classList.remove('now'); }
+    var c = document.getElementById('m' + b.matra); if (c) c.classList.add('now');
+    S.lastShown = b.matra;
+    var k = soundFor(t, b.matra);
+    el.rMarker.textContent = markerFor(t, b.matra) || ' ';
+    el.rMarker.className = 'marker ' + kindClass(k);
+    el.rBol.textContent = t.bols[b.matra - 1];
+    el.rWhere.textContent = 'matra ' + b.matra + ' of ' + t.matras;
+    el.rCycle.textContent = b.cycle === 0 ? 'count-in' : 'cycle ' + b.cycle + (S.loopN ? ' of ' + S.loopN : '');
+    applyHiding(b.cycle);
+  }
+  // 'Hide bols' hides the words now; 'Hide after N' hides them from cycle N+1 and, when set, delays
+  // 'Hide bols' and 'Hide markers too' until then as well (so N cycles with the words are always given);
+  // 'Hide markers too' also hides the signs, at the same moment the words go.
+  function applyHiding(cycle) {
+    var hideN = parseInt(el.hideafter.value, 10) || 0;
+    var afterN = hideN > 0 && cycle > hideN;
+    var due = hideN === 0 || afterN;
+    var marks = el.hidemarks.checked && due;
+    var bols = (el.hidebols.checked && due) || afterN || marks;
+    document.body.classList.toggle('hidden-bols', bols);
+    document.body.classList.toggle('hidden-marks', marks);
+  }
+  function resetReadout() {
+    if (S.lastShown) { var old = document.getElementById('m' + S.lastShown); if (old) old.classList.remove('now'); }
+    S.lastShown = null;
+    el.rMarker.textContent = ' '; el.rBol.textContent = ' '; el.rWhere.textContent = 'Press Start'; el.rCycle.textContent = ' ';
+    applyHiding(0);
+  }
+  function frame() {
+    if (!S.running) return;
+    var n = now(), shown = null;
+    while (S.queue.length && S.queue[0].t <= n) shown = S.queue.shift();
+    if (shown) showBeat(shown);
+    if (S.stopAt !== null && n >= S.stopAt) { stop(); return; }
+    // practice minutes: only while the page is visible, and never a gap longer than 2 s (the browser
+    // pauses frames while the tab is hidden or the phone is locked; the beat is not running then)
+    var p = performance.now(), gap = p - S.lastTick;
+    if (S.lastTick && gap < 2000 && !document.hidden) S.secToday += gap / 1000;
+    if (!document.hidden) S.lastTick = p;   // a hidden page keeps lastTick at 0 (set by visibilitychange)
+    if (p - S.lastSave > 5000) saveMinutes();
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- start / stop ----------
+  function start() {
+    ensureAudio();
+    S.taal = TAALS[el.taal.selectedIndex];
+    S.countIn = el.countin.checked;
+    S.loopN = Math.max(0, parseInt(el.loop.value, 10) || 0);
+    S.clock = wantedClock();
+    S.matra = 1; S.cycle = S.countIn ? 0 : 1; S.stopAt = null; S.queue = []; S.samTimes = [];
+    S.nextTime = now() + 0.1;
+    S.running = true; S.lastTick = performance.now(); S.lastSave = S.lastTick;
+    el.startstop.textContent = 'Stop'; el.startstop.classList.add('on');
+    el.gameresult.textContent = '';
+    schedule();
+    S.timer = setInterval(schedule, TIMER_MS);
+    requestAnimationFrame(frame);
+    setTimeout(updateHints, 300);
+  }
+  function stop() {
+    S.running = false;
+    if (S.timer) { clearInterval(S.timer); S.timer = null; }
+    saveMinutes(); S.lastTick = 0;
+    el.startstop.textContent = 'Start'; el.startstop.classList.remove('on');
+    resetReadout();
+    updateHints();
+  }
+  function toggle() { if (S.running) stop(); else start(); }
+
+  function updateHints() {
+    var mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints || 0) > 1;
+    el.hintSound.classList.toggle('show', mobile);
+    el.hintBlocked.classList.toggle('show', S.running && !el.mute.checked && !audioOk());
+  }
+
+  // ---------- find the sam ----------
+  function samTap() {
+    if (!S.running || !S.samTimes.length) { el.gameresult.textContent = 'Start the trainer first.'; return; }
+    var n = now(), cyc = S.taal.matras * 60 / S.bpm, best = null;
+    var cand = S.samTimes.slice(); cand.push(S.samTimes[S.samTimes.length - 1] + cyc);
+    for (var i = 0; i < cand.length; i++) { var e = (n - cand[i]) * 1000; if (best === null || Math.abs(e) < Math.abs(best)) best = e; }
+    var ms = Math.round(Math.abs(best)), word = best < 0 ? 'early' : 'late';
+    var prev = parseInt(lsGet('best_sam_ms'), 10);
+    if (isNaN(prev) || ms < prev) { lsSet('best_sam_ms', ms); prev = ms; }
+    el.gameresult.textContent = (ms <= 60 ? 'On the sam! ' : '') + ms + ' ms ' + word + '. Best: ' + prev + ' ms.';
+  }
+
+  // ---------- minutes ----------
+  function loadMinutes() { S.todayKey = dateKey(); S.secToday = (parseFloat(lsGet('minutes.' + S.todayKey)) || 0) * 60; renderMinutes(); }
+  function saveMinutes() {
+    var k = dateKey();
+    if (k !== S.todayKey) { S.todayKey = k; S.secToday = 0; }   // crossed midnight while running
+    lsSet('minutes.' + k, (S.secToday / 60).toFixed(2));
+    S.lastSave = performance.now();
+    renderMinutes();
+  }
+  function renderMinutes() {
+    el.todayMin.textContent = Math.floor(S.secToday / 60);
+    el.days.innerHTML = '';
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(); d.setDate(d.getDate() - i);
+      var k = dateKey(d), v = i === 0 ? S.secToday / 60 : (parseFloat(lsGet('minutes.' + k)) || 0);
+      var box = document.createElement('div'); box.className = 'day' + (i === 0 ? ' today' : '');
+      var b = document.createElement('b'); b.textContent = Math.floor(v);
+      box.appendChild(b); box.appendChild(document.createTextNode(k.slice(5)));
+      el.days.appendChild(box);
+    }
+  }
+  function resetMinutes() {
+    lsKeys().forEach(function (k) { if (k.indexOf(LS + 'minutes.') === 0) lsDel(k); });
+    S.secToday = 0; renderMinutes();
+  }
+
+  // ---------- tempo ----------
+  function setBpm(b, save) {
+    S.bpm = clampBpm(b);
+    el.bpm.value = S.bpm; el.bpmVal.textContent = S.bpm; el.laya.textContent = layaLabel(S.bpm);
+    if (save !== false) lsSet('bpm', S.bpm);
+  }
+  function tap() {
+    var t = performance.now();
+    if (S.tapTimes.length && t - S.tapTimes[S.tapTimes.length - 1] > 2000) S.tapTimes = [];
+    S.tapTimes.push(t); if (S.tapTimes.length > 8) S.tapTimes.shift();
+    var b = bpmFromTaps(S.tapTimes);
+    if (b) { setBpm(b); el.tapinfo.textContent = 'tapped ' + b; } else el.tapinfo.textContent = 'keep tapping...';
+  }
+
+  // ---------- taal picker ----------
+  function selectTaal(i) {
+    var t = TAALS[i];
+    el.status.textContent = t.status === 'standard' ? 'standard form' : 'confirm with teacher';
+    el.status.className = 'badge' + (t.status === 'standard' ? '' : ' confirm');
+    el.taalnote.textContent = t.matras + ' matras, ' + t.vibhags.join('+') + '. ' + (t.note || '');
+    buildGrid(t);
+    if (S.running) { S.taal = t; S.matra = 1; S.cycle = S.countIn ? 0 : 1; S.queue = []; S.samTimes = []; S.nextTime = now() + 0.1; S.stopAt = null; }
+    resetReadout();
+    lsSet('taal', t.name);
+  }
+
+  // ---------- wiring ----------
+  TAALS.forEach(function (t) { var o = document.createElement('option'); o.textContent = t.name + ' (' + t.matras + ')'; el.taal.appendChild(o); });
+  var savedTaal = lsGet('taal'), idx = 0;
+  TAALS.forEach(function (t, i) { if (t.name === savedTaal) idx = i; });
+  el.taal.selectedIndex = idx; selectTaal(idx);
+  setBpm(parseInt(lsGet('bpm'), 10) || 80, false);
+  loadMinutes(); updateHints();
+
+  el.taal.addEventListener('change', function () { selectTaal(el.taal.selectedIndex); });
+  el.startstop.addEventListener('click', toggle);
+  el.bpm.addEventListener('input', function () { setBpm(el.bpm.value); });
+  el.bpmMinus.addEventListener('click', function () { setBpm(S.bpm - 1); });
+  el.bpmPlus.addEventListener('click', function () { setBpm(S.bpm + 1); });
+  el.tap.addEventListener('click', tap);
+  el.samtap.addEventListener('click', samTap);
+  el.resetMin.addEventListener('click', resetMinutes);
+  el.mute.addEventListener('change', updateHints);
+  el.findsam.addEventListener('change', function () {
+    el.game.classList.toggle('show', el.findsam.checked);
+    if (el.findsam.checked) el.countin.checked = true;   // the count-in cycle is the only audible reference
+    el.countin.disabled = el.findsam.checked;
+  });
+  el.hidebols.addEventListener('change', function () { if (!S.running) resetReadout(); });
+  el.hidemarks.addEventListener('change', function () { if (!S.running) resetReadout(); });
+  el.hideafter.addEventListener('input', function () { if (!S.running) resetReadout(); });
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+    if (e.code === 'Space') { e.preventDefault(); toggle(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setBpm(S.bpm + 1); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setBpm(S.bpm - 1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); setBpm(S.bpm + 5); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); setBpm(S.bpm - 5); }
+    else if (e.key === 't' || e.key === 'T') tap();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!S.running) return;
+    if (document.hidden) { saveMinutes(); S.lastTick = 0; }      // stop counting minutes while away
+    else S.lastTick = performance.now();                           // and start again from now
+  });
+  window.addEventListener('pagehide', function () { if (S.running) saveMinutes(); });
+
+  // Exposed for the automated checks (tests/test_taal_trainer.py); not needed by the page itself.
+  window.TaalTrainer = { taals: TAALS, markerFor: markerFor, soundFor: soundFor, layaLabel: layaLabel,
+    bpmFromTaps: bpmFromTaps, vibhagStarts: vibhagStarts, clampBpm: clampBpm, dateKey: dateKey,
+    state: S, start: start, stop: stop, audioOk: audioOk, applyHiding: applyHiding };
+})();
+</script>
+</body>
+</html>
