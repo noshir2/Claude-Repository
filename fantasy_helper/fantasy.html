@@ -182,7 +182,7 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;paddi
 <h2>What this can and cannot tell you</h2>
 <ul class="small">
   <li>The projections are FantasyPros' opinion as of your download. This page only ranks them under your league's scoring; it does not predict games.</li>
-  <li>It only knows what is in the files: no injuries, no bye weeks, no opponents. A player on bye is simply missing from the file, so he shows up under "not projected this week".</li>
+  <li>It only knows what is in the files: no injuries, no bye weeks, no opponents. A player on bye is missing from the file, so he shows up under "not projected this week".</li>
   <li>Some scoring cannot be worked out from the file and is ignored: 2-point conversions, return touchdowns, blocked kicks, field-goal distances, defensive yards allowed. Expect small differences from your league's final numbers.</li>
   <li>Kickers: the file has no field-goal distances, so every field goal is worth one average number (3.3 estimates Yahoo's 3, 4 and 5). FantasyPros' own column uses a flat 3, so kickers show a small, expected "please check" note.</li>
   <li>The floor and ceiling for a defense are shaky: FantasyPros' high and low rows for defenses do not always agree with the main row.</li>
@@ -2302,12 +2302,12 @@ function renderLineup(rep) {
     names += "<p><b>Names I could not use:</b></p><ul>" + rep.problems.map(function (u) { return "<li>" + esc(plain(u)) + "</li>"; }).join("") + "</ul>";
   }
   if (!names) names = "<p>Every name in your team list matched a projection exactly.</p>";
-  h += "<div class='box'><p class='mute'>First, the names. Anything that was not an exact match is listed so you can check it.</p>" + names + "</div>";
 
   var lu = rep.lineup, filled = lineupStarters(lu).length, total = lu.entries.length;
   var verdict = "Start these " + filled + " players. Together they project to " + pts(lineupTotal(lu, "proj")) + " points, with a floor of " + pts(lineupTotal(lu, "floor")) + ".";
   if (filled < total) verdict += " " + (total - filled) + " starting spot" + (total - filled === 1 ? " is" : "s are") + " empty: nobody on your list fits.";
   h += "<p class='verdict' id='lineup-verdict'>" + esc(verdict) + "</p>";
+  h += "<div class='box'><p class='mute'>How I read your names. Anything that was not an exact match is listed so you can check it.</p>" + names + "</div>";
   if (state.ctx && state.ctx.proj.season) {
     var why = /\(([^;)]*)/.exec(rep.kindNote || "");
     h += "<div class='box warn' id='season-warning'>These files look like season totals, not one week" + (why ? " (" + esc(why[1]) + ")" : "") +
