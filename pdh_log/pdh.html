@@ -44,6 +44,14 @@ legend{font-weight:600;padding:0 4px}
 .radio{display:flex;align-items:flex-start;gap:10px;font-weight:400;margin:6px 0;min-height:36px}
 .radio input{width:22px;height:22px;margin-top:2px;flex:none}
 .check{display:flex;align-items:center;gap:10px;font-weight:600;margin-top:14px;min-height:44px}
+/* The four course kinds are big buttons, each with its radio dot, so the chosen one is hard to miss. */
+.kinds{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 4px}
+@media (max-width:600px){.kinds{grid-template-columns:1fr}}
+.kind{display:flex;align-items:center;gap:10px;font-weight:600;margin:0;min-height:52px;padding:10px 12px;
+      border:2px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer}
+.kind input{width:22px;height:22px;margin:0;flex:none}
+.kind:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.kind:focus-within{outline:3px solid var(--focus);outline-offset:2px}
 .check input{width:22px;height:22px;flex:none}
 .err{border:1px solid var(--bad);border-left:6px solid var(--bad);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--bg)}
 .ok{border:1px solid var(--good);border-left:6px solid var(--good);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--bg)}
@@ -66,6 +74,7 @@ button.mark{min-height:36px;padding:4px 10px;font-size:.92em}
 #course-table td.date{white-space:normal}
 #course-table td.actions{white-space:normal}
 #course-table td.soft{white-space:normal}
+#course-table td{overflow-wrap:anywhere}
 /* On a phone each course becomes a stacked card, so nothing hides off the right edge. */
 @media (max-width:600px){
   #course-table{min-width:0}
@@ -131,6 +140,7 @@ input[aria-invalid="true"]{border-color:var(--bad);border-width:2px}
 <h2 id="status-heading">Where you stand</h2>
 <div class="card" id="status-card">
   <div id="status-note" class="ok" hidden></div>
+  <div id="kind-nudge" class="ask" hidden></div>
   <p class="verdict" id="verdict"></p>
   <div class="bar" aria-hidden="true"><div id="bar-fill"></div></div>
   <p class="mute small" id="bar-label"></p>
@@ -148,6 +158,7 @@ input[aria-invalid="true"]{border-color:var(--bad);border-width:2px}
 
   <h3>Carry-over</h3>
   <p id="carry-sentence"></p>
+  <p id="carry-hint" class="mute small" hidden>To see those previous-period courses counted in the list, choose "Previous period" under "Which period to show" (below in this card).</p>
   <p id="next-carry" class="mute small"></p>
 
   <h3>Days with more than 12 hours</h3>
@@ -182,42 +193,44 @@ input[aria-invalid="true"]{border-color:var(--bad);border-width:2px}
 <div class="card">
   <form id="course-form" novalidate>
 
-    <label for="f-date">Date<span class="meaning">The day you took the course (the date on the certificate)</span></label>
+    <label for="f-date">Date<span class="meaning">The day you took the course (the date on the certificate). It starts as today; change it for an earlier course.</span></label>
     <input type="date" id="f-date" required aria-describedby="e-date">
     <div id="e-date" class="err field-err" hidden></div>
 
     <label for="f-hours">Hours<span class="meaning">The number of hours (PDH) printed on the certificate. One hour means at least 50 minutes of instruction. Quarter hours are fine (1, 1.5, 0.25).</span></label>
-    <input type="number" id="f-hours" min="0.25" step="0.25" inputmode="decimal" placeholder="1" aria-describedby="e-hours">
+    <input type="number" id="f-hours" min="0.25" step="0.25" inputmode="decimal" aria-describedby="e-hours">
     <div id="e-hours" class="err field-err" hidden></div>
 
     <label for="f-title">Title<span class="meaning">What the course was called</span></label>
-    <input type="text" id="f-title" placeholder="Engineering ethics webinar" aria-describedby="e-title">
+    <input type="text" id="f-title" placeholder="for example: Engineering ethics webinar" aria-describedby="e-title">
     <div id="e-title" class="err field-err" hidden></div>
 
     <label for="f-provider">Who ran it<span class="meaning">The sponsor or provider (society, employer, vendor, college)</span></label>
-    <input type="text" id="f-provider" placeholder="Example Engineering Society" aria-describedby="e-provider">
+    <input type="text" id="f-provider" placeholder="for example: Example Engineering Society" aria-describedby="e-provider">
     <div id="e-provider" class="err field-err" hidden></div>
 
     <fieldset>
-      <legend>What kind of course<span class="meaning">Illinois needs one hour of each of the last three every renewal; everything else is general.</span></legend>
-      <label class="radio"><input type="radio" name="category" id="f-cat-elective" value="elective" checked><span>General engineering topic (elective)</span></label>
-      <label class="radio"><input type="radio" name="category" id="f-cat-statutes" value="statutes_rules"><span>Illinois rules for engineers (statutes and rules)</span></label>
-      <label class="radio"><input type="radio" name="category" id="f-cat-ethics" value="ethics"><span>Ethics / professional conduct</span></label>
-      <label class="radio"><input type="radio" name="category" id="f-cat-harassment" value="harassment"><span>Sexual-harassment prevention</span></label>
+      <legend>What kind of course<span class="meaning">Tap one. Illinois needs one hour of each of the last three every renewal; everything else is general. "General" is chosen to start with, so check it before you add.</span></legend>
+      <div class="kinds">
+      <label class="kind"><input type="radio" name="category" id="f-cat-elective" value="elective" checked><span>General engineering topic (elective)</span></label>
+      <label class="kind"><input type="radio" name="category" id="f-cat-statutes" value="statutes_rules"><span>Illinois rules for engineers (statutes and rules)</span></label>
+      <label class="kind"><input type="radio" name="category" id="f-cat-ethics" value="ethics"><span>Ethics / professional conduct</span></label>
+      <label class="kind"><input type="radio" name="category" id="f-cat-harassment" value="harassment"><span>Sexual-harassment prevention</span></label>
+      </div>
     </fieldset>
 
     <label for="f-format">Format<span class="meaning">Webinar, in-person, online course, college course...</span></label>
-    <input type="text" id="f-format" list="format-list" placeholder="webinar">
+    <input type="text" id="f-format" list="format-list" placeholder="for example: webinar">
     <datalist id="format-list"><option value="webinar"><option value="in-person"><option value="online course"><option value="college course"><option value="in-house training"></datalist>
 
     <label for="f-location">Location<span class="meaning">"online", or the city</span></label>
-    <input type="text" id="f-location" placeholder="online">
+    <input type="text" id="f-location" placeholder="for example: online">
 
     <label class="check" for="f-cert"><input type="checkbox" id="f-cert"><span>I have saved the certificate</span></label>
     <p class="mute small" style="margin-top:0">Tick this once the certificate of attendance is saved somewhere you can find it again. Courses without the tick are listed as missing a certificate.</p>
 
     <label for="f-notes">Notes<span class="meaning">Illinois wants the sponsor's address in your records, so put it here.</span></label>
-    <input type="text" id="f-notes" placeholder="sponsor address: 100 Example St, Example City IL">
+    <input type="text" id="f-notes" placeholder="for example: sponsor address: 100 Example St, Example City IL">
 
     <div id="form-error" class="err" hidden></div>
     <div class="btnrow">
@@ -230,7 +243,7 @@ input[aria-invalid="true"]{border-color:var(--bad);border-width:2px}
 <!-- ---------------------------------------------------------------- (3) the list -->
 <h2 id="list-heading">Your courses</h2>
 <p class="mute small" id="list-count"></p>
-<p class="mute small">"Counts" is what the course adds to the period shown above, after the 12-hours-a-day limit. Courses outside that period are greyed out. Each course has Edit and Delete at the end of its row, and a "Mark as saved" button under Certificate until you have saved its certificate.</p>
+<p class="mute small">"Counts" is what the course adds to the period shown above, after the 12-hours-a-day limit. Courses outside that period are greyed out. Each course has Edit and Delete at the end of its row, and a "Mark as saved" button under Certificate until you have saved its certificate. A course brought in with a file name shows "file named (not checked)": it counts as saved, but the page cannot see whether the file is really there.</p>
 <div class="scroll">
 <table id="course-table">
   <thead><tr><th>Date</th><th class="num">Hours</th><th class="num">Counts</th><th>Title</th><th>Who ran it</th><th>Kind</th><th>Certificate</th><th></th></tr></thead>
@@ -257,7 +270,7 @@ input[aria-invalid="true"]{border-color:var(--bad);border-width:2px}
   <label for="f-import">Choose a file</label>
   <input type="file" id="f-import" accept=".csv,text/csv,text/plain" aria-label="Choose a spreadsheet file to bring in">
   <label for="f-paste">Or paste the text here<span class="meaning">The text from "Copy as spreadsheet text", kept in a note or an email</span></label>
-  <textarea id="f-paste" placeholder="date,hours,title,provider,category,format,location,certificate_file,notes"></textarea>
+  <textarea id="f-paste" placeholder="for example: date,hours,title,provider,category,format,location,certificate_file,notes"></textarea>
   <div class="btnrow"><button type="button" id="btn-paste-import">Bring in the pasted text</button></div>
   <div id="import-slot-bottom"><div id="import-panel">
   <div id="import-error" class="err" hidden></div>
@@ -733,6 +746,17 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
                        harassment: "One hour of sexual-harassment prevention training" };
   const VERDICT_LABELS = { statutes_rules: "the Illinois rules hour", ethics: "the ethics hour",
                            harassment: "the harassment-prevention hour" };
+  const KIND_SHORT = { elective: "a general (elective) course", statutes_rules: "the Illinois rules hour", ethics: "the ethics hour",
+                       harassment: "the harassment-prevention hour" };
+  // A title that sounds like one of the three required hours, while the kind left at "General": worth a nudge.
+  const TITLE_HINTS = [[/ethic|professional conduct/i, "ethics"], [/harass/i, "harassment"], [/statute|\brules\b/i, "statutes_rules"]];
+  function kindNudge(e) {
+    if (e.category !== "elective") return "";
+    for (const [re, key] of TITLE_HINTS)
+      if (re.test(e.title)) return "Did you mean to record \"" + e.title + "\" as " + KIND_SHORT[key] + "? It was recorded as a general (elective) course, so " +
+        KIND_SHORT[key] + " above still says \"not met\". To change it, press Edit next to it in the list and choose that kind.";
+    return "";
+  }
 
   let courses = [];          // plain entry objects (see PDH.makeEntry); `line` is 1-based list position
   let editing = -1;          // index being edited, or -1
@@ -828,6 +852,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
     tt.className = s.shortBy ? "bad" : "good";
 
     text("carry-sentence", PDH.carryoverPlain(s.carryover, wantPrev ? "the period before it" : "the previous period"));
+    show("carry-hint", !wantPrev && s.carryover.prevTotal > 0);
     const nx = s.nextCarryover;
     text("next-carry", nx.hours ? "If the list stays as it is, " + PDH.g(nx.hours) + " hour" + (nx.hours === 1 ? "" : "s") +
          " could carry into the period after this one (taken " + PDH.longDate(nx.windowStart) + " to " + PDH.longDate(nx.windowEnd) +
@@ -879,7 +904,10 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
       if (e.format || e.location) prov.appendChild(el("div", "mute small", [e.format, e.location].filter(Boolean).join(", ")));
       tr.appendChild(prov);
       tr.appendChild(cell(null, KIND[e.category], "Kind"));
-      const certCell = cell(e.certificate_file ? "good" : "bad", e.certificate_file ? "saved" : "missing", "Certificate");
+      // "saved" is the tick on this page; anything else is a file name that came in with the list, which the page cannot check
+      const named = e.certificate_file && e.certificate_file !== "saved";
+      const certCell = cell(named ? "" : e.certificate_file ? "good" : "bad", named ? "file named (not checked)" : e.certificate_file ? "saved" : "missing", "Certificate");
+      if (named) certCell.appendChild(el("div", "mute small", e.certificate_file));
       if (!e.certificate_file) {   // one press records that the certificate is now saved, no need to open Edit
         const bMark = el("button", "mark", "Mark as saved"); bMark.type = "button"; bMark.id = "cert-" + i;
         bMark.style.marginLeft = "8px";
@@ -915,7 +943,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
     $("csv-out").value = PDH.toCSV(courses);
   }
 
-  function afterChange() { note("status-note", ""); save(); renderStatus(); renderList(); }
+  function afterChange() { note("status-note", ""); note("kind-nudge", ""); save(); renderStatus(); renderList(); }
   function describe(e) { return PDH.longDate(e.date) + ", " + (e.title || "(no title)") + " (" + PDH.g(e.hours) + " hour" + (e.hours === 1 ? "" : "s") + ")"; }
   function markSaved(i) {
     const e = courses[i]; if (!e) return;
@@ -956,6 +984,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
   }
   function clearForm() {
     for (const id of ["f-date", "f-hours", "f-title", "f-provider", "f-format", "f-location", "f-notes"]) $(id).value = "";
+    $("f-date").value = realToday();   // most courses are logged the same day
     $("f-cert").checked = false; $("f-cat-elective").checked = true;
     clearFieldErrors();
   }
@@ -1002,8 +1031,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
       courses.splice(at, 0, entry); clearForm();
     }
     renumber(); afterChange();
-    note("status-note", (wasEdit ? "Saved your changes to " : "Added: ") + describe(entry) +
+    note("status-note", (wasEdit ? "Saved your changes to " : "Added: ") + describe(entry) + " as " + KIND_SHORT[entry.category] +
          ". It is in your list below the form, in date order, and these numbers include it.");
+    note("kind-nudge", kindNudge(entry));
     $("status-heading").scrollIntoView({ block: "start" });
   });
   $("btn-cancel-edit").addEventListener("click", cancelEdit);
@@ -1152,6 +1182,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
   // ---------------------------------------------------------------- start
   probeStorage();
   courses = load();
+  try { $("f-date").value = realToday(); } catch (e) { /* leave the box empty */ }
   fillRules();
   renderStatus();
   renderList();

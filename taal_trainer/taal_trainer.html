@@ -161,6 +161,7 @@ body{font:16px/1.55 var(--font);max-width:860px;margin:0 auto;
 details.words{margin:4px 0 8px}details.words summary{cursor:pointer;color:var(--accent)}
 #startstop-top{margin-bottom:4px}
 .confirmrow{display:inline-block;margin-left:8px}
+.field>label{display:block;margin:6px 0 2px}.field .unit{margin-left:6px}
 .msg{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);padding:8px 10px;border-radius:8px;margin:8px 0;font-size:.95em}
 h1{font-size:1.5em;margin:.2em 0 .1em}
 h2{font-size:1.05em;margin:1.4em 0 .4em;border-bottom:1px solid var(--line)}
@@ -180,8 +181,10 @@ button:active{transform:scale(.98)}
 .hint{display:none;background:var(--card);border-left:4px solid var(--khali);padding:8px 10px;border-radius:6px;margin:8px 0}
 .hint.show{display:block}
 
-/* big readout */
-.readout{text-align:center;padding:8px 0 4px;min-height:150px}
+/* big readout: a single "Press Start" line when stopped; the tall bol only while running */
+.readout{text-align:center;padding:4px 0}
+body.running .readout{padding:8px 0 4px;min-height:150px}
+body:not(.running) .readout .marker,body:not(.running) .readout .bol{display:none}
 .readout .marker{font-size:1.4em;font-weight:700;letter-spacing:.05em;color:var(--mute);min-height:1.4em}
 .readout .marker.sam{color:var(--sam)}.readout .marker.taali{color:var(--taali)}.readout .marker.khali{color:var(--khali)}
 .readout .bol{font-size:clamp(44px,18vw,110px);font-weight:800;line-height:1.05;min-height:1.05em;word-break:break-word}
@@ -200,12 +203,27 @@ button:active{transform:scale(.98)}
 .cell .bl{font-size:11px;font-weight:600;line-height:1.1;text-align:center;min-height:1.1em;overflow-wrap:anywhere}
 .cell.now{background:var(--hl);color:var(--hlfg);transform:scale(1.12);box-shadow:0 0 0 3px var(--accent)}
 .cell.now .num,.cell.now .mk{color:var(--hlfg)}
-.hidden-bols .bl,.hidden-bols .readout .bol{visibility:hidden}
-.hidden-marks .mk,.hidden-marks .readout .marker{visibility:hidden}
+.hidden-bols .bl,.hidden-bols .readout .bol,.hidden-bols .mini .bol{visibility:hidden}
+.hidden-marks .mk,.hidden-marks .readout .marker,.hidden-marks .mini .marker{visibility:hidden}
+/* one-line readout pinned to the bottom of the screen while running and the big readout is off screen */
+.mini{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:6px max(12px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+  background:var(--panel);border-top:1px solid var(--line);font-weight:600;white-space:nowrap;overflow:hidden}
+.mini .bol{font-size:1.3em;font-weight:800;min-width:2.5em;text-align:center}
+.mini .marker{font-weight:800}.mini .marker.sam{color:var(--sam)}.mini .marker.taali{color:var(--taali)}.mini .marker.khali{color:var(--khali)}
+.mini .where{color:var(--mute);font-weight:400;font-size:.9em}
+.mini button{min-height:40px;padding:6px 12px;background:var(--stop);color:#fff;font-weight:700}
+body.running.mini-on{padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px))}
 
 /* start/stop */
 .startstop{display:block;width:100%;min-height:84px;font-size:1.7em;font-weight:800;color:#fff;background:var(--btn);margin:12px 0}
 .startstop.on{background:var(--stop)}
+.startrow{display:flex;gap:8px;align-items:stretch;margin:12px 0}.startrow .startstop{flex:1 1 auto;margin:0}
+.quick{flex:0 0 auto;max-width:38%;font-size:.95em;font-weight:600;line-height:1.2;padding:8px 10px;border:2px solid var(--line)}
+.quick[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px}.presets button{flex:1 1 90px;line-height:1.2;padding:6px 8px}
+.presets button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.presets button small{display:block;font-weight:400;font-size:.8em}
 .tempo{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tempo .val{font-size:1.4em;font-weight:700;min-width:5.5em}
 .tempolabel{display:block;margin:6px 0 0}
@@ -230,6 +248,7 @@ button:active{transform:scale(.98)}
   <li>Pick a taal below. Teentaal, with 16 beats, is the usual first one and is already selected.</li>
   <li>Press the big green <b>Start</b> button. The beat sounds and the yellow highlight moves across the grid.</li>
   <li>Clap on <b>X</b> and on the numbered beats, wave on <b>0</b>, and say the word shown. Press <b>Stop</b> when you are done.</li>
+  <li>To recite from memory, press <b>Hide the words</b> next to the Stop button under the grid.</li>
 </ol>
 <button id="startstop-top" class="startstop" type="button">Start</button>
 <p class="small mute" id="start-hint-top">Sound starts with that first press. The beat shows in the readout and grid below.</p>
@@ -243,9 +262,13 @@ button:active{transform:scale(.98)}
   </label>
   <span id="status" class="badge"></span>
   <p class="small" id="taalnote"></p>
-  <p class="small mute">Thekas vary by teacher and gharana [the school or family tradition a player learned in]; confirm with your teacher. Entries marked "confirm" are a common form; a teacher may use different bols or divisions. Edit the table at the top of this file.</p>
+  <p class="small mute">Thekas vary by teacher and gharana [the school or family tradition a player learned in]; confirm with your teacher. Entries marked "confirm" are a common form; a teacher may use different bols or divisions. If yours differ, ask whoever set this page up to change them.</p>
 </div>
 
+<div class="mini" id="mini" hidden aria-hidden="true">
+  <span class="marker" id="mini-marker"></span><span class="bol" id="mini-bol"></span><span class="where" id="mini-where"></span>
+  <button id="startstop-mini" type="button">Stop</button>
+</div>
 <div class="readout" id="readout" aria-live="off">
   <div class="marker" id="r-marker">&nbsp;</div>
   <div class="bol" id="r-bol">&nbsp;</div>
@@ -257,8 +280,11 @@ button:active{transform:scale(.98)}
 <div id="hint-sound" class="hint small">No sound? Check the phone's silent switch and volume. The beat still runs on screen without sound.</div>
 <div id="hint-blocked" class="hint small">Sound is off (the browser has not allowed audio yet, or this device has no audio). The visual beat still runs. Tap Stop, then Start again, to retry sound.</div>
 
-<p class="small mute" id="start-hint">Press Start: the beat begins and the highlight moves across the grid. Sound starts with that first press.</p>
-<button id="startstop" class="startstop" type="button">Start</button>
+<p class="small mute" id="start-hint">Press Start: the beat begins and the highlight moves across the grid. Sound starts with that first press. Hide the words to recite them from memory.</p>
+<div class="startrow">
+  <button id="startstop" class="startstop" type="button">Start</button>
+  <button id="hidebols-quick" class="quick" type="button" aria-pressed="false">Hide the words</button>
+</div>
 
 <div class="game" id="game">
   <p class="small">Find the sam: the sound stops after the count-in. Keep the cycle in your head and tap exactly on the sam.</p>
@@ -271,7 +297,12 @@ button:active{transform:scale(.98)}
     <span class="val"><span id="bpm-val">80</span> <span class="small mute">matras (beats) per minute</span></span>
     <span class="small mute">laya [the speed]:</span> <span id="laya" class="small"></span>
   </div>
-  <label for="bpm" class="tempolabel"><b>Tempo</b> <span class="small mute">how fast the beats come; drag the slider or use - and +</span></label>
+  <label for="bpm" class="tempolabel"><b>Tempo</b> <span class="small mute">how fast the beats come; pick a speed, drag the slider or use - and +</span></label>
+  <div class="presets" id="presets">
+    <button type="button" data-bpm="50" aria-pressed="false">Slow <small>vilambit, 50</small></button>
+    <button type="button" data-bpm="90" aria-pressed="false">Medium <small>madhya, 90</small></button>
+    <button type="button" data-bpm="150" aria-pressed="false">Fast <small>drut, 150</small></button>
+  </div>
   <input type="range" id="bpm" min="30" max="300" step="1" value="80" aria-label="Tempo in matras per minute">
   <div class="tempo">
     <button id="bpm-minus" type="button" aria-label="Slower by 5" title="5 slower">-5</button>
@@ -287,8 +318,8 @@ button:active{transform:scale(.98)}
   <label>Loop <input type="number" id="loop" min="0" max="999" value="0"> cycles, then stop (0 = keep going)</label>
   <br>
   <label><input type="checkbox" id="hidebols"> Hide the words (bols) straight away, so you recite them from memory: padhant [reciting the words aloud from memory]</label>
-  <label>Or hide them later: after <input type="number" id="hideafter" min="0" max="99" value="0"> cycles with the words showing (leave 0 to hide straight away; a number here hides the words on its own, with or without the tick above)</label>
-  <label><input type="checkbox" id="hidemarks"> Hide markers too (hardest: only the moving highlight is left)</label>
+  <div class="field"><label for="hideafter">Or hide them later: after this many cycles with the words showing <span class="small mute">(0 = off; a number here hides the words on its own, with or without the tick above)</span></label><input type="number" id="hideafter" min="0" max="99" value="0"><span class="small mute unit">cycles</span></div>
+  <label><input type="checkbox" id="hidemarks"> Hide the X, 2, 3, 0 signs too (hardest: only the beat numbers and the moving highlight are left)</label>
   <br>
   <label><input type="checkbox" id="mute"> Sound off</label>
   <label><input type="checkbox" id="randmute"> Mute random matras (about one beat in three goes silent, so you keep the cycle in your head)</label>
@@ -308,7 +339,7 @@ button:active{transform:scale(.98)}
 <h2>What this can and cannot tell you</h2>
 <p class="small">It can keep a steady cycle, show where the claps and waves fall, hide the words so you recite from memory, and count your practice minutes. It cannot judge your hands or voice, play a real tabla, or tell you which version of a theka your teacher or exam board expects: thekas vary, so confirm with your teacher. Every beat is a whole beat: a half-beat bol is shown as written, but the click lands on the beat.</p>
 <h2>Where the figures come from</h2>
-<p class="small">The taal tables (beats, groups, clap and wave positions, bols) follow common textbook forms as given on Wikipedia's taal pages, chandrakantha.com and the University of Washington theka list; each taal carries its own source line in the table at the top of this file. The laya ranges are a teaching simplification, not a rule. Check anything that matters for an exam against your teacher and the exam body's current syllabus.</p>
+<p class="small">The taal tables (beats, groups, clap and wave positions, bols) follow common textbook forms as given on Wikipedia's taal pages, chandrakantha.com and the University of Washington theka list; each taal carries its own source line in the taal table inside this file (the README explains how to change a theka). The laya ranges are a teaching simplification, not a rule. Check anything that matters for an exam against your teacher and the exam body's current syllabus.</p>
 
 <script>
 (function () {
@@ -418,7 +449,7 @@ button:active{transform:scale(.98)}
     countIn: false, loopN: 0, stopAt: null,
     queue: [],            // scheduled beats waiting to be shown: {t, matra, cycle}
     timer: null, lastShown: null,
-    samTimes: [], tapTimes: [], lastTick: 0, secToday: 0, lastSave: 0, todayKey: dateKey()
+    shownCycle: 0, samTimes: [], tapTimes: [], lastTick: 0, secToday: 0, lastSave: 0, todayKey: dateKey()
   };
   var LOOKAHEAD = 0.12, TIMER_MS = 25;
 
@@ -466,7 +497,7 @@ button:active{transform:scale(.98)}
   ['taal', 'status', 'taalnote', 'grid', 'readout', 'r-marker', 'r-bol', 'r-where', 'r-cycle', 'startstop', 'bpm', 'bpm-val', 'laya',
    'bpm-minus', 'bpm-plus', 'tap', 'tapinfo', 'countin', 'loop', 'hidebols', 'hideafter', 'hidemarks', 'mute', 'randmute',
    'findsam', 'game', 'samtap', 'gameresult', 'today-min', 'days', 'reset-min', 'reset-min-confirm', 'reset-min-yes', 'reset-min-no', 'reset-min-msg',
-   'hint-sound', 'hint-blocked', 'startstop-top']
+   'hint-sound', 'hint-blocked', 'startstop-top', 'startstop-mini', 'hidebols-quick', 'mini', 'mini-marker', 'mini-bol', 'mini-where', 'presets']
     .forEach(function (id) { el[id.replace(/-([a-z])/g, function (_, c) { return c.toUpperCase(); })] = document.getElementById(id); });
 
   function kindClass(k) { return k === 'tick' ? '' : k; }
@@ -489,7 +520,7 @@ button:active{transform:scale(.98)}
     var t = S.taal;
     if (S.lastShown) { var old = document.getElementById('m' + S.lastShown); if (old) old.classList.remove('now'); }
     var c = document.getElementById('m' + b.matra); if (c) c.classList.add('now');
-    S.lastShown = b.matra;
+    S.lastShown = b.matra; S.shownCycle = b.cycle;
     var k = soundFor(t, b.matra);
     var mk = markerFor(t, b.matra) || ' ';
     if (b.matra === t.sam) mk = mk + (mk === '0' ? ' \u00b7 sam (a wave)' : ' \u00b7 sam');
@@ -498,6 +529,9 @@ button:active{transform:scale(.98)}
     el.rBol.textContent = t.bols[b.matra - 1];
     el.rWhere.textContent = 'matra ' + b.matra + ' of ' + t.matras;
     el.rCycle.textContent = b.cycle === 0 ? 'count-in' : 'cycle ' + b.cycle + (S.loopN ? ' of ' + S.loopN : '');
+    el.miniMarker.textContent = markerFor(t, b.matra); el.miniMarker.className = 'marker ' + kindClass(k);
+    el.miniBol.textContent = t.bols[b.matra - 1];
+    el.miniWhere.textContent = el.rWhere.textContent + ' \u00b7 ' + el.rCycle.textContent;
     applyHiding(b.cycle);
   }
   // 'Hide bols' hides the words now; 'Hide after N' hides them from cycle N+1 and, when set, delays
@@ -563,6 +597,23 @@ button:active{transform:scale(.98)}
   // The Start/Stop button is on the page twice (under the steps and under the grid); both show the same state.
   function setButtons(on) {
     [el.startstop, el.startstopTop].forEach(function (b) { if (!b) return; b.textContent = on ? 'Stop' : 'Start'; b.classList.toggle('on', on); });
+    document.body.classList.toggle('running', on);
+    showMini(on && !readoutOnScreen());
+  }
+  // The one-line readout at the bottom of the screen: only while running, and only when the big readout is scrolled off.
+  function readoutOnScreen() {
+    try { var r = el.readout.getBoundingClientRect(); return r.bottom > 0 && r.top < window.innerHeight; } catch (e) { return true; }
+  }
+  function showMini(on) {
+    el.mini.hidden = !on; el.mini.setAttribute('aria-hidden', on ? 'false' : 'true');
+    document.body.classList.toggle('mini-on', on);
+  }
+  function updateMini() { if (S.running) showMini(!readoutOnScreen()); }
+  // The quick 'Hide the words' button beside Stop is the same setting as the tick box further down.
+  function syncHideButton() {
+    var on = el.hidebols.checked;
+    el.hidebolsQuick.setAttribute('aria-pressed', on ? 'true' : 'false');
+    el.hidebolsQuick.textContent = on ? 'Show the words' : 'Hide the words';
   }
   function toggle() { if (S.running) stop(); else start(); }
   // The top button sits above the readout and grid: after starting, bring them on screen if they are below the fold.
@@ -605,6 +656,7 @@ button:active{transform:scale(.98)}
     S.lastSave = performance.now();
     renderMinutes();
   }
+  var DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   function renderMinutes() {
     el.todayMin.textContent = Math.floor(S.secToday / 60);
     el.days.innerHTML = '';
@@ -613,7 +665,7 @@ button:active{transform:scale(.98)}
       var k = dateKey(d), v = i === 0 ? S.secToday / 60 : (parseFloat(lsGet('minutes.' + k)) || 0);
       var box = document.createElement('div'); box.className = 'day' + (i === 0 ? ' today' : '');
       var b = document.createElement('b'); b.textContent = Math.floor(v);
-      box.appendChild(b); box.appendChild(document.createTextNode(k.slice(5)));
+      box.appendChild(b); box.appendChild(document.createTextNode(i === 0 ? 'Today' : DAY_NAMES[d.getDay()]));
       el.days.appendChild(box);
     }
   }
@@ -623,9 +675,11 @@ button:active{transform:scale(.98)}
   }
 
   // ---------- tempo ----------
+  var presetButtons = Array.prototype.slice.call(el.presets.querySelectorAll('button'));
   function setBpm(b, save) {
     S.bpm = clampBpm(b);
     el.bpm.value = S.bpm; el.bpmVal.textContent = S.bpm; el.laya.textContent = layaLabel(S.bpm);
+    presetButtons.forEach(function (p) { p.setAttribute('aria-pressed', parseInt(p.getAttribute('data-bpm'), 10) === S.bpm ? 'true' : 'false'); });
     if (save !== false) lsSet('bpm', S.bpm);
   }
   function tap() {
@@ -659,6 +713,15 @@ button:active{transform:scale(.98)}
   el.taal.addEventListener('change', function () { selectTaal(el.taal.selectedIndex); });
   el.startstop.addEventListener('click', toggle);
   el.startstopTop.addEventListener('click', toggleFromTop);
+  el.startstopMini.addEventListener('click', function () { if (S.running) stop(); });
+  window.addEventListener('scroll', updateMini, { passive: true });
+  window.addEventListener('resize', updateMini);
+  presetButtons.forEach(function (p) { p.addEventListener('click', function () { setBpm(parseInt(p.getAttribute('data-bpm'), 10)); }); });
+  el.hidebolsQuick.addEventListener('click', function () {
+    el.hidebols.checked = !el.hidebols.checked;
+    el.hidebols.dispatchEvent(new Event('change'));
+  });
+  syncHideButton();
   el.bpm.addEventListener('input', function () { setBpm(el.bpm.value); });
   el.bpmMinus.addEventListener('click', function () { setBpm(S.bpm - 5); });
   el.bpmPlus.addEventListener('click', function () { setBpm(S.bpm + 5); });
@@ -673,8 +736,9 @@ button:active{transform:scale(.98)}
     if (el.findsam.checked) el.countin.checked = true;   // the count-in cycle is the only audible reference
     el.countin.disabled = el.findsam.checked;
   });
-  el.hidebols.addEventListener('change', function () { if (!S.running) resetReadout(); });
-  el.hidemarks.addEventListener('change', function () { if (!S.running) resetReadout(); });
+  // While running, the grid changes on the spot (not only at the next beat), so a tick shows its effect at once.
+  el.hidebols.addEventListener('change', function () { syncHideButton(); if (S.running) applyHiding(S.shownCycle); else resetReadout(); });
+  el.hidemarks.addEventListener('change', function () { if (S.running) applyHiding(S.shownCycle); else resetReadout(); });
   el.hideafter.addEventListener('input', function () { if (!S.running) resetReadout(); });
   // Both count boxes mean "0 = off"; a negative or blank entry is written back as 0 so the box shows what the page uses.
   function clampCount(input, max) {
