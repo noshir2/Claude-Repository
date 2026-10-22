@@ -42,6 +42,8 @@ button[aria-pressed=true]{background:var(--accent);color:var(--accent-fg);border
 .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px;margin:.6em 0}
 .tabs button{flex:1 1 auto}
 .tabs button[aria-selected=true]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.tabs button:disabled{opacity:.5;cursor:not-allowed}
+#results.stale > [role=tabpanel]{opacity:.55}
 .verdict{font-size:1.12em;font-weight:600;margin:.6em 0}
 .box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:.7em 0;white-space:pre-wrap}
 .box.bad{border-color:var(--bad);color:var(--bad)}
@@ -138,14 +140,16 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;paddi
   <p class="mute" id="updated-note" hidden></p>
 </div>
 
-<div id="results" hidden>
-<h2 id="results-heading">What the page says</h2>
+<h2 id="results-heading">4. What the page says</h2>
 <div class="tabs" role="tablist">
-  <button type="button" role="tab" id="tab-lineup" aria-selected="true" aria-controls="panel-lineup">Who do I start?</button>
-  <button type="button" role="tab" id="tab-trade" aria-selected="false" aria-controls="panel-trade">Is this trade good?</button>
-  <button type="button" role="tab" id="tab-pickup" aria-selected="false" aria-controls="panel-pickup">Which pickup helps most?</button>
+  <button type="button" role="tab" id="tab-lineup" aria-selected="true" aria-controls="panel-lineup" disabled>Who do I start?</button>
+  <button type="button" role="tab" id="tab-trade" aria-selected="false" aria-controls="panel-trade" disabled>Is this trade good?</button>
+  <button type="button" role="tab" id="tab-pickup" aria-selected="false" aria-controls="panel-pickup" disabled>Which pickup helps most?</button>
 </div>
+<p class="mute" id="tabs-note">Press 'Show my best lineup' first. All three checks (who to start, a trade, a pickup) use that lineup.</p>
 
+<div id="results" hidden>
+<div class="box warn" id="stale-note" hidden>Out of date: your team list or settings changed after this was worked out. Press 'Show my best lineup' to update it.</div>
 <div id="panel-lineup" role="tabpanel" aria-labelledby="tab-lineup">
   <div id="lineup-out"></div>
 </div>
@@ -155,7 +159,7 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;paddi
   <div class="card">
     <p><b>Players you give</b> <span class="mute">(tick them)</span></p>
     <div id="give-list"></div>
-    <label for="get-names">Players you get<span class="mute">One per line, spelled the way FantasyPros spells them.</span></label>
+    <label for="get-names">Players you get<span class="mute">One per line. Spelling does not have to be perfect; the page shows what it matched.</span></label>
     <textarea id="get-names" spellcheck="false" placeholder="Catcher Charlie"></textarea>
     <button type="button" class="primary big" id="btn-trade" style="margin-top:.8em">Check this trade</button>
   </div>
@@ -170,7 +174,7 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;paddi
     <input type="text" id="add-name" placeholder="Catcher Baker" spellcheck="false">
     <label for="drop-select">Who would you drop?</label>
     <select id="drop-select"><option value="">Let the page pick my weakest bench player</option></select>
-    <label for="cand-names">Or compare several free agents<span class="mute">One per line, as spelled on FantasyPros.</span></label>
+    <label for="cand-names">Or compare several free agents<span class="mute">One per line. Spelling does not have to be perfect; the page shows what it matched.</span></label>
     <textarea id="cand-names" spellcheck="false" placeholder="Catcher Baker&#10;Runner Echo"></textarea>
     <button type="button" class="primary big" id="btn-pickup" style="margin-top:.8em">Rank the pickups</button>
   </div>
@@ -1963,9 +1967,9 @@ function plain(s) {
     .replace(/^\(rest of season\) /, "Rest of season: ")
     .replace(/^The --ros folder look like WEEKLY numbers \(([^;]*);[^)]*\); rest-of-season numbers should be season-style totals\.$/,
       "The rest-of-season files look like one week's numbers, not season totals ($1). Download the rest-of-season view for these; the 'rest of season' numbers above mean nothing until you do.")
-    .replace(/fix roster\.csv if that is wrong/g, "fix the name in step 2 if that is wrong")
-    .replace(/typo in roster\.csv, or on bye \/ injured \/ not projected/g, "check the spelling in step 2 and type only the name, nothing after it; or he may be on bye, injured or not projected")
-    .replace(/typo in roster\.csv/g, "check the spelling in step 2 and type only the name, nothing after it")
+    .replace(/fix roster\.csv if that is wrong/g, "usually the same player; fix the name in step 2 if it is not")
+    .replace(/typo in roster\.csv, or on bye \/ injured \/ not projected/g, "check the spelling in step 2 (a comma and the position after the name is fine); or he may be on bye, injured or not projected")
+    .replace(/typo in roster\.csv/g, "check the spelling in step 2 (a comma and the position after the name is fine)")
     .replace(/: I get /g, ": this page gets ")
     .replace(/The lineup uses MY number \(your scoring\)/g, "The lineup uses this page's number (your scoring)")
     .replace(/the lineup uses my number/g, "the lineup uses this page's number")
@@ -1992,8 +1996,23 @@ function spellingNote(s) {
   /* A name typed in the trade or pickup boxes lives there, not in step 2 (the Python tool rewrites the same way for --give / --drop). */
   return String(s).replace(/fix roster\.csv if that is wrong/g, "check the spelling if that is wrong");
 }
+function differTail(w) {
+  /* "(4 other players differ too)" -> who they are, so the reader can see they are all kickers. Display only: the
+     count and the worst player come from the logic block (same as the Python); this only looks up the names. */
+  var m = /^(\(rest of season\) )?(.+?)( \(K\))?: I get /.exec(w);
+  var tail = /\((\d+) other players? differ too\)/.exec(w);
+  var ctx = m && m[1] ? state.rosCtx : state.ctx;
+  if (!m || !tail || !ctx) return w;
+  var rest = allProjections(ctx.proj).filter(function (p) {
+    return p.fpts !== null && p.fpts !== undefined && p.name !== m[2] && Math.abs(makePlayer(p, ctx.league.scoring, ctx.weekly).proj - p.fpts) > MISMATCH_TOLERANCE;
+  });
+  if (rest.length !== parseInt(tail[1], 10)) return w;
+  var allK = rest.every(function (p) { return p.pos === "K"; });
+  return w.replace(tail[0], "(so do the other " + rest.length + (allK ? " kickers" : " players") + " in the file: " + rest.map(function (p) { return p.name; }).join(", ") + ")");
+}
 function nameWarning(w) {
   /* The scoring-mismatch note names the worst player in the whole file, who need not be on the user's team. */
+  w = differTail(w);
   var m = /^(\(rest of season\) )?(.+?)( \(K\))?: I get /.exec(w);
   if (m && state.ctx && !state.ctx.players.some(function (p) { return p.name === m[2]; })) {
     var head = m[2] + (m[3] || "");
@@ -2167,7 +2186,7 @@ function leaveExample(keepInputId) {
   ["err-files", "err-ros", "err-roster", "err-settings", "err-trade", "err-pickup"].forEach(function (id) { showError(id, ""); });
   $("kind-note").textContent = "";
   state.ctx = null; state.rosCtx = null; state.rosError = ""; state.ran = false; state.problem = "";
-  $("results").hidden = true; $("updated-note").hidden = true;
+  setResultsVisible(false); $("updated-note").hidden = true;
   showLeague(state.current);          /* restores the user's own roster, league name and scoring fields */
   state.example = null;
   $("example-banner").hidden = true; $("example-note").hidden = true;
@@ -2198,7 +2217,7 @@ function stopWith(errId, msg, scroll) {
      because the user may be in the middle of a click on something else. */
   showError(errId, msg);
   state.problem = errId;
-  $("results").hidden = true;
+  setResultsVisible(false);
   $("updated-note").hidden = true;
   if (scroll) bringProblemIntoView(errId);
 }
@@ -2223,6 +2242,23 @@ function computeNow(opts) {
   if (pendingCompute) { clearTimeout(pendingCompute); pendingCompute = null; }
   compute(opts || {});
 }
+function setResultsVisible(on) {
+  /* No lineup yet (or a problem in a step): the three tabs stay on the page, greyed, with a note saying what to do.
+     With a lineup: the tabs work and any 'out of date' caption is cleared. */
+  $("results").hidden = !on;
+  ["lineup", "trade", "pickup"].forEach(function (t) { $("tab-" + t).disabled = !on; });
+  $("tabs-note").textContent = state.problem ? notReadyMessage() : "Press 'Show my best lineup' first. All three checks (who to start, a trade, a pickup) use that lineup.";
+  $("tabs-note").hidden = on;
+  if (on) markStale(false);
+}
+function markStale(force) {
+  /* The team list (or a setting) changed after the answer on screen was worked out: caption and dim the answer until
+     the next run. The run itself clears the caption. */
+  if ($("results").hidden) return;
+  var stale = force === true || (force !== false && $("roster").value !== state.computedRoster);
+  $("stale-note").hidden = !stale;
+  $("results").classList.toggle("stale", stale);
+}
 function notReadyMessage() {
   if (state.problem) return "There is a problem in step " + PROBLEM_STEP[state.problem] + " (see the red box there). Fix it, then press 'Show my best lineup' again.";
   return "Press 'Show my best lineup' first.";
@@ -2245,7 +2281,8 @@ function compute(opts) {
   }
   roster = parsed.roster;
   state.tidied = parsed.tidied;
-  if (!roster.length) { stopWith("err-roster", "Type your players in the 'Your players, one per line' box in step 2 (the box right above this message), one name per line, then press 'Show my best lineup' again.", opts.scroll); return; }
+  if (!roster.length) { stopWith("err-roster", "Type your players in the 'Your players, one per line' box in step 2 (the box right above this message), one name per line, then press 'Show my best lineup' again." +
+    (Object.keys(state.files).length ? "" : " The fastest way to see a lineup: press 'Try it with example data' at the top of the page."), opts.scroll); return; }
   var needed = positionsNeeded(league);
   try {
     if (!Object.keys(state.files).length) throw ExportFormatError("Choose this week's projection files first (step 1), or press 'Try it with example data'.");
@@ -2270,7 +2307,8 @@ function compute(opts) {
   var rep = baseReport(ctx, "lineup", 1.5);
   renderLineup(rep);
   renderRosterPickers(ctx);
-  $("results").hidden = false;
+  state.computedRoster = $("roster").value;
+  setResultsVisible(true);
   if ($("get-names").value.trim() || anyGiveTicked()) runTrade(); else $("trade-out").innerHTML = "";
   if ($("add-name").value.trim() || $("cand-names").value.trim()) runPickup(); else $("pickup-out").innerHTML = "";
   if (opts.fromFields) {
@@ -2280,6 +2318,13 @@ function compute(opts) {
     $("updated-note").hidden = false;
   }
 }
+
+/* Display only: the change shown beside two rounded totals is the difference of those rounded totals, so the
+   arithmetic on the page checks (126.1 to 127.2 reads +1.1 even when the exact difference rounds to +1.2). The
+   logic block's deltaChange stays exact and is what the golden tests compare against the Python; do not use
+   shownChange inside the logic block. */
+function shownChange(before, after) { return spts(Math.round((Number(fmtFixed(after, 1)) - Number(fmtFixed(before, 1))) * 10) / 10); }
+function shownDelta(d) { return shownChange(lineupTotal(d.before, "proj"), lineupTotal(d.after, "proj")); }
 
 function numCell(x) { return "<td class='num'>" + (x === null || x === undefined ? "" : pts(x)) + "</td>"; }
 
@@ -2418,11 +2463,13 @@ function runTrade() {
   try { rep = tradeReport(ctx, give, get, 1.5, state.rosCtx); }
   catch (e) { if (e.name !== "ExportFormatError") throw e; showError("err-trade", plain(e.message)); $("trade-out").innerHTML = ""; return; }
   var t = rep.trade, h = "";
-  h += "<p class='verdict' id='trade-verdict'>" + esc(t.verdict) + "</p>";
+  var verdict = t.verdict.replace(" this week (" + spts(deltaChange(t.week)) + ")", " this week (" + shownDelta(t.week) + ")");
+  if (t.ros) verdict = verdict.replace(" rest of season (" + spts(deltaChange(t.ros)) + ")", " rest of season (" + shownDelta(t.ros) + ")");
+  h += "<p class='verdict' id='trade-verdict'>" + esc(verdict) + "</p>";
   h += "<div class='wrap'><table><tr><th></th><th class='num'>Before</th><th class='num'>After</th><th class='num'>Change</th></tr>";
-  h += "<tr><td>This week (best lineup)</td>" + numCell(lineupTotal(t.week.before, "proj")) + numCell(lineupTotal(t.week.after, "proj")) + "<td class='num'>" + esc(spts(deltaChange(t.week))) + "</td></tr>";
-  h += "<tr><td>This week (floor)</td>" + numCell(lineupTotal(t.week.before, "floor")) + numCell(lineupTotal(t.week.after, "floor")) + "<td class='num'>" + esc(spts(lineupTotal(t.week.after, "floor") - lineupTotal(t.week.before, "floor"))) + "</td></tr>";
-  if (t.ros) h += "<tr><td>Rest of season (best lineup)</td>" + numCell(lineupTotal(t.ros.before, "proj")) + numCell(lineupTotal(t.ros.after, "proj")) + "<td class='num'>" + esc(spts(deltaChange(t.ros))) + "</td></tr>";
+  h += "<tr><td>This week (best lineup)</td>" + numCell(lineupTotal(t.week.before, "proj")) + numCell(lineupTotal(t.week.after, "proj")) + "<td class='num'>" + esc(shownDelta(t.week)) + "</td></tr>";
+  h += "<tr><td>This week (floor)</td>" + numCell(lineupTotal(t.week.before, "floor")) + numCell(lineupTotal(t.week.after, "floor")) + "<td class='num'>" + esc(shownChange(lineupTotal(t.week.before, "floor"), lineupTotal(t.week.after, "floor"))) + "</td></tr>";
+  if (t.ros) h += "<tr><td>Rest of season (best lineup)</td>" + numCell(lineupTotal(t.ros.before, "proj")) + numCell(lineupTotal(t.ros.after, "proj")) + "<td class='num'>" + esc(shownDelta(t.ros)) + "</td></tr>";
   h += "</table></div>";
   h += "<p class='mute'>Before = your best starting lineup's projected total with the team you have now; After = the same after the trade. Rest of season uses season-style totals from the rest-of-season files.</p>";
   h += "<p>Give: " + esc(t.give.map(function (p) { return p.name + " (" + posWord(p.pos) + ", " + pts(p.proj) + ")"; }).join(", ")) + "<br>Get: " +
@@ -2458,10 +2505,10 @@ function runPickup() {
   catch (e) { if (e.name !== "ExportFormatError") throw e; showError("err-pickup", plain(e.message)); $("pickup-out").innerHTML = ""; return; }
   var w = rep.waiver, h = "";
   if (w.single) {
-    var s = w.single, gain = deltaChange(s.delta);
+    var s = w.single;
     var dropText = s.drop ? "drop " + s.drop.name + " (" + pts(s.drop.proj) + ")" + (s.dropWasDefault ? ", your weakest bench player" : "") : "drop nobody";
     h += "<p class='verdict' id='pickup-verdict'>Add " + esc(s.add.name) + " (" + esc(posWord(s.add.pos)) + ", " + pts(s.add.proj) + ") and " + esc(dropText) +
-      ": your best lineup goes from " + pts(lineupTotal(s.delta.before, "proj")) + " to " + pts(lineupTotal(s.delta.after, "proj")) + " (" + esc(spts(gain)) + ").</p>";
+      ": your best lineup goes from " + pts(lineupTotal(s.delta.before, "proj")) + " to " + pts(lineupTotal(s.delta.after, "proj")) + " (" + esc(shownDelta(s.delta)) + ").</p>";
     var ins = startersIn(s.delta), outs = startersOut(s.delta);
     if (ins.length) {
       h += "<p>" + esc(ins.map(function (p) { return p.name + " would start at " + slotOf(s.delta.after, p.name); }).join(", ")) +
@@ -2537,6 +2584,7 @@ function showTab(name) {
 buildFields();
 loadState();
 showLeague(state.current);
+setResultsVisible(false);
 renderStatus(state.files, "status-week", "week");
 renderStatus(state.rosFiles, "status-ros", "ros");
 $("btn-example").addEventListener("click", function () { loadExample("league1"); });
@@ -2549,14 +2597,16 @@ $("btn-clear-files").addEventListener("click", function () {
   $("files-week").value = ""; $("files-ros").value = "";
   renderStatus(state.files, "status-week", "week"); renderStatus(state.rosFiles, "status-ros", "ros");
   showError("err-files", ""); showError("err-ros", ""); $("kind-note").textContent = "";
-  state.ctx = null; state.rosCtx = null; state.ran = false; state.problem = ""; $("results").hidden = true; $("updated-note").hidden = true;
+  state.ctx = null; state.rosCtx = null; state.ran = false; state.problem = ""; setResultsVisible(false); $("updated-note").hidden = true;
 });
 $("btn-league-0").addEventListener("click", function () { switchLeague(0); });
 $("btn-league-1").addEventListener("click", function () { switchLeague(1); });
 ["roster", "league-name"].forEach(function (id) { $(id).addEventListener("input", function () { rememberFields(); nextNote(); }); });
+$("roster").addEventListener("input", function () { markStale(); });
 $("roster").addEventListener("change", scheduleCompute);
 document.querySelectorAll("#slot-fields input, #flex-fields input, #scoring-fields input").forEach(function (el) {
   el.addEventListener("change", function () { rememberFields(); scheduleCompute(); });
+  el.addEventListener("input", function () { markStale(true); });
 });
 $("btn-preset").addEventListener("click", function () {
   fillSettings(defaultSettings()); rememberFields(); showError("err-settings", ""); state.problem = "";

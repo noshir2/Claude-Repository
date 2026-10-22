@@ -8,13 +8,14 @@ is a newer copy; the same date means you already have the newest.
 
 This folder holds a few small tools built for one person's week: options income on Webull,
 mentoring a robotics electrical team, fantasy football, kids' music practice, keeping an engineering
-license current, and making a passport photo. Each tool is a page you open in your web browser
+license current, and making a passport photo: six pages covering seven tools (the Webull results
+checker lives inside the Options page). Each tool is a page you open in your web browser
 (Chrome, Edge, Safari or Firefox), on a PC or on a phone. You type or choose a file, press a button,
 and read the answer in plain words. There is nothing to install and no account to make.
 
 ## The easiest way
 
-Open the link you were given, or double-click the file `index.html` in this folder. That is the
+Double-click the file `index.html` in this folder, or open the online link if you were given one. That is the
 "Start here" page: it lists every tool with one sentence each and a button that opens it. Every tool
 page that works from your own numbers or files has a big button near the top that fills the page
 with made-up data, so you can see what a result looks like before you use your own. On the Options,
@@ -29,9 +30,9 @@ print, use your own copy of the files (next section).
 If you have the folder on your computer, the file `OPEN-ME-FIRST.txt` says the same thing in ten
 lines.
 
-On a phone, the online link you were given is the easiest route. The same pages also work in
-Chrome on Android if you copy the files over; on an iPhone the Files app only previews a page (the
-buttons do nothing there), so use the online link on an iPhone.
+On a phone, an online link (if you were given one) is the easiest route. The same pages also work
+in Chrome on Android if you copy the files over; on an iPhone the Files app only previews a page
+(the buttons do nothing there), so on an iPhone use an online link.
 
 ## Getting your own copy
 
@@ -46,7 +47,9 @@ no install. The project's address is public: https://github.com/noshir2/Claude-R
    **claude/lucid-dijkstra-gic3gd**, go to the next step. If it shows a different name, press it,
    type **lucid** in the box that appears, and choose **claude/lucid-dijkstra-gic3gd** from the
    short list. GitHub calls these names branches; a branch is one saved version of the files, and
-   that one is the version these instructions describe.
+   that one is the version these instructions describe. If this step is a struggle, skip it: the
+   download in the next step works from whichever branch is shown, and the Version line at the top
+   of the README in the copy you get tells you which one you have.
 3. Click the green **Code** button (top right of the file list).
 4. Click **Download ZIP**. A file ending in `.zip` lands in your Downloads folder. A ZIP is one file
    that holds a whole folder, squeezed smaller.
@@ -60,13 +63,17 @@ no install. The project's address is public: https://github.com/noshir2/Claude-R
 To get an updated copy later, do the same steps again and use the new folder. Updates go on the
 same branch, **claude/lucid-dijkstra-gic3gd**, so the steps above do not change. If that name is
 ever missing from the list in step 2, pick each name that starts with claude/ in turn and read the
-Version line at the top of the README shown below the file list; the latest date is the newest copy.
+Version line just under the heading Start here in the README shown below the file list; the latest
+date is the newest copy.
 Before you download, compare that date with the Version line at the top of this file: a later date
 means there is something new, the same date means you already have it. Nothing you typed is stored
 in the old folder (the pages remember a few settings inside the browser itself, not in the files),
 so the old folder can go in the bin.
 
 ## The tools, one at a time
+
+Six pages covering seven tools: the Webull results checker (the `wheel_tracker` folder, which has
+no page of its own) lives inside the Options page.
 
 **Options: Wheel Planner and Wheel Tracker.** One page, `wheel_planner/wheel.html`, for selling
 cash-secured puts and covered calls on Webull. The *tracker* part reads the order-history file you

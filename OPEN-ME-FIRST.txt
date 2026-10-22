@@ -6,5 +6,5 @@
 6. Nothing you type or choose is uploaded anywhere. It all stays on this computer.
 7. Each folder holds one tool's page plus .py code files you never open. Leave the folders where they are.
 8. README.md is the longer version of this note: it also says how to get a newer copy and check its date.
-9. On a phone, the online link you were given is the easiest route (README.md says more about phones).
+9. If you were given an online link, it is the easiest route on a phone (README.md says more about phones).
 10. If a page looks wrong, close it and double-click it again. There is nothing to break.

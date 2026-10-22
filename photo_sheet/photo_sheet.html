@@ -72,9 +72,9 @@
   <p>Turns an ordinary photo into a passport picture: a file at the size an online form asks for, or a 4 x 6 inch sheet of six copies to print.</p>
   <p class="privacy">Nothing you type or choose leaves your device. Close the page and it is gone, except the size you last picked, which it remembers in this browser. <b>Your photo never leaves this browser: nothing is uploaded.</b></p>
   <ol class="steps">
-    <li>Press <b>Try it with a drawn face</b> to see how it works, or <b>Choose photo</b> for your own (how: a phone opens its camera or pictures; a PC asks for a JPEG or PNG file).</li>
+    <li>Press <b>Try it with a drawn face</b> to see how it works (it loads a drawn face and makes a finished picture straight away), or <b>Choose photo</b> for your own (how: a phone opens its camera or pictures; a PC asks for a JPEG or PNG file).</li>
     <li>Drag the picture in the crop box until the head sits inside the guide; pick the size the form asks for.</li>
-    <li>Press <b>Save one picture</b> or <b>Make print sheet</b>. The result appears on the page; save it from there.</li>
+    <li>Press <b>Save one picture</b> or <b>Make print sheet</b>. The result appears on the page under the button: press and hold it (phone) or right-click (PC) and choose Save. Nothing has to download.</li>
   </ol>
 
   <div class="grid">
@@ -130,6 +130,7 @@
         <div><label for="maxkb">Largest file size, KB<span class="gloss">the form's limit; 1 KB = 1024 bytes</span></label><input id="maxkb" type="number" min="5" step="1" value="200"></div>
       </div>
       <div class="btns"><button id="savejpeg" class="primary" type="button" disabled>Save one picture</button></div>
+      <p id="jpeghint" class="muted">The finished picture appears right here on the page. Press and hold it (phone) or right-click (PC) and choose Save. A copy may also download, but it does not have to.</p>
       <p id="jpegstatus" class="status"></p>
       <div id="jpegout" class="out" hidden>
         <img id="jpegimg" alt="Your finished passport picture">
@@ -143,6 +144,7 @@
       <label for="copies">Layout</label>
       <select id="copies"><option value="6">6 per sheet (passport size)</option><option value="2">2 per sheet (larger sizes)</option></select>
       <div class="btns"><button id="savesheet" class="primary" type="button" disabled>Make print sheet</button></div>
+      <p id="sheethint" class="muted">The finished sheet appears right here on the page. Press and hold it (phone) or right-click (PC) and choose Save. A copy may also download, but it does not have to.</p>
       <p id="sheetstatus" class="status"></p>
       <div id="sheetout" class="out" hidden>
         <img id="sheetimg" alt="Your finished 4 x 6 print sheet">
@@ -173,7 +175,7 @@
       <h2>What this can and cannot tell you</h2>
       <p class="muted">It can crop, brighten, resize and lay out your photo at the exact size you type, and tell you the file size it made. It cannot remove a background, check your face, or promise an office will accept the photo: the guides are general guidance, and the issuing body decides.</p>
       <h2 style="margin-top:12px">Where the numbers come from</h2>
-      <p class="muted">The 2 x 2 in size, with the head 1 to 1 3/8 in tall and the eyes 1 1/8 to 1 3/8 in from the bottom, follows the US Department of State's published guidance. 35 x 45 mm is a common international size with no single head rule, so none is drawn. 300 dpi and the 4 x 6 in sheet are print-lab conventions; 25.4 mm = 1 inch exactly. All are marked "verify with the issuing body" in the preset table.</p>
+      <p class="muted">The 2 x 2 in size, with the head 1 to 1 3/8 in tall and the eyes 1 1/8 to 1 3/8 in from the bottom, follows the US Department of State's published guidance. 35 x 45 mm is a common international size with no single head rule, so the page draws only a faint dashed oval as a rough aid (head about 70-80% of the photo height, which many such rules fall near); the issuing body decides. 300 dpi and the 4 x 6 in sheet are print-lab conventions; 25.4 mm = 1 inch exactly. All are marked "verify with the issuing body" in the preset table.</p>
     </section>
   </div>
 </main>
@@ -253,7 +255,7 @@
     const tbody = $("presettable").querySelector("tbody");
     presets.forEach((p) => {
       const tr = document.createElement("tr");
-      const head = p.head_min_mm == null ? "none drawn" : p.head_min_mm + "-" + p.head_max_mm + " mm";
+      const head = p.head_min_mm == null ? "rough aid only (no official rule)" : p.head_min_mm + "-" + p.head_max_mm + " mm";
       [p.name, p.width_mm + " x " + p.height_mm,
        mmToPx(p.width_mm, p.dpi) + " x " + mmToPx(p.height_mm, p.dpi) + " @ " + p.dpi, head]
         .forEach((t) => { const td = document.createElement("td"); td.textContent = t; tr.appendChild(td); });
@@ -301,7 +303,7 @@
   function updateGuideInfo() {
     if (!current) return;
     if (current.head_min_mm == null) {
-      $("guideinfo").textContent = "No head-size guide for this preset. Centre the face and leave space above the head.";
+      $("guideinfo").textContent = "No official head-size rule for this preset. The faint dashed oval is a rough aid only (head about 70-80% of the photo height, chin to top of hair); the issuing body decides. Centre the face and leave space above the head.";
       return;
     }
     const lo = 100 * current.head_min_mm / current.height_mm, hi = 100 * current.head_max_mm / current.height_mm;
@@ -318,6 +320,7 @@
     // Once any picture is in, "Choose photo" becomes the main button and the drawn face steps back.
     $("testface").classList.remove("primary"); $("filelabel").classList.add("primary");
     $("jpegout").hidden = $("sheetout").hidden = true;
+    $("jpeghint").hidden = $("sheethint").hidden = false;
     fitImage();
     showCropBox();
   }
@@ -376,10 +379,13 @@
     return c;
   }
   window.drawTestFacePixels = drawTestFacePixels;
-  function makeTestFace() {
+  async function makeTestFace() {
     const c = drawTestFacePixels(480, 640);
     setImage(c, c.width, c.height, "Loaded a drawn test face");
     state.drawn = true;
+    // The first click should end in something to look at: make the finished picture too (shown, not downloaded).
+    await saveJpeg(false);
+    if (!$("jpegout").hidden) $("loadinfo").textContent += " A finished picture is already waiting under Save one picture, lower down the page.";
   }
 
   // ---------- view maths ----------
@@ -461,8 +467,22 @@
         ctx.beginPath(); ctx.ellipse(cx, eyeY, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.stroke();
       });
     } else {
-      ctx.strokeStyle = "rgba(0,160,255,0.5)"; ctx.setLineDash([4, 4]);
+      // No published head rule for this preset: a faint dashed oval, head about 75% of the photo height
+      // (the middle of the 70-80% many 35 x 45 mm rules ask for), labelled as a rough aid only.
+      const h = view.height * 0.75, w = h * 0.72, cy = view.height * 0.53;
+      ctx.strokeStyle = "rgba(0,160,255,0.45)"; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = "rgba(0,160,255,0.5)"; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
       ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, view.height); ctx.stroke();
+      ctx.setLineDash([]);
+      const label = "rough aid; the issuing body decides", fs = Math.max(11, Math.round(view.width / 28));
+      ctx.font = fs + "px " + getComputedStyle(document.body).fontFamily;
+      ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+      const tw = ctx.measureText(label).width;
+      if (tw + 8 <= view.width) {       // skip the label on a crop box too small to hold it
+        ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.fillRect(cx - tw / 2 - 4, view.height - fs - 9, tw + 8, fs + 6);
+        ctx.fillStyle = "rgba(0,0,0,0.75)"; ctx.fillText(label, cx, view.height - 4);
+      }
     }
     ctx.restore();
   }
@@ -558,13 +578,14 @@
   function showResult(boxId, imgId, blob) {
     return new Promise((resolve) => {
       const rd = new FileReader();
-      rd.onload = () => { $(imgId).src = rd.result; $(boxId).hidden = false; resolve(true); };
-      rd.onerror = () => { $(imgId).src = URL.createObjectURL(blob); $(boxId).hidden = false; resolve(false); };
+      const hint = $(boxId === "jpegout" ? "jpeghint" : "sheethint");
+      rd.onload = () => { $(imgId).src = rd.result; $(boxId).hidden = false; hint.hidden = true; resolve(true); };
+      rd.onerror = () => { $(imgId).src = URL.createObjectURL(blob); $(boxId).hidden = false; hint.hidden = true; resolve(false); };
       rd.readAsDataURL(blob);
     });
   }
 
-  async function saveJpeg() {
+  async function saveJpeg(autoDownload = true) {
     const w = Math.round(+$("outw").value), h = Math.round(+$("outh").value), cap = +$("maxkb").value;
     const st = $("jpegstatus"); st.className = "status";
     if (!(w >= 50 && h >= 50 && w <= 6000 && h <= 6000)) { st.textContent = "Width and height must be 50 to 6000 px."; st.className = "status warn"; return; }
@@ -597,7 +618,7 @@
     const r = await fitUnderCap(c, cap * 1024);
     if (!r) { st.textContent = "This browser could not make a JPEG."; st.className = "status warn"; return; }
     await showResult("jpegout", "jpegimg", r.blob);
-    download(r.blob, "photo_" + w + "x" + h + ".jpg");
+    if (autoDownload) download(r.blob, "photo_" + w + "x" + h + ".jpg");
     st.textContent = "Made " + w + " x " + h + " px, " + kb(r.blob.size) + " at JPEG quality " + r.quality.toFixed(2)
       + " (1.00 is best; the page lowers it only until the file fits under your KB limit)"
       + (r.fits ? ", under the " + cap + " KB cap." : ". Still over the " + cap + " KB cap even at the lowest quality; try a smaller pixel size.")
@@ -643,7 +664,7 @@
     st.className = "status ok";
   }
 
-  $("savejpeg").addEventListener("click", saveJpeg);
+  $("savejpeg").addEventListener("click", () => saveJpeg(true));
   $("savesheet").addEventListener("click", saveSheet);
 
   fillPresetSelect();

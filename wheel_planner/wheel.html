@@ -28,7 +28,7 @@ a{color:var(--accent)}
 .jump{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;max-width:100%;gap:4px;padding:6px 0;margin:12px 0;border-bottom:1px solid var(--line)}
 .jump button{flex:1 1 auto;white-space:nowrap;min-height:40px;padding:4px 10px;font:inherit;font-size:.85em;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;cursor:pointer}
 @media (min-width:600px){.jump{flex-wrap:nowrap;gap:6px;padding:8px 0}.jump button{flex:1 1 auto;white-space:nowrap;min-height:40px;font-size:.92em;padding:6px 10px}}
-.jump button[aria-current="true"]{border-color:var(--accent);color:var(--accent);font-weight:600}
+.jump button[aria-current="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-fg);font-weight:600}
 button{font:inherit}
 .primary{display:block;width:100%;min-height:48px;padding:10px 16px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);border-radius:10px;cursor:pointer;font-weight:600;font-size:1.05em;margin:10px 0}
 .secondary{display:inline-block;min-height:44px;padding:8px 16px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:10px;cursor:pointer;font-weight:600;margin:8px 8px 8px 0}
@@ -67,7 +67,7 @@ th{font-weight:600;font-size:.92em}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 ul.meanings{color:var(--mute);font-size:.88em;padding-left:1.2em;margin:4px 0 10px}
 ul.meanings li{margin:2px 0}
-details{margin:8px 0}summary{cursor:pointer;font-weight:600;min-height:32px}
+details{margin:8px 0}summary{cursor:pointer;font-weight:600;min-height:32px}summary.show::after{content:" (tap to open)";font-weight:400;color:var(--mute)}details[open] summary.show::after{content:" (tap to close)"}
 .check{padding:8px 12px;margin:6px 0;border-radius:8px;border:1px solid var(--line)}
 .check.ok{border-left:4px solid var(--good)}.check.bad{border-left:4px solid var(--bad)}
 .foot{margin-top:2em;color:var(--mute);font-size:.9em;border-top:1px solid var(--line);padding-top:8px}
@@ -904,6 +904,10 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     var smooth = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     try { window.scrollTo({ top: Math.max(0, top), behavior: smooth ? "smooth" : "auto" }); } catch (e) { window.scrollTo(0, Math.max(0, top)); }
   }
+  function showResult(section, el) {   // after a result is produced: show the error box if there is one, else the result
+    var err = $(section + "-error");
+    scrollTo(err && !err.hidden ? err : (el || $(section + "-out")));
+  }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch]; }); }
   function num(v) { if (v === "" || v === null || v === undefined) return null; var n = parseFloat(String(v).replace(/[$,%]/g, "")); return isNaN(n) ? null : n; }
   function todayIso() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
@@ -1019,8 +1023,8 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     var notes = loaded.warnings.concat(a.warnings);
     var inFileSymbols = {}; loaded.trades.forEach(function (t) { if (t.option) inFileSymbols[t.symbol] = true; });
     var realized = W.realizedTotal(a), openPrem = W.openPremiumTotal(a), wr = W.winRate(a), ann = W.putReturnAnnualized(a);
-    var h = "<p class='mute'>As of " + esc(inputs.todayStr) + ", from " + loaded.trades.length + " filled orders in " + filesLoaded.results.map(function (f) { return esc(f.name); }).join(", ") + ".</p>";
-    h += "<p class='verdict'>" + esc(W.verdict(a)) + "</p>";
+    var h = "<p class='verdict' id='results-verdict'>" + esc(W.verdict(a)) + "</p>";
+    h += "<p class='mute'>As of " + esc(inputs.todayStr) + ", from " + loaded.trades.length + " filled orders in " + filesLoaded.results.map(function (f) { return esc(f.name); }).join(", ") + ".</p>";
     h += "<p class='big " + (realized >= 0 ? "good" : "bad") + "'>" + money(realized, true) + "</p><p class='mute'>Total made so far, counting only trades that are finished.</p>";
     h += "<div class='stat'><span>Puts: premium kept, minus buybacks<span class='meaning'>Money from cash-secured puts that are finished (expired, assigned, or bought back), after subtracting what buybacks cost.</span></span>" + signed(W.totalOf(a, "put_pnl")) + "</div>";
     h += "<div class='stat'><span>Covered calls: premium kept, minus buybacks<span class='meaning'>The same, for calls sold on shares you held.</span></span>" + signed(W.totalOf(a, "call_pnl")) + "</div>";
@@ -1052,12 +1056,16 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
       return "<div>" + assumedList.map(function (c, k) { return "<button type='button' class='assignbtn' data-assign='" + esc(c) + "' id='" + prefix + k + "'>" + esc(plainContract(c)) + ": this one was assigned</button>"; }).join("") + "</div>";
     }
     var justAssigned = Object.keys(inputs.assigned).filter(function (s) { return inFileSymbols[s]; });
-    if (!held.length && assumedList.length) {
+    var topBox = !held.length && assumedList.length > 0;
+    if (topBox) {
       var puts = assumedList.filter(function (c) { return assumedNames[c].right === "P"; }).map(plainContract);
-      h += "<div class='note' id='results-noheld'><b>No shares held, so there is no break-even to show.</b> " +
-           (puts.length ? esc((puts.length === 1 ? "One put (" : puts.length + " puts (") + puts.join("; ") + ") ran past expiry with no buyback in the file. Webull's file does not say if a put was assigned. If one was, you hold those shares: press its button and the shares and their break-even appear here.")
-                        : esc("Every contract in the file ended without shares changing hands, as far as the file shows.")) +
-           assignButtons("results-assign-top-") + "</div>";
+      if (puts.length) {
+        h += "<div class='note' id='results-noheld'><b>Were you assigned on " + (puts.length === 1 ? "this put" : "one of these puts") + "? Press its button and your shares and their break-even appear here.</b>" +
+             assignButtons("results-assign-top-") +
+             "<span class='meaning'>" + esc("Right now the file shows no shares held, so there is no break-even to show: " + (puts.length === 1 ? "one put (" : puts.length + " puts (") + puts.join("; ") + ") ran past expiry with no buyback, and Webull's file does not say whether a put was assigned. Pressing a button adds the contract to the \"Contracts that were assigned\" box above; delete the line there to undo.") + "</span></div>";
+      } else {
+        h += "<div class='note' id='results-noheld'><b>No shares held, so there is no break-even to show.</b> " + esc("Every contract in the file ended without shares changing hands, as far as the file shows.") + assignButtons("results-assign-top-") + "</div>";
+      }
     }
     if (held.length) {
       h += "<h3 id='results-held'>Shares you still hold</h3>";
@@ -1100,12 +1108,18 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     }
 
     if (a.stock_sales.length) {
-      h += "<h3>Shares you sold</h3><p class='mute'>These make up the share gains above. Each sale is matched with the oldest shares you still held (first in, first out).</p>";
-      h += "<div class='wrap'><table style='min-width:520px'><tr><th>Sold on</th><th>Ticker</th><th class='num'>Shares</th><th class='num'>Sold at</th><th class='num'>Paid each</th><th class='num'>Result</th></tr>";
+      h += "<h3>Shares bought and sold</h3><p class='mute'>These make up the \"Shares\" gain above. Shares from an assigned put count as bought at that put's strike; shares called away count as sold at the call's strike. Each sale is matched with the oldest shares you still held (first in, first out).</p>";
+      h += "<div class='wrap'><table style='min-width:640px'><tr><th>Sold on</th><th>Ticker</th><th class='num'>Shares</th><th class='num'>Paid each</th><th>Bought how</th><th class='num'>Sold at</th><th>Sold how</th><th class='num'>Result</th></tr>";
+      function assignedLeg(underlying, right, strike, day) {   // the assigned contract this share leg came from, if any
+        var hit = null;
+        a.legs.forEach(function (l) { if (l.outcome === "assigned" && l.underlying === underlying && l.right === right && Math.abs(l.strike - strike) < 0.005 && (day === null || Math.abs(day - l.closed) <= 4)) hit = l; });
+        return hit;
+      }
       a.stock_sales.forEach(function (s) {
-        h += "<tr><td>" + W.dayToIso(s.date) + "</td><td>" + esc(s.underlying) + "</td><td class='num'>" + W.fmtG(s.qty) + "</td><td class='num'>" + money(s.sell_price) + "</td><td class='num'>" + money(s.cost_price) + "</td>" + cell(s.pnl) + "</tr>";
+        var viaCall = assignedLeg(s.underlying, "C", s.sell_price, s.date), viaPut = assignedLeg(s.underlying, "P", s.cost_price, null);
+        h += "<tr><td>" + W.dayToIso(s.date) + "</td><td>" + esc(s.underlying) + "</td><td class='num'>" + W.fmtG(s.qty) + "</td><td class='num'>" + money(s.cost_price) + "</td><td>" + (viaPut ? "put assigned " + W.dayToIso(viaPut.closed) : "bought in the file") + "</td><td class='num'>" + money(s.sell_price) + "</td><td>" + (viaCall ? "called away " + W.dayToIso(viaCall.closed) : "sold in the file") + "</td>" + cell(s.pnl) + "</tr>";
       });
-      h += "</table></div>";
+      h += "</table></div>" + meanings([["Paid each", "what the shares cost you (the put's strike if a put was assigned)"], ["Bought how", "put assigned: you were made to buy at the strike; bought in the file: a share purchase in your Webull file"], ["Sold at", "the sale price (the call's strike if a call was assigned)"], ["Sold how", "called away: a covered call was assigned; sold in the file: a share sale in your Webull file"], ["Result", "(sold at minus paid each) x shares; premiums are counted in the Puts and Calls lines, not here"]]);
     }
 
     var noteHtml = notes.map(function (n) { return "<div class='note'>" + esc(n) + "</div>"; });
@@ -1116,8 +1130,8 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     }
     if (assumedList.length) {
       noteHtml.push("<div class='note'>" + esc("I counted " + assumedList.length + " contract" + (assumedList.length === 1 ? "" : "s") + " as expired worthless (you kept the full premium) because the file has no buyback and no matching share purchase or sale. " +
-                    "Webull's file does not list assignments. If one of these was really assigned, press its button and the page will count the shares as bought (put) or sold (call) at the strike:") +
-                    assignButtons("results-assign-") +
+                    "Webull's file does not list assignments. If one of these was really assigned, " + (topBox ? "press its button in the box under \"By ticker\" above" : "press its button") + " and the page will count the shares as bought (put) or sold (call) at the strike" + (topBox ? "." : ":")) +
+                    (topBox ? "" : assignButtons("results-assign-")) +
                     "<span class='meaning'>Pressing a button adds the contract to the \"Contracts that were assigned\" box above, so you can undo it there. Contract symbols, as that box needs them: " +
                     esc(assumedList.map(function (c) { return c + " = " + plainContract(c); }).join("; ")) + ".</span></div>");
     }
@@ -1136,13 +1150,13 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     }
   });
   $("results-files").addEventListener("change", function () { readFiles(this, "results", "results-files-note", function () { runResults(); runExpiryIfUsingResults(); }); });
-  $("run-results").addEventListener("click", function () { persistTracker(); runResults(); });
+  $("run-results").addEventListener("click", function () { persistTracker(); runResults(); showResult("results", $("results-verdict")); });
   $("try-results").addEventListener("click", function () {
     filesLoaded.results = [{ name: "sample_webull_orders.csv (example)", text: document.getElementById("sample-orders").textContent }];
-    $("results-files-note").textContent = "Using: the built-in example file sample_webull_orders.csv (made-up trades on tickers AAA to EEE).";
+    $("results-files-note").textContent = "Using the built-in example file (sample_webull_orders.csv: made-up trades on tickers AAA to EEE), not a file of yours. The file box above stays empty; that is expected.";
     $("results-files").value = "";
     runResults();
-    scrollTo($("results-out"));
+    showResult("results", $("results-verdict"));
   });
   $("reset-results").addEventListener("click", function () {
     filesLoaded.results = []; $("results-files").value = ""; $("results-files-note").textContent = "No file chosen yet.";
@@ -1161,7 +1175,7 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
   for (var n = 1; n <= 4; n++) {
     var div = document.createElement("div"); div.className = "card"; div.setAttribute("data-card", n);
     div.innerHTML = "<h3>Candidate " + n + (n === 1 ? "" : " (optional)") + "</h3><div class='grid'>" +
-      "<div><label for='c" + n + "-ticker'>Ticker</label><span class='meaning'>The stock's symbol, for example AAA.</span><input id='c" + n + "-ticker' name='ticker' autocapitalize='characters' placeholder='AAA'></div>" +
+      "<div><label for='c" + n + "-ticker'>Ticker (optional)</label><span class='meaning'>The stock's symbol, for example AAA. Leave it blank and the candidate is called #" + n + ".</span><input id='c" + n + "-ticker' name='ticker' autocapitalize='characters' placeholder='AAA'></div>" +
       "<div><label for='c" + n + "-type'>What you would sell</label><span class='meaning'>A put means you agree to buy; a covered call means you agree to sell shares you own.</span><select id='c" + n + "-type' name='type'><option value='P'>A put (cash-secured put)</option><option value='C'>A call on shares I own (covered call)</option></select></div>" +
       "<div><label for='c" + n + "-price'>Price of the stock now</label><input type='number' step='0.01' id='c" + n + "-price' name='price'></div>" +
       "<div><label for='c" + n + "-strike'>Strike (the price you agree to buy at, or sell at for a call)</label><input type='number' step='0.01' id='c" + n + "-strike' name='strike'></div>" +
@@ -1207,20 +1221,30 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     evals.sort(function (a, b) { return b.annualized - a.annualized; });
     if (problems.length) showError("compare-error", problems.map(esc).join("<br>"));
     if (!evals.length) { out.innerHTML = problems.length ? "" : "<p class='mute'>Fill in at least one candidate, or press \"Try it with example data\".</p>"; return; }
-    var h = "<h3>In one sentence each</h3>";
+    var h = "<p class='mute'>As of " + esc(today) + " (the \"Pretend today is\" box under My rules and settings): days to expiry are counted from this date.</p>";
+    h += "<h3>In one sentence each</h3>";
     evals.forEach(function (e) {
-      var c = e.c, kind = c.type === "P" ? "put" : "call", odds = e.odds === null ? "" : (" Rough odds " + (c.type === "P" ? "you end up buying the shares" : "the shares get called away") + ": " + pct(e.odds) + ".");
-      if (c.type === "P") h += "<p><b>" + esc(c.ticker) + " " + kind + " at " + money(c.strike) + ", " + days(e.dte) + " to expiry:</b> ties up " + money(e.collateral) + " and pays " + money(e.premiumDollars) + " now, which is " + pct(e.ret, 2) + " of that cash (" + pct(e.annualized) + " a year if you could repeat it). The stock can fall " + pct(e.cushion) + " before it reaches the strike; if assigned, the shares cost you " + money(e.breakEven) + " each after the premium." + odds + "</p>";
-      else h += "<p><b>" + esc(c.ticker) + " " + kind + " at " + money(c.strike) + ", " + days(e.dte) + " to expiry:</b> pays " + money(e.premiumDollars) + " now, which is " + pct(e.ret, 2) + " of what the shares cost you (" + pct(e.annualized) + " a year if you could repeat it). The stock can rise " + pct(e.cushion) + " before it reaches the strike; your break-even on the shares drops to " + money(e.breakEven) + "." + odds + "</p>";
+      var c = e.c, kind = c.type === "P" ? "put" : "call", odds = e.odds === null ? " No implied volatility typed, so the rough odds are skipped." : (" Rough odds " + (c.type === "P" ? "you end up buying the shares" : "the shares get called away") + ", using the " + c.iv + "% IV you typed: " + pct(e.odds) + ".");
+      if (c.type === "P") h += "<p><b>" + esc(c.ticker) + " " + kind + " at " + money(c.strike) + ", " + days(e.dte) + " to expiry:</b> ties up " + money(e.collateral) + " and pays " + money(e.premiumDollars) + " now, which is " + pct(e.ret, 2) + " of that cash (" + pct(e.annualized) + " a year if you could repeat it). The stock, now " + money(c.price) + ", can fall " + pct(e.cushion) + " before it reaches the strike; if assigned, the shares cost you " + money(e.breakEven) + " each after the premium." + odds + "</p>";
+      else h += "<p><b>" + esc(c.ticker) + " " + kind + " at " + money(c.strike) + ", " + days(e.dte) + " to expiry:</b> pays " + money(e.premiumDollars) + " now, which is " + pct(e.ret, 2) + " of what the shares cost you (" + pct(e.annualized) + " a year if you could repeat it). The stock, now " + money(c.price) + ", can rise " + pct(e.cushion) + " before it reaches the strike; your break-even on the shares drops to " + money(e.breakEven) + "." + odds + "</p>";
     });
     h += "<h3>What your rules say</h3>";
-    var fired = []; evals.forEach(function (e) { fired = fired.concat(e.flags); });
-    h += fired.length ? fired.map(function (f) { return "<div class='note'>" + esc(f) + "</div>"; }).join("") : "<div class='okbox'>None of your rules fired.</div>";
-    h += "<h3>The numbers, best yearly rate first</h3><div class='wrap'><table><tr><th>Ticker</th><th>Kind</th><th class='num'>Strike</th><th class='num'>Cash tied up</th><th class='num'>Premium</th><th class='num'>Return</th><th class='num'>Yearly rate</th><th class='num'>Days</th><th class='num'>$ per day</th><th class='num'>Cushion</th><th class='num'>Break-even</th><th class='num'>Likely move</th><th class='num'>Rough odds</th></tr>";
     evals.forEach(function (e) {
-      h += "<tr><td>" + esc(e.c.ticker) + "</td><td>" + (e.c.type === "P" ? "put" : "call") + "</td><td class='num'>" + money(e.c.strike) + "</td><td class='num'>" + money(e.collateral) + "</td><td class='num'>" + money(e.premiumDollars) + "</td><td class='num'>" + pct(e.ret, 2) + "</td><td class='num'>" + pct(e.annualized) + "</td><td class='num'>" + e.dte + "</td><td class='num'>" + money(e.perDay) + "</td><td class='num'>" + pct(e.cushion) + (e.c.type === "C" ? " up" : "") + "</td><td class='num'>" + money(e.breakEven) + "</td><td class='num'>" + (e.sigma === null ? "n/a" : money(e.sigma)) + "</td><td class='num'>" + (e.odds === null ? "n/a" : pct(e.odds)) + "</td></tr>";
+      var label = e.c.ticker + " " + (e.c.type === "P" ? "put" : "covered call"), skipped = [];
+      if (e.c.type === "P" && rules.buyingPower === null) skipped.push("the buying-power check (no amount typed in \"Money available for new trades\")");
+      if (rules.account === null) skipped.push("the share-of-account check (no \"Whole account value\" typed)");
+      if (e.odds === null) skipped.push("the odds check (no implied volatility typed)");
+      var skippedText = skipped.length ? " Skipped: " + skipped.join("; ") + "." : "";
+      if (e.flags.length) h += e.flags.map(function (f) { return "<div class='note'>" + esc(f) + "</div>"; }).join("") + (skipped.length ? "<p class='meaning'>" + esc(label + ": the other rules passed." + skippedText) + "</p>" : "");
+      else h += "<div class='okbox'>" + esc(label + ": within all your rules (" + days(e.dte) + " to expiry, under " + rules.maxDte + (e.odds === null ? "" : "; rough odds " + pct(e.odds) + ", under " + rules.maxOdds + "%") + (e.c.type === "P" && rules.buyingPower !== null ? "; needs " + money(e.collateral) + " of your " + money(rules.buyingPower) : "") + (rules.account !== null ? "; " + W.fixed(e.collateral / rules.account * 100, 1) + "% of the account, under " + rules.maxPct + "%" : "") + ")." + skippedText) + "</div>";
+    });
+    h += "<h3>The numbers, best yearly rate first</h3><div class='wrap'><table><tr><th>Ticker</th><th>Kind</th><th class='num'>Price now</th><th class='num'>Strike</th><th class='num'>IV</th><th class='num'>Cash tied up</th><th class='num'>Premium</th><th class='num'>Return</th><th class='num'>Yearly rate</th><th class='num'>Days</th><th class='num'>$ per day</th><th class='num'>Cushion</th><th class='num'>Break-even</th><th class='num'>Likely move</th><th class='num'>Rough odds</th></tr>";
+    evals.forEach(function (e) {
+      h += "<tr><td>" + esc(e.c.ticker) + "</td><td>" + (e.c.type === "P" ? "put" : "call") + "</td><td class='num'>" + money(e.c.price) + "</td><td class='num'>" + money(e.c.strike) + "</td><td class='num'>" + (e.c.iv === null ? "n/a" : e.c.iv + "%") + "</td><td class='num'>" + money(e.collateral) + "</td><td class='num'>" + money(e.premiumDollars) + "</td><td class='num'>" + pct(e.ret, 2) + "</td><td class='num'>" + pct(e.annualized) + "</td><td class='num'>" + e.dte + "</td><td class='num'>" + money(e.perDay) + "</td><td class='num'>" + pct(e.cushion) + (e.c.type === "C" ? " up" : "") + "</td><td class='num'>" + money(e.breakEven) + "</td><td class='num'>" + (e.sigma === null ? "n/a" : money(e.sigma)) + "</td><td class='num'>" + (e.odds === null ? "n/a" : pct(e.odds)) + "</td></tr>";
     });
     h += "</table></div>" + meanings([
+      ["Price now", "the stock price you typed; the cushion, break-even and odds are measured from it"],
+      ["IV", "the implied volatility you typed; n/a means the odds and likely move are skipped"],
       ["Cash tied up", "money set aside for the trade (collateral): strike x 100 for a put; what you paid x 100 for a covered call"],
       ["Premium", "what you are paid for one contract: premium per share x 100"],
       ["Return", "premium divided by the cash tied up"],
@@ -1231,14 +1255,14 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
       ["Likely move", "the one-standard-deviation move (1-sigma): the stock finishes inside this about two times in three, if the IV is right"],
       ["Rough odds", "chance of finishing past the strike at expiry from the Black-Scholes formula; the chance of touching it on the way is about double"]]);
     evals.forEach(function (e) { if (e.note) h += "<p class='mute'>" + esc(e.c.ticker) + ": " + esc(e.note) + ".</p>"; });
-    h += "<details><summary>What you typed (check it: one wrong number changes everything above)</summary><ul>" + echo.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" +
+    h += "<details><summary class='show'>Show what you typed (check it: one wrong number changes everything above)</summary><ul>" + echo.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" +
          "<p class='mute'>Settings: today " + esc(today) + "; rate " + ratePct + "%; warn above " + rules.maxDte + " days; warn above " + rules.maxOdds + "% odds" + (rules.buyingPower !== null ? "; buying power " + money(rules.buyingPower) + " (puts only)" : "") + (rules.account !== null ? "; account " + money(rules.account) + " with max " + rules.maxPct + "% per trade" : "") + "</p></details>";
     var goal = num(s.monthly_goal);
     if (goal !== null && goal > 0) h += "<h3>Your income goal</h3><p>" + esc(W.incomeGoalSentence(goal, evals)) + "</p>";
     if (warnings.length) h += "<h3>Please check</h3>" + warnings.map(function (w) { return "<div class='note'>" + esc(w) + "</div>"; }).join("");
     out.innerHTML = h;
   }
-  $("run-compare").addEventListener("click", function () { persistCompare(); runCompare(); });
+  $("run-compare").addEventListener("click", function () { persistCompare(); runCompare(); showResult("compare"); });
   [settingsEl, cardsEl].forEach(function (el) { el.addEventListener("input", function (ev) {
     // First edit after the example: put the real date back, so the user's own numbers never use the example's "today".
     var wasExample = $("compare-example") && !$("compare-example").hidden;
@@ -1254,7 +1278,7 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     fillForm(cards[1], { ticker: "CCC", type: "C", strike: "51", expiry: "2026-10-31", premium: "0.80", price: "50", iv: "25", cost_basis: "52" });
     $("rules-details").open = true;
     forget("compare"); exampleNote("compare", true); runCompare();
-    scrollTo($("compare-out"));
+    showResult("compare");
   });
   $("reset-compare").addEventListener("click", function () {
     resetForm(settingsEl); cardsEl.querySelectorAll(".card").forEach(resetForm); settingsEl.querySelector("[name=today]").value = todayIso();
@@ -1276,7 +1300,8 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     var r;
     try { r = W.rollCalc(i, todayStr, ratePct); } catch (err) { showError("roll-error", esc(err.message)); out.innerHTML = ""; return; }
     if (r.daysAdded <= 0) { showError("roll-error", "The new expiry date must be after the old one (this roll adds " + r.daysAdded + " days)."); out.innerHTML = ""; return; }
-    var h = "<p class='verdict'>" + esc(r.verdict) + "</p>";
+    var h = "<p class='mute'>As of " + esc(todayStr) + " (the \"Pretend today is\" box): the days left are counted from this date.</p>";
+    h += "<p class='verdict'>" + esc(r.verdict) + "</p>";
     h += "<div class='stat'><span>Net " + (r.net >= 0 ? "credit" : "debit") + " per share<span class='meaning'>New premium minus the buyback cost. Credit means cash comes in; debit means you pay.</span></span>" + signed(r.net) + "</div>";
     h += "<div class='stat'><span>Per contract<span class='meaning'>The same, times 100.</span></span>" + signed(r.netContract) + "</div>";
     h += "<div class='stat'><span>Days added<span class='meaning'>New expiry minus old expiry. The new put has " + days(r.newDte) + " left from today.</span></span><b>" + r.daysAdded + "</b></div>";
@@ -1285,12 +1310,12 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     h += "<div class='stat'><span>Cash tied up by the new put<span class='meaning'>New strike x 100 (collateral).</span></span><b>" + money(r.newCollateral) + "</b></div>";
     h += "<div class='stat'><span>Yearly rate on the extra days<span class='meaning'>Net credit divided by the new strike, scaled to a year over the " + r.daysAdded + " added days: what the extra time pays.</span></span><b>" + (r.annualized === null ? "n/a" : pct(r.annualized)) + "</b></div>";
     h += "<div class='stat'><span>Rough odds the new put ends in the money<span class='meaning'>" + (r.odds === null ? "Type the stock price and implied volatility to see this." : "Chance the stock ends below the new strike at expiry; the likely move (1-sigma) is " + money(r.sigma) + " over " + days(r.newDte) + ".") + "</span></span><b>" + (r.odds === null ? "n/a" : pct(r.odds)) + "</b></div>";
-    h += "<details><summary>What you typed</summary><p class='mute'>Old put: strike " + money(i.old_strike) + ", expiry " + esc(i.old_expiry) + ", received " + money(i.old_premium) + " a share, buyback " + money(i.buyback) + " a share. New put: strike " + money(i.new_strike) + ", expiry " + esc(i.new_expiry) + ", premium " + money(i.new_credit) + " a share" + (i.price !== null ? "; stock price " + money(i.price) : "") + (i.iv !== null ? "; IV " + i.iv + "%" : "") + "; today " + esc(todayStr) + "; rate " + ratePct + "%.</p></details>";
+    h += "<details><summary class='show'>Show what you typed</summary><p class='mute'>Old put: strike " + money(i.old_strike) + ", expiry " + esc(i.old_expiry) + ", received " + money(i.old_premium) + " a share, buyback " + money(i.buyback) + " a share. New put: strike " + money(i.new_strike) + ", expiry " + esc(i.new_expiry) + ", premium " + money(i.new_credit) + " a share" + (i.price !== null ? "; stock price " + money(i.price) : "") + (i.iv !== null ? "; IV " + i.iv + "%" : "") + "; today " + esc(todayStr) + "; rate " + ratePct + "%.</p></details>";
     if (W.parseIsoDay(i.new_expiry) <= W.parseIsoDay(todayStr)) h += "<div class='note'>Please check: the new expiry " + esc(i.new_expiry) + " is on or before today (" + esc(todayStr) + "); treated as 1 day left for the odds and the likely move.</div>";
     out.innerHTML = h;
   }
   function persistRoll() { save("roll", withoutToday(readForm(rollForm))); }
-  $("run-roll").addEventListener("click", function () { persistRoll(); runRoll(); });
+  $("run-roll").addEventListener("click", function () { persistRoll(); runRoll(); showResult("roll"); });
   rollForm.addEventListener("input", function (ev) {
     var wasExample = $("roll-example") && !$("roll-example").hidden;
     exampleNote("roll", false);
@@ -1300,7 +1325,7 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     // Example numbers are shown, not remembered: the stored inputs for this section are cleared.
     fillForm(rollForm, { old_strike: "45", old_expiry: "2026-10-16", old_premium: "1.00", buyback: "2.50", new_strike: "43", new_expiry: "2026-11-13", new_credit: "3.20", price: "44.10", iv: "60", today: "2026-10-14", rate: "4" });
     forget("roll"); exampleNote("roll", true); runRoll();
-    scrollTo($("roll-out"));
+    showResult("roll");
   });
   $("reset-roll").addEventListener("click", function () { resetForm(rollForm); rollForm.querySelector("[name=today]").value = todayIso(); forget("roll"); exampleNote("roll", false); clearError("roll-error"); $("roll-out").innerHTML = ""; });
 
@@ -1319,18 +1344,18 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     h += "<p>You kept " + money(w.premiumKept) + " of premium, so the shares really cost you <b>" + money(w.basis) + " each</b> (the strike minus the premium kept). That is your break-even before any covered call.</p>";
     if (w.callPremium !== null) {
       h += "<p>A first covered call at " + money(i.call_strike) + " for " + money(i.call_premium) + " a share pays <b>" + money(w.callPremium) + "</b>, which is " + pct(w.callReturn, 2) + " of what the shares cost you.</p>";
-      h += "<p>If the shares are called away at " + money(i.call_strike) + " you end up " + signed(w.ifCalled) + " on them, counting that call premium.</p>";
+      h += "<p>If the shares are called away at " + money(i.call_strike) + " you end up " + signed(w.ifCalled) + " on them, counting that call premium (strike " + money(i.call_strike) + " minus break-even " + money(w.basis) + ", times " + w.shares + " shares, plus the " + money(w.callPremium) + " premium = " + money(w.ifCalled, true) + ").</p>";
       if (w.lockedLoss !== null) h += "<div class='note'>The call strike " + money(i.call_strike) + " is below what the shares cost you, " + money(w.basis) + ": " + esc(W.belowBasisClause(w.lockedLoss, (w.basis - i.call_strike) * w.shares, w.callPremium)) + "</div>";
     } else h += "<p class='mute'>Type a call strike and premium to see what a first covered call would return.</p>";
     out.innerHTML = h;
   }
-  $("run-whatif").addEventListener("click", function () { save("whatif", readForm(whatifForm)); runWhatIf(); });
+  $("run-whatif").addEventListener("click", function () { save("whatif", readForm(whatifForm)); runWhatIf(); showResult("whatif"); });
   whatifForm.addEventListener("input", function () { exampleNote("whatif", false); save("whatif", readForm(whatifForm)); runWhatIf(); });
   $("try-whatif").addEventListener("click", function () {
     // Example numbers are shown, not remembered: the stored inputs for this section are cleared.
     fillForm(whatifForm, { strike: "45", put_credits: "1.00", contracts: "1", call_strike: "46", call_premium: "0.90" });
     forget("whatif"); exampleNote("whatif", true); runWhatIf();
-    scrollTo($("whatif-out"));
+    showResult("whatif");
   });
   $("reset-whatif").addEventListener("click", function () { resetForm(whatifForm); forget("whatif"); exampleNote("whatif", false); clearError("whatif-error"); $("whatif-out").innerHTML = ""; });
 
@@ -1364,16 +1389,16 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
   }
   function runExpiryIfUsingResults() { if (!filesLoaded.expiry.length && $("expiry-out").innerHTML) runExpiry(); }
   $("expiry-files").addEventListener("change", function () { readFiles(this, "expiry", "expiry-files-note", runExpiry); });
-  $("run-expiry").addEventListener("click", function () { persistExpiry(); runExpiry(); });
+  $("run-expiry").addEventListener("click", function () { persistExpiry(); runExpiry(); showResult("expiry"); });
   $("s-expiry").addEventListener("input", function (ev) { if (ev.target && ev.target.type !== "file") { exampleNote("expiry", false); persistExpiry(); } });
   $("try-expiry").addEventListener("click", function () {
     filesLoaded.expiry = [{ name: "wheel_planner_orders.csv (example)", text: document.getElementById("sample-expiry-orders").textContent }];
-    $("expiry-files-note").textContent = "Using: the built-in example file wheel_planner_orders.csv (made-up open contracts expiring in November 2027).";
+    $("expiry-files-note").textContent = "Using the built-in example file (wheel_planner_orders.csv: made-up open contracts expiring in November 2027), not a file of yours. It also sets Pretend today to 2027-11-10 and Cash to $2,000 so the contracts fall in expiry week.";
     $("expiry-files").value = "";
     $("expiry-cash").value = "2000"; $("expiry-today").value = "2027-11-10";
     makeRows("expiry-prices", "price", [["AAA", "44.10"]]);
     forget("expiry"); exampleNote("expiry", true); runExpiry();   // example numbers are shown, not remembered
-    scrollTo($("expiry-out"));
+    showResult("expiry");
   });
   $("reset-expiry").addEventListener("click", function () {
     filesLoaded.expiry = []; $("expiry-files").value = ""; $("expiry-files-note").textContent = "No file chosen yet.";
@@ -1421,12 +1446,19 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
   }
 
   // ================================================================ navigation and start-up
-  document.querySelectorAll("[data-jump]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      document.querySelectorAll("[data-jump]").forEach(function (x) { x.setAttribute("aria-current", x === b ? "true" : "false"); });
-      scrollTo($(b.getAttribute("data-jump")));
-    });
+  var jumpButtons = Array.prototype.slice.call(document.querySelectorAll("[data-jump]"));
+  function markTab(active) { jumpButtons.forEach(function (x) { x.setAttribute("aria-current", x === active ? "true" : "false"); }); }
+  function tabOnScreen() {   // the last section whose top has passed the sticky row of buttons
+    var nav = document.querySelector(".jump"), line = (nav ? nav.offsetHeight : 0) + 12, current = jumpButtons[0];
+    jumpButtons.forEach(function (b) { var sec = $(b.getAttribute("data-jump")); if (sec && sec.getBoundingClientRect().top <= line) current = b; });
+    return current;
+  }
+  var tabTick = false;
+  window.addEventListener("scroll", function () { if (tabTick) return; tabTick = true; requestAnimationFrame(function () { tabTick = false; markTab(tabOnScreen()); }); }, { passive: true });
+  jumpButtons.forEach(function (b) {
+    b.addEventListener("click", function () { markTab(b); scrollTo($(b.getAttribute("data-jump"))); });
   });
+  markTab(tabOnScreen());
   document.addEventListener("keydown", function (ev) {
     if (ev.key === "Enter" && ev.target && ev.target.tagName === "INPUT" && ev.target.type !== "file") {
       var sec = ev.target.closest("section"); if (sec) { var btn = sec.querySelector("button.secondary"); if (btn) btn.click(); }

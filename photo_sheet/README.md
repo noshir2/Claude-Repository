@@ -17,7 +17,8 @@ file. It opens in your browser (Chrome, Edge, Safari, Firefox). No install, no i
 
 1. Press the big **Try it with a drawn face** button (this page's version of the "Try it with
    example data" button). It loads a drawn test face (an oval, not a person), picks the US 2 x 2
-   inch size and shows the cropped result, so you can see what the page does.
+   inch size and makes the finished picture straight away (shown under **Save one picture**, lower
+   down the page), so you can see what the page does.
 2. Press **Choose photo** and pick your own picture from your camera roll or a folder. Pick the
    size the form asks for from the list under **2. Size** (the page calls a ready-made size a
    preset), then drag the picture into place and pinch or scroll to zoom. For the US size, fit the
@@ -71,8 +72,9 @@ instead: tap **Share**, then **Save Image**.
   about 49% to 69% of the 50.8 mm photo height; the shaded band marks eye height 28.6 to 34.9 mm
   (1 1/8 to 1 3/8 in) from the bottom edge, and the dashed line is the middle of that band. The
   ovals are centred on that line and drawn 0.72 as wide as they are tall, a rough face shape, so
-  judge by height. Other presets draw no head or eye guide because the rule differs by country, only
-  a border and a centre line; centre the face and leave space above the head.
+  judge by height. Other presets have no official rule in the page because it differs by country: they
+  draw a border, a centre line and one faint dashed oval (head about 70-80% of the photo height) labelled
+  "rough aid; the issuing body decides". Centre the face and leave space above the head.
 - **Max KB and quality.** Forms cap the upload size (KB = kilobyte; 1 KB = 1024 bytes). A JPEG gets
   smaller as its quality setting drops, so the page saves at quality 0.92 and, if the file is over
   the cap, tries again at 0.88, 0.84, and so on down to 0.32 (sixteen steps), stopping at the first
@@ -123,7 +125,7 @@ the photo to.
   the US Department of State's published photo-composition guidance, as repeated by many photo
   services. Verify with the issuing body.
 - 35 x 45 mm: a common international passport/visa size. Head-size rules differ by country, so the
-  page draws none. Verify with the issuing body.
+  page draws only a faint rough-aid oval (head about 70-80% of the height). Verify with the issuing body.
 - 300 dpi and the 4 x 6 in sheet: common print-lab conventions, not a rule.
 - 25.4 mm = 1 inch (exact).
 

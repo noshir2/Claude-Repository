@@ -55,9 +55,12 @@ def test_file_exists():
 
 def test_starts_with_title_then_viewport_meta(html):
     assert html.startswith("<title>Toolbox</title>"), "the file must begin with <title>Toolbox</title>"
-    second_line = html.splitlines()[1]
-    assert second_line == '<meta name="claude:viewport-fit-sides" content="cover">'
-    assert html.splitlines()[2].startswith("<style>")
+    lines = html.splitlines()
+    assert lines[1] == '<meta name="claude:viewport-fit-sides" content="cover">'
+    # The ordinary viewport meta follows, so the page lays out at phone width when opened as
+    # a local file too (the hosted viewer adds one of its own).
+    assert lines[2] == '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+    assert lines[3].startswith("<style>")
 
 
 def test_no_document_skeleton_tags(html):

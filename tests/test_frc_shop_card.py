@@ -540,6 +540,33 @@ def test_rule_table_answer_column_is_on_screen_at_phone_width(frc_page):
     page.click('nav.tabs button[data-tab="rules"]')
     right = page.evaluate("[...document.querySelectorAll('#rule-table th')].find(t => t.textContent === 'Minimum wire').getBoundingClientRect().right")
     assert right <= 375                                                         # the answer is visible without swiping
-    assert page.evaluate("getComputedStyle(document.querySelector('#tab-rules .swipe')).display") == "block"
+    # polish round: on a phone the rule table fits its box (Rating and Source columns hidden, the source as a line under the
+    # circuit), so it needs no swipe hint; the wider reference tables still get one
+    assert page.evaluate("(w => w.scrollWidth <= w.clientWidth)(document.querySelector('#tab-rules .wrap'))")
+    assert page.evaluate("document.querySelector('#tab-rules .swipe').hidden") is True
+    assert page.evaluate("getComputedStyle(document.querySelector('#rule-table td:nth-child(3)')).display") == "none"
+    assert page.evaluate("getComputedStyle(document.querySelector('#rule-table .phone-src')).display") == "block"
+    assert "REBUILT is the 2026 game's name" in page.text_content("#rules-season") and "Team Update 22" in page.text_content("#rules-season")
     assert page.evaluate("document.documentElement.scrollWidth") <= 375
+    page.click('nav.tabs button[data-tab="reference"]')
+    assert page.evaluate("document.querySelector('#tab-reference .swipe').hidden") is False
+    assert errors == []
+
+
+def test_deep_link_scrolls_to_the_panel_and_ohms_law_starts_blank(frc_page):
+    page, errors = frc_page(375)
+    page.click("#tab-btn-calc")
+    assert page.evaluate("document.getElementById('stall-box').hidden") is True      # no cited motor rows shipped: no empty heading
+    assert page.text_content("#ol-out") == "" and page.input_value("#ol-v") == ""    # Ohm's law waits for two numbers
+    page.fill("#ol-v", "12")
+    assert page.text_content("#ol-out") == ""
+    page.fill("#ol-r", "4")
+    assert page.text_content("#ol-out").startswith("V = 12 V, I = 3 A")
+    page.goto(page.url.split("#")[0] + "#cards")
+    page.reload()                                                                        # a fresh load with the hash, as a hub link gives
+    page.wait_for_timeout(200)
+    assert page.evaluate("document.querySelector('#tab-cards').classList.contains('active')")
+    assert page.evaluate("window.pageYOffset") > 100                                   # the header is scrolled past
+    assert page.evaluate("document.getElementById('fc-card').getBoundingClientRect().top") < 600
+    assert page.evaluate("document.getElementById('fc-card').compareDocumentPosition(document.getElementById('fc-reset')) & Node.DOCUMENT_POSITION_FOLLOWING") != 0
     assert errors == []

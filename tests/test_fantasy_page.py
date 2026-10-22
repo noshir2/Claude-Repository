@@ -448,14 +448,15 @@ def test_review_round_2_findings_in_the_browser(browser_page):
     page.click("#btn-trade")
     page.wait_for_timeout(300)
     trade = page.inner_text("#panel-trade")
-    assert "rest of season (+1.2)" in trade
+    # the change beside two rounded totals is the difference of those totals (126.1 -> 127.2 reads +1.1, not the exact +1.2)
+    assert "from 126.1 to 127.2 this week (+1.1)" in trade and "rest of season (+1.1)" in trade
     assert "look like one week's numbers, not season totals" in trade
     assert "I get" not in trade and "MY number" not in trade
     # the real rest-of-season files: the trade re-runs by itself and shows the rest-of-season notes
     page.set_input_files("#files-ros", ros)
     page.wait_for_timeout(600)
     trade = page.inner_text("#panel-trade")
-    assert "rest of season (-23.6)" in trade and "look like one week's numbers" not in trade
+    assert "from 1,246.3 to 1,222.7 rest of season (-23.6)" in trade and "look like one week's numbers" not in trade
     assert "Rest of season: Kicker Able" in trade and "Rest of season: Season-total file: the defense points-allowed tier was skipped" in trade
     # 2. blank a starting-spot field, then one real click on Reset
     page.click("#tab-lineup")
@@ -484,5 +485,47 @@ def test_review_round_2_findings_in_the_browser(browser_page):
     page.click("#btn-run")
     page.wait_for_timeout(400)
     assert page.is_visible("#season-warning") and "season totals, not one week" in page.inner_text("#season-warning")
+    assert page.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth") == 0
+    assert errors == []
+
+
+def test_polish_round_3_findings_in_the_browser(browser_page):
+    """Round-3 polish notes, at phone width:
+    1. the three result tabs are on the page from the start, greyed, with 'press Show my best lineup first';
+    2. pressing the button with nothing loaded points at the example button;
+    3. the 'please check' note names the other players that differ, and the not-found hint allows 'Name, POS';
+    4. editing the team box after a run captions the result as out of date until the next run."""
+    page, errors = browser_page
+    page.reload()
+    page.wait_for_timeout(300)
+    page.click("#btn-league-1")
+    page.wait_for_timeout(200)
+    page.fill("#roster", "")
+    page.click("#btn-clear-files")
+    page.wait_for_timeout(200)
+    assert page.is_visible("#tab-trade") and page.is_disabled("#tab-trade") and page.is_disabled("#tab-pickup")
+    assert "Show my best lineup' first" in page.inner_text("#tabs-note") and page.is_hidden("#results")
+    page.click("#btn-run")
+    page.wait_for_timeout(300)
+    assert "Try it with example data" in page.inner_text("#err-roster")
+    page.click("#btn-example")
+    page.wait_for_timeout(500)
+    assert page.is_enabled("#tab-trade") and page.is_hidden("#tabs-note") and page.is_hidden("#stale-note")
+    lineup = page.inner_text("#panel-lineup")
+    assert "so do the other 4 kickers in the file: Kicker Baker, Kicker Charlie, Kicker Delta, Kicker Echo" in lineup
+    assert "4 other players differ too" not in lineup
+    page.click("#tab-trade")
+    assert "this week (+1.1)" in page.inner_text("#trade-verdict")
+    page.click("#tab-lineup")
+    page.evaluate("(function(){var r=document.getElementById('roster'); r.focus(); r.setSelectionRange(r.value.length, r.value.length)})()")
+    page.keyboard.type("\nZed Nobody, RB")             # keystrokes at the end of the box: no change event yet
+    page.wait_for_timeout(100)
+    assert page.is_visible("#stale-note") and "Out of date" in page.inner_text("#stale-note")
+    page.click("#btn-run")
+    page.wait_for_timeout(400)
+    assert page.is_hidden("#stale-note")
+    lineup = page.inner_text("#panel-lineup")
+    assert "'Zed Nobody': not in any projection file (check the spelling in step 2 (a comma and the position after the name is fine)" in lineup
+    assert "type only the name" not in lineup
     assert page.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth") == 0
     assert errors == []

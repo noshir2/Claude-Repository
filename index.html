@@ -1,5 +1,6 @@
 <title>Toolbox</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
 /* layout: one column, max 760px, cards only around the tools; everything else is plain text */
 :root{--bg:#fbfaf7;--fg:#1f2328;--mute:#5d6671;--line:#d9d6cf;--panel:#f1efe9;--accent:#1b5e9e;--accent-fg:#ffffff;
@@ -20,16 +21,21 @@ li{margin-bottom:6px}
 a{color:var(--accent)}
 a:focus-visible,button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .lead{font-size:1.05rem}
-.jump{display:flex;flex-wrap:wrap;gap:8px 14px;list-style:none;padding:0;margin:14px 0 0;max-width:none;font-size:0.95rem}
+.toc{display:flex;flex-wrap:wrap;align-items:center;gap:0 14px;margin:14px 0 0;font-size:0.95rem;color:var(--mute);border-top:1px solid var(--line);padding-top:6px}
+.toc .label{font-weight:600}
+.jump{display:contents;list-style:none;padding:0;margin:0;max-width:none}
 .jump li{margin:0}
-.jump a{display:inline-block;min-height:44px;line-height:44px;padding:0 2px}
+.jump a{display:inline-block;padding:10px 0;text-decoration:underline;text-underline-offset:3px}
+.open-row{display:none}
+@media (min-width:600px){.open-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 4px}.open-row .label{font-weight:600;margin-right:4px}.open-row .btn{width:auto;min-width:0;min-height:40px;padding:6px 14px;font-size:0.95rem}}
 .meta a{color:var(--accent)}
 .privacy{border-left:4px solid var(--good);padding:8px 12px;margin:12px 0 0;background:var(--panel);border-radius:0 6px 6px 0}
 .situations{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;max-width:none}
 .situations li{margin:0}
-.situation{display:block;min-height:44px;padding:12px 16px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);text-decoration:none;font-size:1.05rem;line-height:1.4}
-.situation:hover{border-color:var(--accent)}
-.situation .goes{display:block;color:var(--mute);font-size:0.9rem;margin-top:2px}
+.situation{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px;min-height:56px;padding:12px 14px 12px 16px;border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:10px;background:var(--panel);color:var(--fg);text-decoration:none;font-size:1.05rem;font-weight:600;line-height:1.4}
+.situation::after{content:"\203a";grid-column:2;grid-row:1/3;font-size:2rem;font-weight:400;line-height:1;color:var(--accent)}
+.situation:hover{border-color:var(--accent);filter:brightness(1.03)}
+.situation .goes{display:block;grid-column:1;color:var(--mute);font-size:0.9rem;font-weight:400;margin-top:2px}
 .cards{display:flex;flex-direction:column;gap:14px}
 .card{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--panel)}
 .card p{margin-bottom:8px}
@@ -50,10 +56,20 @@ dd{margin:2px 0 0}
 <div class="wrap">
 
 <h1>Toolbox</h1>
-<p class="note">Version: 2026-10-22 (year-month-day). The same line is at the top of README.md and OPEN-ME-FIRST.txt in your own copy. A later date on the GitHub project page means a newer copy exists; see <a href="#copy">how to get your own copy</a>.</p>
-<p class="lead">These are small tools built for you, one for each thing you do in a normal week. Everything runs on the page in your browser, and nothing you type or choose is uploaded anywhere.</p>
+<p class="lead">These are small tools built for you, one for each thing you do in a normal week: six pages covering seven tools. Everything runs on the page in your browser, and nothing you type or choose is uploaded anywhere.</p>
+<div class="open-row" aria-label="Open a tool">
+  <span class="label">Open:</span>
+  <a class="btn mini" href="wheel_planner/wheel.html">Options wheel</a>
+  <a class="btn mini" href="fantasy_helper/fantasy.html">Fantasy football</a>
+  <a class="btn mini" href="frc_shop_card/frc_shop_card.html">Robotics card</a>
+  <a class="btn mini" href="taal_trainer/taal_trainer.html">Taal trainer</a>
+  <a class="btn mini" href="pdh_log/pdh.html">PE hours</a>
+  <a class="btn mini" href="photo_sheet/photo_sheet.html">Passport photo</a>
+</div>
 <p class="privacy">Your files, your trades, your roster, your photo: they stay on your own device. Close the page and they are gone, apart from a few settings a page remembers in this browser.</p>
-<ul class="jump" aria-label="On this page">
+<p class="note">Version: 2026-10-22 (year-month-day); README.md and OPEN-ME-FIRST.txt in your own copy carry the same line. A later date on the GitHub project page means a newer copy; see <a href="#copy">how to get your own copy</a>.</p>
+<nav class="toc" aria-label="On this page"><span class="label">Jump to:</span>
+<ul class="jump">
   <li><a href="#what">What do you want to do?</a></li>
   <li><a href="#tools">The tools</a></li>
   <li><a href="#how">How to use these</a></li>
@@ -61,9 +77,10 @@ dd{margin:2px 0 0}
   <li><a href="#words">Words you will see</a></li>
   <li><a href="#wrong">If something looks wrong</a></li>
 </ul>
+</nav>
 
 <h2 id="what">What do you want to do?</h2>
-<p>Tap the line that matches. It opens the right page.</p>
+<p>Tap the card that matches. It opens the right page.</p>
 <ul class="situations">
   <li><a class="situation" href="wheel_planner/wheel.html">See whether my options trades are making money<span class="goes">Opens the Options wheel page</span></a></li>
   <li><a class="situation" href="wheel_planner/wheel.html">Decide whether to sell a put or a covered call, or whether to roll one<span class="goes">Opens the Options wheel page</span></a></li>
@@ -77,6 +94,7 @@ dd{margin:2px 0 0}
 </ul>
 
 <h2 id="tools">The tools</h2>
+<p>Six pages covering seven tools: the Webull results checker lives inside the Options wheel page.</p>
 <div class="cards">
 
   <div class="card">
@@ -124,7 +142,7 @@ dd{margin:2px 0 0}
 </div>
 
 <h2 id="how">How to use these</h2>
-<p>Open this link on your PC or on your phone and tap a tool. The Options wheel, Fantasy football and PE continuing education pages each have a button called <strong>Try it with example data</strong>: press it first and the page fills itself in with made-up numbers, so you can see what a result looks like before you use your own. The Passport photo page starts with a button called <strong>Try it with a drawn face</strong> that does the same job, then <strong>Choose photo</strong> for your own picture. The Robotics card and the Taal trainer need nothing from you, so you can use them straight away.</p>
+<p>Open this page on your PC or on your phone (the online link if you were given one, or index.html in your own copy) and tap a tool. The Options wheel, Fantasy football and PE continuing education pages each have a button called <strong>Try it with example data</strong>: press it first and the page fills itself in with made-up numbers, so you can see what a result looks like before you use your own. The Passport photo page starts with a button called <strong>Try it with a drawn face</strong> that does the same job, then <strong>Choose photo</strong> for your own picture. The Robotics card and the Taal trainer need nothing from you, so you can use them straight away.</p>
 <p>At the top of every tool page there is a link called <strong>Back to the toolbox</strong> that brings you back here. The browser's Back arrow works too.</p>
 <p>One limit of the online copy: it cannot save files to your device and it cannot print. For the photo tool, and for printing a warm-up or cheat sheet, use your own copy of the files instead (see below). The online copy still shows every result on the page, so you can read it, copy it, or save a picture by pressing and holding it (phone) or right-clicking it (PC).</p>
 
@@ -132,14 +150,14 @@ dd{margin:2px 0 0}
 <p>The files live on a website called GitHub, which is a place that stores files. Downloading them needs no sign-in and no install. The files you get are exactly the same as the ones behind this link. Take the steps one at a time; none of them can go wrong in a way that matters, and you can start over at any point.</p>
 <ol>
   <li>Open the project page in your browser: <a href="https://github.com/noshir2/Claude-Repository"><span class="address">github.com/noshir2/Claude-Repository</span></a>. Tap that link, or type the address into the address bar at the top of the browser. The page is public, so no account or sign-in is needed.</li>
-  <li>Near the top left of the project page, just under the project name, is a button that shows a name beginning with <span class="address">claude/</span>. If it already says <span class="address">claude/lucid-dijkstra-gic3gd</span>, go to the next step. If it shows a different name, press it, type <strong>lucid</strong> in the box that appears, and choose <span class="address">claude/lucid-dijkstra-gic3gd</span> from the short list. The page reloads with that name on the button. (GitHub calls these names branches; a branch is one saved version of the files, and that one is the version this page describes.)</li>
+  <li>Near the top left of the project page, just under the project name, is a button that shows a name beginning with <span class="address">claude/</span>. If it already says <span class="address">claude/lucid-dijkstra-gic3gd</span>, go to the next step. If it shows a different name, press it, type <strong>lucid</strong> in the box that appears, and choose <span class="address">claude/lucid-dijkstra-gic3gd</span> from the short list. The page reloads with that name on the button. (GitHub calls these names branches; a branch is one saved version of the files, and that one is the version this page describes.) If this step is a struggle, skip it: the download in the next step works from whichever branch is shown, and the Version line at the top of the copy you get tells you which one you have.</li>
   <li>Press the green <strong>Code</strong> button, on the right above the list of files, and choose <strong>Download ZIP</strong>. A file whose name ends in .zip lands in your Downloads folder.</li>
   <li>On Windows, right-click that ZIP file, choose <strong>Extract All</strong>, then <strong>Extract</strong>. You get an ordinary folder with the same name. On a Mac, double-click the ZIP file and the folder appears next to it.</li>
   <li>Open that folder. Inside it is one more folder, whose name starts with <span class="address">Claude-Repository</span>. Open that one too. This is where the files are.</li>
   <li>Double-click <strong>index.html</strong>. If your computer asks which program to use, choose your web browser (Chrome or Edge). This same page opens, and every Open button now opens your own copy, which can save files and print.</li>
 </ol>
-<p>To get an updated copy later, do the same steps again and use the new folder; the old folder can go in the bin, because the pages keep their few settings in the browser, not in the files. Updates go on the same branch, <span class="address">claude/lucid-dijkstra-gic3gd</span>, so the steps above do not change. To see whether there is anything new before you download, scroll down the project page: below the list of files GitHub shows README.md, and its first line reads <strong>Version:</strong> and a date. A later date than the one at the top of this page means a newer copy; the same date means you already have it. If the branch name is ever missing from the list in step 2, pick each name that starts with <span class="address">claude/</span> in turn and compare those dates; the latest is the newest copy.</p>
-<p class="note">On a phone, use the online link; it is the easier route. If you want the files on a phone anyway, the file called README.md inside the taal_trainer folder has a short section called Opening it on a phone. Open that file on your PC: right-click it, choose <strong>Open with</strong>, and pick Notepad.</p>
+<p>To get an updated copy later, do the same steps again and use the new folder; the old folder can go in the bin, because the pages keep their few settings in the browser, not in the files. Updates go on the same branch, <span class="address">claude/lucid-dijkstra-gic3gd</span>, so the steps above do not change. To see whether there is anything new before you download, scroll down the project page: below the list of files GitHub shows README.md, and just under its heading <strong>Start here</strong> a line reads <strong>Version:</strong> and a date. A later date than the one at the top of this page means a newer copy; the same date means you already have it. If the branch name is ever missing from the list in step 2, pick each name that starts with <span class="address">claude/</span> in turn and compare those dates; the latest is the newest copy.</p>
+<p class="note">If you were given an online link, it is the easier route on a phone. If you want the files on a phone anyway, the file called README.md inside the taal_trainer folder has a short section called Opening it on a phone. Open that file on your PC: right-click it, choose <strong>Open with</strong>, and pick Notepad.</p>
 
 <h2 id="words">Words you will see</h2>
 <dl>
