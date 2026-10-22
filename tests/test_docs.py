@@ -374,3 +374,23 @@ def test_easy_way_controls_exist_on_the_page(tool):
     assert names, f"{tool}: no bold control names in the numbered steps"
     missing = [n for n in names if n not in page_text]
     assert not missing, f"{tool}: 'The easy way' names controls the page does not have: {missing}"
+
+
+def test_version_line_agrees_across_the_three_guides():
+    """A first-time user compares the Version date at the top of README.md with the one GitHub
+    shows, so README.md, index.html and OPEN-ME-FIRST.txt must all carry the same date and the
+    root README must say that updates stay on the same branch."""
+    date = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
+    readme = read(ROOT_README)
+    m = re.search(r"^Version: (\d{4}-\d{2}-\d{2})", readme, re.M)
+    assert m, "README.md has no 'Version: YYYY-MM-DD' line near the top"
+    version = m.group(1)
+    assert readme.index("Version: " + version) < readme.index("## The easiest way")
+    hub = ROOT / "index.html"
+    if hub.exists():
+        m = re.search(r"Version: (\d{4}-\d{2}-\d{2})", read(hub))
+        assert m and m.group(1) == version, f"index.html Version line differs from README.md ({version})"
+    assert f"version {version}" in read(OPEN_ME_FIRST), "OPEN-ME-FIRST.txt lacks the version date"
+    copy = section(readme, "## Getting your own copy")
+    assert "same branch" in copy, "say whether updates stay on the same branch"
+    assert "Version line" in copy, "say how to tell which branch is newest"

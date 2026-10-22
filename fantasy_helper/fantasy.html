@@ -2187,6 +2187,10 @@ function rememberFields() {
 function fileList(target) { return Object.keys(target).map(function (pos) { return target[pos]; }); }
 
 var PROBLEM_STEP = { "err-files": "1", "err-roster": "2", "err-settings": "3" };
+/* The control each red box talks about. When the button finds a problem, the page scrolls so that
+   control and its label are on screen together with the box, and puts the cursor in the control, so
+   the user can act on the message without hunting for the box it names. */
+var PROBLEM_FIELD = { "err-files": "files-week", "err-roster": "roster" };
 function stopWith(errId, msg, scroll) {
   /* A problem in step 1, 2 or 3: show it there and take the old answer off the screen, so no stale
      numbers sit under fields they no longer match. The trade and pickup tabs point back to the step.
@@ -2196,10 +2200,16 @@ function stopWith(errId, msg, scroll) {
   state.problem = errId;
   $("results").hidden = true;
   $("updated-note").hidden = true;
-  if (scroll) {
-    var r = $(errId).getBoundingClientRect(), vh = window.innerHeight || document.documentElement.clientHeight;
-    if (r.top < 0 || r.bottom > vh) $(errId).scrollIntoView();
-  }
+  if (scroll) bringProblemIntoView(errId);
+}
+function bringProblemIntoView(errId) {
+  var field = PROBLEM_FIELD[errId] ? $(PROBLEM_FIELD[errId]) : null;
+  var label = field ? document.querySelector('label[for="' + field.id + '"]') : null;
+  var topEl = label || field || $(errId);
+  var vh = window.innerHeight || document.documentElement.clientHeight;
+  var top = topEl.getBoundingClientRect().top, bottom = $(errId).getBoundingClientRect().bottom;
+  if (top < 0 || bottom > vh) window.scrollBy(0, top - 12);
+  if (field) { try { field.focus({ preventScroll: true }); } catch (e) { field.focus(); } }
 }
 var pendingCompute = null;
 function scheduleCompute() {
@@ -2235,7 +2245,7 @@ function compute(opts) {
   }
   roster = parsed.roster;
   state.tidied = parsed.tidied;
-  if (!roster.length) { stopWith("err-roster", "Type your players in the box above, one per line, then press the button again.", opts.scroll); return; }
+  if (!roster.length) { stopWith("err-roster", "Type your players in the 'Your players, one per line' box in step 2 (the box right above this message), one name per line, then press 'Show my best lineup' again.", opts.scroll); return; }
   var needed = positionsNeeded(league);
   try {
     if (!Object.keys(state.files).length) throw ExportFormatError("Choose this week's projection files first (step 1), or press 'Try it with example data'.");

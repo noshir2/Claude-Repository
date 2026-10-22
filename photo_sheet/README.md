@@ -24,9 +24,9 @@ file. It opens in your browser (Chrome, Edge, Safari, Firefox). No install, no i
    head between the two ovals and the eyes in the shaded band.
 3. Press **Save one picture** (type the pixel size and the KB limit the form states first) or
    **Make print sheet**. The result is shown on the page as a picture: press and hold (phone) or
-   right-click (PC) the picture and choose Save. A copy also lands in your Downloads folder when
-   you opened the file on your own computer; if nothing happens, you are using the online copy, so
-   save the picture from the page instead.
+   right-click (PC) the picture and choose Save. A copy may also land in your Downloads folder. If
+   no download appears (phone downloads blocked, or the online copy), press and hold the picture on
+   the page and choose Save.
 
 ### Using it step by step
 

@@ -86,9 +86,16 @@ ol.steps li{margin:6px 0}
 dl dt{font-weight:600;margin-top:10px}
 dl dd{margin:2px 0 0}
 code{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:.92em;overflow-wrap:anywhere}
-a,code,p,li,dd{overflow-wrap:anywhere}
+a,code,p,li,dd,.err,.ok,.ask{overflow-wrap:anywhere}
 .cite{color:var(--mute);font-size:.88em}
 .back{display:inline-block;margin-bottom:6px}
+.filebtn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 18px;border:1px solid var(--accent);
+  border-radius:8px;color:var(--accent);background:var(--bg);font-weight:600;cursor:pointer;margin:0}
+.filebtn:focus-within{outline:3px solid var(--focus);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.field-err{margin:6px 0 0;font-size:.92em}
+input[aria-invalid="true"]{border-color:var(--bad);border-width:2px}
+@media (max-width:600px){.filebtn{width:100%}}
 </style>
 </head>
 <body>
@@ -103,7 +110,10 @@ a,code,p,li,dd{overflow-wrap:anywhere}
 
 <div class="btnrow">
   <button class="primary" id="btn-example" type="button">Try it with example data</button>
+  <label class="filebtn" for="f-import-top">Choose my course list (.csv)<input type="file" class="vh" id="f-import-top" accept=".csv,text/csv,text/plain"></label>
 </div>
+<p class="mute small">"Choose my course list" takes the pdh_log.csv file you downloaded from this page, the Python tool's log file, or a spreadsheet saved from Excel as "CSV UTF-8" with the nine column names listed under "Bring a list in". Not sure your file is right? Choose it anyway: the page checks the first line and tells you what to fix. Nothing is uploaded.</p>
+<div id="import-slot-top"></div>
 <div id="example-ask" class="ask" hidden>
   <p>You already have courses in your list. Replace them with the 13 made-up example courses?</p>
   <div class="btnrow"><button type="button" id="example-yes">Yes, replace my list</button><button type="button" id="example-no">No, keep my list</button></div>
@@ -111,7 +121,7 @@ a,code,p,li,dd{overflow-wrap:anywhere}
 <div id="example-note" class="ok" hidden></div>
 
 <ol class="steps">
-  <li><b>Add each course you take</b> in the form below: the date, the hours on the certificate, the title, who ran it, and which of the four kinds it is.</li>
+  <li><b>Add each course you take</b> in the form below: the date, the hours on the certificate, the title, who ran it, and which of the four kinds it is. Already have a list in a spreadsheet? Press "Choose my course list" above instead.</li>
   <li><b>Tick "I have saved the certificate"</b> once the certificate of attendance is saved somewhere safe (a folder on your PC, or a cloud drive). If you save it later, press "Mark as saved" next to the course in your list. Illinois can ask for it up to 6 years later.</li>
   <li><b>Read the status card.</b> It says how many hours you have for the current renewal, which of the three required hours are done, and how many days are left.</li>
   <li><b>Back up your list now and then</b> with "Copy as spreadsheet text" or "Download", because the list lives only in this browser on this device.</li>
@@ -171,19 +181,22 @@ a,code,p,li,dd{overflow-wrap:anywhere}
 <h2 id="form-heading">Add a course</h2>
 <div class="card">
   <form id="course-form" novalidate>
-    <div id="form-error" class="err" hidden></div>
 
     <label for="f-date">Date<span class="meaning">The day you took the course (the date on the certificate)</span></label>
-    <input type="date" id="f-date" required>
+    <input type="date" id="f-date" required aria-describedby="e-date">
+    <div id="e-date" class="err field-err" hidden></div>
 
     <label for="f-hours">Hours<span class="meaning">The number of hours (PDH) printed on the certificate. One hour means at least 50 minutes of instruction. Quarter hours are fine (1, 1.5, 0.25).</span></label>
-    <input type="number" id="f-hours" min="0.25" step="0.25" inputmode="decimal" placeholder="1">
+    <input type="number" id="f-hours" min="0.25" step="0.25" inputmode="decimal" placeholder="1" aria-describedby="e-hours">
+    <div id="e-hours" class="err field-err" hidden></div>
 
     <label for="f-title">Title<span class="meaning">What the course was called</span></label>
-    <input type="text" id="f-title" placeholder="Engineering ethics webinar">
+    <input type="text" id="f-title" placeholder="Engineering ethics webinar" aria-describedby="e-title">
+    <div id="e-title" class="err field-err" hidden></div>
 
     <label for="f-provider">Who ran it<span class="meaning">The sponsor or provider (society, employer, vendor, college)</span></label>
-    <input type="text" id="f-provider" placeholder="Example Engineering Society">
+    <input type="text" id="f-provider" placeholder="Example Engineering Society" aria-describedby="e-provider">
+    <div id="e-provider" class="err field-err" hidden></div>
 
     <fieldset>
       <legend>What kind of course<span class="meaning">Illinois needs one hour of each of the last three every renewal; everything else is general.</span></legend>
@@ -206,6 +219,7 @@ a,code,p,li,dd{overflow-wrap:anywhere}
     <label for="f-notes">Notes<span class="meaning">Illinois wants the sponsor's address in your records, so put it here.</span></label>
     <input type="text" id="f-notes" placeholder="sponsor address: 100 Example St, Example City IL">
 
+    <div id="form-error" class="err" hidden></div>
     <div class="btnrow">
       <button class="primary" type="submit" id="btn-add">Add this course</button>
       <button type="button" id="btn-cancel-edit" hidden>Cancel</button>
@@ -239,12 +253,13 @@ a,code,p,li,dd{overflow-wrap:anywhere}
   <p class="mute small">If nothing happens when you press Download, you are using the online copy: use Copy instead. To turn the copied text into a file on a PC, paste it into Notepad, choose File then Save As, and name it <code>pdh_log.csv</code> (set the file type to "All files"). On a phone, keep it in a note and paste it into the box under "Bring a list in" when you need it back.</p>
 
   <h3>Bring a list in</h3>
-  <p class="mute small">Either choose a .csv file saved from this page (or the Python tool's log file), or paste the text you copied earlier into the box. The first line must be: <code>date,hours,title,provider,category,format,location,certificate_file,notes</code></p>
+  <p class="mute small">Choose the pdh_log.csv file you downloaded from this page or the Python tool's log file (the same as "Choose my course list" at the top of the page), or paste the text you copied earlier into the box. Not sure the file is right? Choose it anyway: the page checks the first line and tells you what to fix. A spreadsheet saved from Excel works too when its first line is: <code>date,hours,title,provider,category,format,location,certificate_file,notes</code></p>
   <label for="f-import">Choose a file</label>
   <input type="file" id="f-import" accept=".csv,text/csv,text/plain" aria-label="Choose a spreadsheet file to bring in">
   <label for="f-paste">Or paste the text here<span class="meaning">The text from "Copy as spreadsheet text", kept in a note or an email</span></label>
   <textarea id="f-paste" placeholder="date,hours,title,provider,category,format,location,certificate_file,notes"></textarea>
   <div class="btnrow"><button type="button" id="btn-paste-import">Bring in the pasted text</button></div>
+  <div id="import-slot-bottom"><div id="import-panel">
   <div id="import-error" class="err" hidden></div>
   <div id="import-ask" class="ask" hidden>
     <p id="import-summary"></p>
@@ -255,6 +270,7 @@ a,code,p,li,dd{overflow-wrap:anywhere}
     </div>
   </div>
   <div id="import-note" class="ok" hidden></div>
+  </div></div>
 
   <h3>Start over</h3>
   <button type="button" class="danger" id="btn-clear">Remove every course</button>
@@ -915,29 +931,33 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
     const old = editing >= 0 ? courses[editing] : null;
     let cert = "";
     if ($("f-cert").checked) cert = (old && old.certificate_file) ? old.certificate_file : "saved";
-    const problems = [];
-    if (!$("f-date").value) problems.push("Fill in the date.");
+    const problems = [];   // [field id, message]
+    if (!$("f-date").value) problems.push(["f-date", "Fill in the date."]);
     const h = $("f-hours").value.trim();
-    if (!h) problems.push("Fill in the hours (the number on the certificate).");
+    if (!h) problems.push(["f-hours", "Fill in the hours (the number on the certificate)."]);
     else {
       const n = Number(h);
-      if (!isFinite(n)) problems.push("Hours must be a number (you typed " + h + ").");
-      else if (n <= 0) problems.push("Hours must be more than 0 (you typed " + h + ").");
+      if (!isFinite(n)) problems.push(["f-hours", "Hours must be a number (you typed " + h + ")."]);
+      else if (n <= 0) problems.push(["f-hours", "Hours must be more than 0 (you typed " + h + ")."]);
       else if (n * 4 !== Math.trunc(n * 4))
-        problems.push("Hours must be a whole number or a quarter, such as 1, 1.5 or 0.25 (you typed " + h + "). Check the certificate.");
+        problems.push(["f-hours", "Hours must be a whole number or a quarter, such as 1, 1.5 or 0.25 (you typed " + h + "). Check the certificate."]);
     }
-    if (!$("f-title").value.trim()) problems.push("Fill in the title.");
-    if (!$("f-provider").value.trim()) problems.push("Fill in who ran the course.");
-    if (problems.length) throw new PDH.LogFormatError(problems.join(" "));
+    if (!$("f-title").value.trim()) problems.push(["f-title", "Fill in the title."]);
+    if (!$("f-provider").value.trim()) problems.push(["f-provider", "Fill in who ran the course (the society, employer, vendor or college named on the certificate)."]);
+    if (problems.length) { const err = new PDH.LogFormatError(problems.map(p => p[1]).join(" ")); err.problems = problems; throw err; }
     return PDH.makeEntry({ date: $("f-date").value, hours: $("f-hours").value, title: $("f-title").value,
                            provider: $("f-provider").value, category: cat ? cat.value : "elective",
                            format: $("f-format").value, location: $("f-location").value,
                            certificate_file: cert, notes: $("f-notes").value }, 0);
   }
+  function clearFieldErrors() {
+    for (const id of ["f-date", "f-hours", "f-title", "f-provider"]) { $(id).removeAttribute("aria-invalid"); note("e-" + id.slice(2), ""); }
+    note("form-error", "");
+  }
   function clearForm() {
     for (const id of ["f-date", "f-hours", "f-title", "f-provider", "f-format", "f-location", "f-notes"]) $(id).value = "";
     $("f-cert").checked = false; $("f-cat-elective").checked = true;
-    note("form-error", "");
+    clearFieldErrors();
   }
   function startEdit(i) {
     const e = courses[i]; editing = i; confirmIndex = -1;
@@ -946,7 +966,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
     $("f-cert").checked = !!e.certificate_file;
     const radio = document.querySelector("input[name=category][value=" + e.category + "]"); if (radio) radio.checked = true;
     text("form-heading", "Change this course"); text("btn-add", "Save changes"); show("btn-cancel-edit", true);
-    note("form-error", "");
+    clearFieldErrors();
     renderList();
     $("form-heading").scrollIntoView({ block: "start" }); $("f-date").focus();
   }
@@ -955,12 +975,23 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
   $("course-form").addEventListener("submit", ev => {
     ev.preventDefault();
     let entry;
+    clearFieldErrors();
     try { entry = readForm(); }
     catch (e) {
       let msg = (e.message || String(e)).trim();
       msg = msg.charAt(0).toUpperCase() + msg.slice(1);
       if (!/[.!?]$/.test(msg)) msg += ".";
-      note("form-error", msg + " Then press the button again."); return;
+      const probs = e.problems || [];
+      const n = probs.length;
+      // The box sits next to the button; each empty field also gets its own line, and the first one is scrolled into view and focused.
+      note("form-error", "Not added yet. " + msg + (n ? " The " + (n === 1 ? "box is" : n + " boxes are") + " marked in red above. " : " ") + "Then press the button again.");
+      for (const [id, m] of probs) { $(id).setAttribute("aria-invalid", "true"); note("e-" + id.slice(2), m); }
+      if (n) {   // bring the first empty box (with its label) to the top of the screen and put the cursor in it
+        const first = $(probs[0][0]);
+        const label = document.querySelector('label[for="' + first.id + '"]') || first;
+        label.scrollIntoView({ block: "start" }); first.focus({ preventScroll: true });
+      }
+      return;
     }
     const wasEdit = editing >= 0;
     if (wasEdit) { courses[editing] = entry; cancelEdit(); }
@@ -976,6 +1007,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
     $("status-heading").scrollIntoView({ block: "start" });
   });
   $("btn-cancel-edit").addEventListener("click", cancelEdit);
+  for (const id of ["f-date", "f-hours", "f-title", "f-provider"])
+    $(id).addEventListener("input", () => { $(id).removeAttribute("aria-invalid"); note("e-" + id.slice(2), ""); });
 
   // ---------------------------------------------------------------- example data
   function loadSample() {
@@ -1047,17 +1080,26 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
     show("import-ask", true); $("import-merge").focus();
   }
   function resetImport() { note("import-error", ""); note("import-note", ""); show("import-ask", false); pendingImport = null; }
-  $("f-import").addEventListener("change", () => {
-    const f = $("f-import").files && $("f-import").files[0];
-    resetImport();
+  // The messages (problem / add-or-replace question / done) appear next to the chooser that was used:
+  // the button at the top of the page or the one under "Bring a list in".
+  function placeImport(where) {
+    const slot = $(where === "top" ? "import-slot-top" : "import-slot-bottom");
+    const panel = $("import-panel");
+    if (panel.parentNode !== slot) slot.appendChild(panel);
+  }
+  function chooseFile(inputId, where) {
+    const f = $(inputId).files && $(inputId).files[0];
+    resetImport(); placeImport(where);
     if (!f) return;
     const reader = new FileReader();
     reader.onerror = () => note("import-error", "Could not read that file. Try choosing it again.");
     reader.onload = () => importText(decodeBytes(reader.result), "file");
     reader.readAsArrayBuffer(f);
-  });
+  }
+  $("f-import").addEventListener("change", () => chooseFile("f-import", "bottom"));
+  $("f-import-top").addEventListener("change", () => chooseFile("f-import-top", "top"));
   $("btn-paste-import").addEventListener("click", () => {
-    resetImport();
+    resetImport(); placeImport("bottom");
     const t = $("f-paste").value;
     if (!t.trim()) { note("import-error", "The box is empty. Paste the text you copied with \"Copy as spreadsheet text\" into it first, then press the button again."); return; }
     importText(t, "pasted text");
@@ -1073,13 +1115,18 @@ if (typeof module !== "undefined" && module.exports) module.exports = PDH;
     }
     renumber(); cancelEdit(); confirmIndex = -1; pendingImport = null; show("import-ask", false); afterChange();
     const n = added + " course" + (added === 1 ? "" : "s");
-    note("import-note", (wasEmpty ? "Brought in " + n + " from the " + source : replace ? "Replaced your list with " + n : "Added " + n) +
-         (skipped ? " (" + skipped + " already in the list, skipped)" : "") + ". The status card at the top is updated.");
-    $("f-import").value = ""; $("f-paste").value = "";
+    const what = (wasEmpty ? "Brought in " + n + " from the " + source : replace ? "Replaced your list with " + n : "Added " + n) +
+                 (skipped ? " (" + skipped + " already in the list, skipped)" : "") + ".";
+    const atTop = $("import-panel").parentNode === $("import-slot-top");
+    // Say the verdict right here too, so nobody has to scroll to find out what the file added up to.
+    note("import-note", what + " Where you stand: " + $("verdict").textContent + (atTop ? " The full card is just below the steps." : " The full card is under \"Where you stand\" near the top of the page."));
+    note("status-note", what + " These numbers include them; the list is further down the page.");
+    $("f-import").value = ""; $("f-import-top").value = ""; $("f-paste").value = "";
+    $("import-panel").scrollIntoView({ block: atTop ? "start" : "nearest" });
   }
   $("import-merge").addEventListener("click", () => { if (pendingImport) applyImport(pendingImport.entries, false, pendingImport.source); });
   $("import-replace").addEventListener("click", () => { if (pendingImport) applyImport(pendingImport.entries, true, pendingImport.source); });
-  $("import-cancel").addEventListener("click", () => { pendingImport = null; show("import-ask", false); $("f-import").value = ""; });
+  $("import-cancel").addEventListener("click", () => { pendingImport = null; show("import-ask", false); $("f-import").value = ""; $("f-import-top").value = ""; });
 
   $("btn-clear").addEventListener("click", () => { show("clear-ask", true); $("clear-yes").focus(); });
   $("clear-no").addEventListener("click", () => show("clear-ask", false));

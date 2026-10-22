@@ -1,5 +1,11 @@
 # Start here
 
+Version: 2026-10-22 (year-month-day). The same line sits at the top of the Start here page
+(`index.html`) and in `OPEN-ME-FIRST.txt`. To see whether a newer copy exists, open the project page
+on GitHub (the address is in "Getting your own copy" below), scroll below the list of files to where
+GitHub shows this README, and compare the date there with this one. A later date there means there
+is a newer copy; the same date means you already have the newest.
+
 This folder holds a few small tools built for one person's week: options income on Webull,
 mentoring a robotics electrical team, fantasy football, kids' music practice, keeping an engineering
 license current, and making a passport photo. Each tool is a page you open in your web browser
@@ -51,9 +57,14 @@ no install. The project's address is public: https://github.com/noshir2/Claude-R
 7. Double-click `index.html` there. If your computer asks which program to use, choose your web
    browser.
 
-To get an updated copy later, do the same steps again and use the new folder. Nothing you typed is
-stored in the old folder (the pages remember a few settings inside the browser itself, not in the
-files), so the old folder can go in the bin.
+To get an updated copy later, do the same steps again and use the new folder. Updates go on the
+same branch, **claude/lucid-dijkstra-gic3gd**, so the steps above do not change. If that name is
+ever missing from the list in step 2, pick each name that starts with claude/ in turn and read the
+Version line at the top of the README shown below the file list; the latest date is the newest copy.
+Before you download, compare that date with the Version line at the top of this file: a later date
+means there is something new, the same date means you already have it. Nothing you typed is stored
+in the old folder (the pages remember a few settings inside the browser itself, not in the files),
+so the old folder can go in the bin.
 
 ## The tools, one at a time
 

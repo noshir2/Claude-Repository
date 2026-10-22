@@ -69,7 +69,7 @@ file. It opens in your browser (Chrome, Edge, Safari, Firefox). No install, no W
 - Start with **Count-in** on: one full cycle plays first so you know the tempo before you begin.
 - **Hide bols** hides the words but keeps the signs, so you recite the theka from memory while the
   highlight moves. **Hide after N cycles** gives you N cycles with the words, then hides them (if "Hide bols" is also
-  ticked, "Hide after N" wins: you still get the N cycles with the words).
+  ticked, "Hide after N" wins: you still get the N cycles with the words). Leave it at 0 to hide straight away.
   **Hide markers too** also hides X / 2 / 0 (and the bols with them): the hardest level, only the
   moving highlight is left. With "Hide after N cycles" it waits for those N cycles as well.
 - **Mute random matras** silences about one matra in three at random, so you have to keep the cycle

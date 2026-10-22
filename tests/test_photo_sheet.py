@@ -194,7 +194,7 @@ def test_page_meets_first_time_user_contract():
     assert "Try it with a drawn face" in HTML and 'id="testface" class="primary"' in HTML
     assert 'id="jpegimg"' in HTML and 'id="sheetimg"' in HTML           # results shown on the page, not only downloaded
     assert "Press and hold (phone) or right-click (PC) the picture and choose Save" in HTML
-    assert "if nothing happens, you are using the online copy" in HTML.lower()
+    assert "if no download appears (phone downloads blocked, or the online copy)" in HTML.lower()
     assert "dpi [" in HTML and "EXIF tag [" in HTML
     # round-3 review: every control has an id, the load error says what to do about phone photo formats,
     # and the file-size error uses the label's own words

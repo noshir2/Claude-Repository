@@ -78,7 +78,7 @@ details{margin:8px 0}summary{cursor:pointer;font-weight:600;min-height:32px}
 </head>
 <body>
 <div class="page">
-<a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
+<a class="back" href="../index.html" onclick="if(history.length>1&&/\/index\.html([?#].*)?$/.test(document.referrer||'')){history.back();return false}">Back to the toolbox</a>
 <h1>Options wheel</h1>
 <p class="lead">One page for the puts and covered calls you sell on Webull: how the trades you already made did, whether a new one is worth selling, whether a roll is worth it, what happens if you are assigned, and whether you can afford assignment this week.</p>
 <p class="privacy">Nothing you type or choose leaves your device. Close the page and it is gone, except the numbers you type in the boxes (never your trade file), which it remembers in this browser so you do not have to retype them.</p>
@@ -1017,6 +1017,7 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
       a = W.analyze(loaded.trades, inputs.today, inputs.assigned, inputs.opening, inputs.prices);
     } catch (err) { showError("results-error", formatErrorBox(err)); out.innerHTML = ""; return; }
     var notes = loaded.warnings.concat(a.warnings);
+    var inFileSymbols = {}; loaded.trades.forEach(function (t) { if (t.option) inFileSymbols[t.symbol] = true; });
     var realized = W.realizedTotal(a), openPrem = W.openPremiumTotal(a), wr = W.winRate(a), ann = W.putReturnAnnualized(a);
     var h = "<p class='mute'>As of " + esc(inputs.todayStr) + ", from " + loaded.trades.length + " filled orders in " + filesLoaded.results.map(function (f) { return esc(f.name); }).join(", ") + ".</p>";
     h += "<p class='verdict'>" + esc(W.verdict(a)) + "</p>";
@@ -1027,7 +1028,15 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     h += "<div class='stat'><span>Other options you bought<span class='meaning'>Contracts you bought to open, which are not wheel trades: what you sold or let expire minus what you paid.</span></span>" + signed(W.totalOf(a, "long_pnl")) + "</div>";
     h += "<div class='stat'><span>Premium on contracts still open<span class='meaning'>Not counted above: it is not yours until the contract ends. If you buy the contract back for more than you got, it turns into a loss.</span></span><b>" + money(openPrem) + "</b></div>";
     if (wr[1]) h += "<div class='stat'><span>Contracts you sold that made money<span class='meaning'>Finished contracts you sold, counted as a win when they ended with cash in your pocket.</span></span><b>" + wr[0] + " of " + wr[1] + " (" + Math.round(wr[0] / wr[1] * 100) + "%)</b></div>";
-    if (ann !== null) h += "<div class='stat'><span>Puts only: yearly rate on the cash set aside<span class='meaning'>Put premium kept per dollar of cash held for the trade per day, scaled to a year. Ignores any gain or loss on shares.</span></span><b>" + pct(ann) + "</b></div>";
+    if (ann !== null) {
+      var putLegs = a.legs.filter(function (l) { return l.direction === "short" && l.right === "P"; });
+      var putPremium = putLegs.reduce(function (s, l) { return s + l.pnl; }, 0);
+      var dollarDays = putLegs.reduce(function (s, l) { return s + W.legCollateral(l) * W.legDays(l); }, 0);
+      h += "<div class='stat'><span>Puts only: yearly rate on the cash set aside<span class='meaning'>Put premium kept per dollar of cash held for the trade per day, scaled to a year. Ignores any gain or loss on shares.</span>" +
+           "<span class='meaning'>What went into this: " + money(putPremium, true) + " kept on " + putLegs.length + " finished put" + (putLegs.length === 1 ? "" : "s") +
+           ", divided by " + money(dollarDays) + " dollar-days (each put's cash set aside, strike x 100 x contracts, times its days open, added up), times 365 = " + pct(ann) +
+           ". The days open and cash set aside for each put are in \"Every finished trade\" below.</span></span><b>" + pct(ann) + "</b></div>";
+    }
 
     h += "<h3>By ticker</h3><div class='wrap'><table><tr><th>Ticker</th><th class='num'>Puts</th><th class='num'>Calls</th><th class='num'>Options bought</th><th class='num'>Shares</th><th class='num'>Total</th></tr>";
     W.rankedTickers(a).forEach(function (t) {
@@ -1036,11 +1045,24 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     h += "</table></div>" + meanings([["Puts", "cash made on puts you sold, after buybacks"], ["Calls", "cash made on covered calls you sold, after buybacks"], ["Options bought", "contracts you bought rather than sold"], ["Shares", "gain or loss on shares sold"], ["Total", "all of those added up"]]);
 
     var held = W.tickerList(a).filter(function (t) { return t.open_shares > 0; });
-    if (!held.length && a.assumed_expired.length) {
-      h += "<p class='mute'>No shares held, so there is no break-even to show. If a put was assigned, see \"Please check\" at the bottom to tell the page; it will then list the shares and their break-even here.</p>";
+    var assumedNames = {}; a.assumed_expired.forEach(function (l) { assumedNames[l.contract] = l; });
+    var assumedList = Object.keys(assumedNames).sort();
+    function plainContract(c) { var l = assumedNames[c]; return l.underlying + " $" + W.fmtG(l.strike) + " " + (l.right === "P" ? "put" : "call") + ", expired " + W.dayToIso(l.expiry); }
+    function assignButtons(prefix) {
+      return "<div>" + assumedList.map(function (c, k) { return "<button type='button' class='assignbtn' data-assign='" + esc(c) + "' id='" + prefix + k + "'>" + esc(plainContract(c)) + ": this one was assigned</button>"; }).join("") + "</div>";
+    }
+    var justAssigned = Object.keys(inputs.assigned).filter(function (s) { return inFileSymbols[s]; });
+    if (!held.length && assumedList.length) {
+      var puts = assumedList.filter(function (c) { return assumedNames[c].right === "P"; }).map(plainContract);
+      h += "<div class='note' id='results-noheld'><b>No shares held, so there is no break-even to show.</b> " +
+           (puts.length ? esc((puts.length === 1 ? "One put (" : puts.length + " puts (") + puts.join("; ") + ") ran past expiry with no buyback in the file. Webull's file does not say if a put was assigned. If one was, you hold those shares: press its button and the shares and their break-even appear here.")
+                        : esc("Every contract in the file ended without shares changing hands, as far as the file shows.")) +
+           assignButtons("results-assign-top-") + "</div>";
     }
     if (held.length) {
-      h += "<h3>Shares you still hold</h3><div class='wrap'><table><tr><th>Ticker</th><th class='num'>Shares</th><th class='num'>Paid each</th><th class='num'>Break-even</th><th class='num'>Worth now</th></tr>";
+      h += "<h3 id='results-held'>Shares you still hold</h3>";
+      if (justAssigned.length) h += "<p class='meaning'>Counted as held because you marked " + esc(justAssigned.map(function (c) { var o = W.parseOptionSymbol(c); return o ? o.underlying + " $" + W.fmtG(o.strike) + " " + (o.right === "P" ? "put" : "call") : c; }).join(", ")) + " as assigned (in the \"Contracts that were assigned\" box above; delete the line there to undo).</p>";
+      h += "<div class='wrap'><table><tr><th>Ticker</th><th class='num'>Shares</th><th class='num'>Paid each</th><th class='num'>Break-even</th><th class='num'>Worth now</th></tr>";
       held.forEach(function (t) {
         var u = W.tickerUnrealized(t);
         h += "<tr><td>" + esc(t.underlying) + "</td><td class='num'>" + W.fmtG(t.open_shares) + "</td><td class='num'>" + money(t.open_cost / t.open_shares) + "</td><td class='num'>" + money(W.tickerBreakeven(t)) + "</td>" + (u === null ? "<td class='num mute'>type a price</td>" : cell(u)) + "</tr>";
@@ -1068,27 +1090,27 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
       var legsNewestFirst = a.legs.slice().reverse(), shown = showAllLegs ? legsNewestFirst : legsNewestFirst.slice(0, LEG_CAP);
       h += "<h3>Every finished trade</h3>";
       if (shown.length < legsNewestFirst.length) h += "<p class='mute'>Showing the most recent " + shown.length + " of " + legsNewestFirst.length + " finished trades. <button type='button' class='quiet small' id='results-show-all'>Show all " + legsNewestFirst.length + "</button></p>";
-      h += "<div class='wrap'><table><tr><th>Finished</th><th>Ticker</th><th>Contract</th><th>How it ended</th><th class='num'>Result</th></tr>";
+      h += "<div class='wrap'><table style='min-width:720px'><tr><th>Opened</th><th>Finished</th><th class='num'>Days open</th><th>Ticker</th><th>Contract</th><th>How it ended</th><th class='num'>Cash set aside</th><th class='num'>Result</th></tr>";
       shown.forEach(function (l) {
-        h += "<tr><td>" + W.dayToIso(l.closed) + "</td><td>" + esc(l.underlying) + "</td><td>$" + W.fmtG(l.strike) + " " + (l.right === "P" ? "put" : "call") + " (" + (l.direction === "short" ? "you sold" : "you bought") + " " + l.qty + ")</td><td>" + esc(l.outcome) + "</td>" + cell(l.pnl) + "</tr>";
+        var isPut = l.direction === "short" && l.right === "P";
+        h += "<tr><td>" + W.dayToIso(l.opened) + "</td><td>" + W.dayToIso(l.closed) + "</td><td class='num'>" + W.legDays(l) + "</td><td>" + esc(l.underlying) + "</td><td>$" + W.fmtG(l.strike) + " " + (l.right === "P" ? "put" : "call") + " (" + (l.direction === "short" ? "you sold" : "you bought") + " " + l.qty + ")</td><td>" + esc(l.outcome) + "</td>" +
+             (isPut ? "<td class='num'>" + money(W.legCollateral(l)) + "</td>" : "<td class='num mute'>n/a</td>") + cell(l.pnl) + "</tr>";
       });
-      h += "</table></div>" + meanings([["expired", "ran past its expiry with no buyback: you kept the whole premium"], ["assigned", "the shares changed hands at the strike"], ["bought back", "you paid to close it; the result is what you received minus what you paid"], ["sold", "an option you had bought, sold again"]]);
+      h += "</table></div>" + meanings([["Opened", "the day you sold (or bought) the contract"], ["Finished", "the day it expired, was assigned, or was bought back"], ["Days open", "Finished minus Opened, counted as at least 1 day; used for the yearly rate above"], ["Cash set aside", "for a put you sold: strike x 100 x contracts, the cash Webull held while it was open (shown as n/a for calls and for options you bought)"], ["expired", "ran past its expiry with no buyback: you kept the whole premium"], ["assigned", "the shares changed hands at the strike"], ["bought back", "you paid to close it; the result is what you received minus what you paid"], ["sold", "an option you had bought, sold again"]]);
     }
 
     var noteHtml = notes.map(function (n) { return "<div class='note'>" + esc(n) + "</div>"; });
-    var inFile = {}; loaded.trades.forEach(function (t) { if (t.option) inFile[t.symbol] = true; });
-    var unknown = Object.keys(inputs.assigned).filter(function (s) { return !inFile[s]; });
+    var unknown = Object.keys(inputs.assigned).filter(function (s) { return !inFileSymbols[s]; });
     if (unknown.length) {
       noteHtml.push("<div class='note'>" + esc("In \"Contracts that were assigned\" you typed " + unknown.join(", ") + ", which " + (unknown.length === 1 ? "is" : "are") +
-                    " not in your file, so the line did nothing. Check the spelling against the contract symbols in \"Every finished trade\" or press one of the buttons below instead.") + "</div>");
+                    " not in your file, so the line did nothing. Check the spelling against the contract symbols listed below, or press one of the buttons instead.") + "</div>");
     }
-    if (a.assumed_expired.length) {
-      var names = {}; a.assumed_expired.forEach(function (l) { names[l.contract] = true; });
-      var list = Object.keys(names).sort();
-      noteHtml.push("<div class='note'>" + esc("I counted " + list.length + " contract" + (list.length === 1 ? "" : "s") + " as expired worthless (you kept the full premium) because the file has no buyback and no matching share purchase or sale. " +
+    if (assumedList.length) {
+      noteHtml.push("<div class='note'>" + esc("I counted " + assumedList.length + " contract" + (assumedList.length === 1 ? "" : "s") + " as expired worthless (you kept the full premium) because the file has no buyback and no matching share purchase or sale. " +
                     "Webull's file does not list assignments. If one of these was really assigned, press its button and the page will count the shares as bought (put) or sold (call) at the strike:") +
-                    "<div>" + list.map(function (c, k) { return "<button type='button' class='assignbtn' data-assign='" + esc(c) + "' id='results-assign-" + k + "'>" + esc(c) + ": this one was assigned</button>"; }).join("") + "</div>" +
-                    "<span class='meaning'>Pressing a button adds the contract to the \"Contracts that were assigned\" box above, so you can undo it there.</span></div>");
+                    assignButtons("results-assign-") +
+                    "<span class='meaning'>Pressing a button adds the contract to the \"Contracts that were assigned\" box above, so you can undo it there. Contract symbols, as that box needs them: " +
+                    esc(assumedList.map(function (c) { return c + " = " + plainContract(c); }).join("; ")) + ".</span></div>");
     }
     if (noteHtml.length) h += "<h3>Please check</h3>" + noteHtml.join("");
     out.innerHTML = h;
@@ -1101,7 +1123,7 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
     if (c) {
       var box = $("results-assigned"), lines = box.value.split(/\r?\n/).map(function (x) { return x.trim().toUpperCase(); });
       if (lines.indexOf(c) < 0) box.value = (box.value.trim() ? box.value.replace(/\s+$/, "") + "\n" : "") + c;
-      persistTracker(); runResults(); scrollTo($("results-out"));
+      persistTracker(); runResults(); scrollTo($("results-held") || $("results-out"));
     }
   });
   $("results-files").addEventListener("change", function () { readFiles(this, "results", "results-files-note", function () { runResults(); runExpiryIfUsingResults(); }); });

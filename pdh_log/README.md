@@ -15,10 +15,12 @@ Open `pdh_log/pdh.html` from the Start here page (`index.html`) or double-click 
 1. Press the big **Try it with example data** button. The page loads a made-up course list and
    shows the verdict at once: hours so far, what is missing, days left, and the rows to fix.
 2. Put in your own courses. Either type them on the page under **Add a course** (one row per
-   course: date, hours, title, provider, category), or scroll down to **Bring a list in** (near the
-   bottom, under Your courses and Back up or move your list) and choose your own spreadsheet file
-   there (a .csv file saved from Excel whose first line is exactly the header listed under "The
-   spreadsheet columns" below). How: in Excel, File > Save As, and pick "CSV UTF-8" as the type.
+   course: date, hours, title, provider, category), or press **Choose my course list (.csv)**, the
+   button next to the example button at the top, and pick your own spreadsheet file (a .csv file
+   saved from Excel whose first line is exactly the header listed under "The spreadsheet columns"
+   below; not sure? choose it anyway, the page tells you what to fix). How: in Excel, File > Save
+   As, and pick "CSV UTF-8" as the type. The same chooser is also under **Bring a list in** near
+   the bottom, next to a box you can paste copied text into.
 3. Read the verdict sentence, then the tables under it. Every number has a one-line meaning next
    to it.
 
