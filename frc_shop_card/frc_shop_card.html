@@ -347,7 +347,7 @@ kbd{font:.85em ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line
 </head>
 <body>
 <header>
-  <a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
+  <a class="back" href="../index.html" onclick="var r=document.referrer||'';if(history.length>1&&r&&r.indexOf(location.origin)===0&&r!==location.href){history.back();return false}">Back to the toolbox</a>
   <h1>Robotics electrical card</h1>
   <p>The wiring rules, battery math, reference tables and flashcards a FIRST Robotics (FRC) electrical mentor gets asked about, on one page that works without the internet.</p>
   <p class="mute small">Nothing you type or choose leaves your device. Close the page and it is gone, except the few settings it remembers in this browser (flashcard progress, the tab you were on, the print week and seed).</p>
@@ -626,7 +626,7 @@ var FRC = (function () {
   }
   function ohmsLaw(volts, amps, ohms) {
     var given = [volts, amps, ohms].filter(function (x) { return x != null && x !== ""; }).length;
-    if (given !== 2) throw new Error("give exactly two of volts, amps, ohms");
+    if (given !== 2) throw new Error("fill in two of the three boxes (volts, amps, ohms) and leave the third empty; it is worked out from the other two");
     if (volts == null || volts === "") volts = notNegative("amps", amps) * notNegative("ohms", ohms);
     else if (amps == null || amps === "") amps = notNegative("volts", volts) / positive("ohms", ohms);
     else ohms = notNegative("volts", volts) / positive("amps", amps);

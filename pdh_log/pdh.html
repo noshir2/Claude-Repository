@@ -100,7 +100,7 @@ input[aria-invalid="true"]{border-color:var(--bad);border-width:2px}
 </head>
 <body>
 <div class="wrap">
-<a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
+<a class="back" href="../index.html" onclick="var r=document.referrer||'';if(history.length>1&&r&&r.indexOf(location.origin)===0&&r!==location.href){history.back();return false}">Back to the toolbox</a>
 
 <h1>PE continuing-education log</h1>
 <p>Keep a list of the courses you have taken and see at a glance whether your Illinois PE license renewal has the hours it needs and what is still missing.</p>

@@ -67,7 +67,7 @@
 </head>
 <body>
 <main>
-  <a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
+  <a class="back" href="../index.html" onclick="var r=document.referrer||'';if(history.length>1&&r&&r.indexOf(location.origin)===0&&r!==location.href){history.back();return false}">Back to the toolbox</a>
   <h1>Passport Photo Sheet</h1>
   <p>Turns an ordinary photo into a passport picture: a file at the size an online form asks for, or a 4 x 6 inch sheet of six copies to print.</p>
   <p class="privacy">Nothing you type or choose leaves your device. Close the page and it is gone, except the size you last picked, which it remembers in this browser. <b>Your photo never leaves this browser: nothing is uploaded.</b></p>

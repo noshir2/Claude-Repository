@@ -222,7 +222,7 @@ button:active{transform:scale(.98)}
 </style>
 </head>
 <body>
-<a class="back" href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a>
+<a class="back" href="../index.html" onclick="var r=document.referrer||'';if(history.length>1&&r&&r.indexOf(location.origin)===0&&r!==location.href){history.back();return false}">Back to the toolbox</a>
 <h1>Taal Trainer</h1>
 <p>A practice metronome for Indian classical music: it counts every beat of a taal [a rhythm cycle] out loud and on screen, so you can clap, wave and recite along with it.</p>
 <p class="mute small">Nothing you type or choose leaves your device. Close the page and it is gone, except the few settings it remembers in this browser (your last taal, the tempo, practice minutes per day and the game's best score).</p>
@@ -274,8 +274,8 @@ button:active{transform:scale(.98)}
   <label for="bpm" class="tempolabel"><b>Tempo</b> <span class="small mute">how fast the beats come; drag the slider or use - and +</span></label>
   <input type="range" id="bpm" min="30" max="300" step="1" value="80" aria-label="Tempo in matras per minute">
   <div class="tempo">
-    <button id="bpm-minus" type="button" aria-label="Slower">-</button>
-    <button id="bpm-plus" type="button" aria-label="Faster">+</button>
+    <button id="bpm-minus" type="button" aria-label="Slower by 5" title="5 slower">-5</button>
+    <button id="bpm-plus" type="button" aria-label="Faster by 5" title="5 faster">+5</button>
     <button id="tap" type="button" class="tapbtn">Tap tempo</button>
     <span id="tapinfo" class="small mute"></span>
   </div>
@@ -491,7 +491,9 @@ button:active{transform:scale(.98)}
     var c = document.getElementById('m' + b.matra); if (c) c.classList.add('now');
     S.lastShown = b.matra;
     var k = soundFor(t, b.matra);
-    el.rMarker.textContent = markerFor(t, b.matra) || ' ';
+    var mk = markerFor(t, b.matra) || ' ';
+    if (b.matra === t.sam) mk = mk + (mk === '0' ? ' \u00b7 sam (a wave)' : ' \u00b7 sam');
+    el.rMarker.textContent = mk;
     el.rMarker.className = 'marker ' + kindClass(k);
     el.rBol.textContent = t.bols[b.matra - 1];
     el.rWhere.textContent = 'matra ' + b.matra + ' of ' + t.matras;
@@ -658,8 +660,8 @@ button:active{transform:scale(.98)}
   el.startstop.addEventListener('click', toggle);
   el.startstopTop.addEventListener('click', toggleFromTop);
   el.bpm.addEventListener('input', function () { setBpm(el.bpm.value); });
-  el.bpmMinus.addEventListener('click', function () { setBpm(S.bpm - 1); });
-  el.bpmPlus.addEventListener('click', function () { setBpm(S.bpm + 1); });
+  el.bpmMinus.addEventListener('click', function () { setBpm(S.bpm - 5); });
+  el.bpmPlus.addEventListener('click', function () { setBpm(S.bpm + 5); });
   el.tap.addEventListener('click', tap);
   el.samtap.addEventListener('click', samTap);
   el.resetMin.addEventListener('click', function () { el.resetMinMsg.hidden = true; el.resetMinConfirm.hidden = false; });

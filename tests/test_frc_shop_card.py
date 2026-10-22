@@ -114,7 +114,7 @@ def test_ohms_law_and_i2t():
     assert calc.ohms_law(volts=12, ohms=4) == {"volts": 12, "amps": 3, "ohms": 4, "watts": 36}
     assert calc.ohms_law(amps=2, ohms=5)["volts"] == 10
     assert calc.ohms_law(volts=10, amps=4)["ohms"] == 2.5
-    with pytest.raises(ValueError, match="exactly two"):
+    with pytest.raises(ValueError, match="two of the three"):
         calc.ohms_law(volts=1)
     assert calc.i2t(60, 2)["i2t"] == 7200
     assert report.i2t_sentence(calc.i2t(60, 2)).startswith("60 A for 2 s: I^2t = 7,200 A^2-s.")

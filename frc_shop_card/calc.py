@@ -136,7 +136,7 @@ def ohms_law(volts: float | None = None, amps: float | None = None, ohms: float 
     """Give any two of V, I, R; get the third and the power."""
     given = [x is not None for x in (volts, amps, ohms)]
     if sum(given) != 2:
-        raise ValueError("give exactly two of volts, amps, ohms")
+        raise ValueError("fill in two of the three boxes (volts, amps, ohms) and leave the third empty; it is worked out from the other two")
     if volts is None:
         volts = not_negative("amps", amps) * not_negative("ohms", ohms)
     elif amps is None:

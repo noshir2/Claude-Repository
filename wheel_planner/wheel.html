@@ -78,7 +78,7 @@ details{margin:8px 0}summary{cursor:pointer;font-weight:600;min-height:32px}
 </head>
 <body>
 <div class="page">
-<a class="back" href="../index.html" onclick="if(history.length>1&&/\/index\.html([?#].*)?$/.test(document.referrer||'')){history.back();return false}">Back to the toolbox</a>
+<a class="back" href="../index.html" onclick="var r=document.referrer||'';if(history.length>1&&r&&r.indexOf(location.origin)===0&&r!==location.href){history.back();return false}">Back to the toolbox</a>
 <h1>Options wheel</h1>
 <p class="lead">One page for the puts and covered calls you sell on Webull: how the trades you already made did, whether a new one is worth selling, whether a roll is worth it, what happens if you are assigned, and whether you can afford assignment this week.</p>
 <p class="privacy">Nothing you type or choose leaves your device. Close the page and it is gone, except the numbers you type in the boxes (never your trade file), which it remembers in this browser so you do not have to retype them.</p>
@@ -175,7 +175,7 @@ details{margin:8px 0}summary{cursor:pointer;font-weight:600;min-height:32px}
 <ol class="steps">
   <li>From your open position in Webull, note the put you have now: its strike, expiry, the premium you received, and the price to buy it back now (the ask).</li>
   <li>From the option chain, note the new put you would sell: strike, expiry, and the premium you would receive (the bid).</li>
-  <li>Press "Check the roll" and read the first sentence.</li>
+  <li>Press "Check the roll" and read the first sentence. (After "Try it with example data" the answer is already shown.)</li>
 </ol>
 <div class="card">
   <h3>The put you have now</h3>
@@ -1097,6 +1097,15 @@ if (typeof module !== "undefined" && module.exports) { module.exports = WHEEL; }
              (isPut ? "<td class='num'>" + money(W.legCollateral(l)) + "</td>" : "<td class='num mute'>n/a</td>") + cell(l.pnl) + "</tr>";
       });
       h += "</table></div>" + meanings([["Opened", "the day you sold (or bought) the contract"], ["Finished", "the day it expired, was assigned, or was bought back"], ["Days open", "Finished minus Opened, counted as at least 1 day; used for the yearly rate above"], ["Cash set aside", "for a put you sold: strike x 100 x contracts, the cash Webull held while it was open (shown as n/a for calls and for options you bought)"], ["expired", "ran past its expiry with no buyback: you kept the whole premium"], ["assigned", "the shares changed hands at the strike"], ["bought back", "you paid to close it; the result is what you received minus what you paid"], ["sold", "an option you had bought, sold again"]]);
+    }
+
+    if (a.stock_sales.length) {
+      h += "<h3>Shares you sold</h3><p class='mute'>These make up the share gains above. Each sale is matched with the oldest shares you still held (first in, first out).</p>";
+      h += "<div class='wrap'><table style='min-width:520px'><tr><th>Sold on</th><th>Ticker</th><th class='num'>Shares</th><th class='num'>Sold at</th><th class='num'>Paid each</th><th class='num'>Result</th></tr>";
+      a.stock_sales.forEach(function (s) {
+        h += "<tr><td>" + W.dayToIso(s.date) + "</td><td>" + esc(s.underlying) + "</td><td class='num'>" + W.fmtG(s.qty) + "</td><td class='num'>" + money(s.sell_price) + "</td><td class='num'>" + money(s.cost_price) + "</td>" + cell(s.pnl) + "</tr>";
+      });
+      h += "</table></div>";
     }
 
     var noteHtml = notes.map(function (n) { return "<div class='note'>" + esc(n) + "</div>"; });

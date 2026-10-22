@@ -73,7 +73,7 @@ pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;paddi
 </head>
 <body>
 <div class="page">
-<p><a href="../index.html" onclick="if(history.length>1){history.back();return false}">Back to the toolbox</a></p>
+<p><a href="../index.html" onclick="var r=document.referrer||'';if(history.length>1&&r&&r.indexOf(location.origin)===0&&r!==location.href){history.back();return false}">Back to the toolbox</a></p>
 
 <h1>Fantasy Lineup Helper</h1>
 <p>Tells you who to start this week, whether a trade helps your starting lineup, and which free-agent pickup adds the most, using the projection files you download from FantasyPros and your own league's scoring.</p>
